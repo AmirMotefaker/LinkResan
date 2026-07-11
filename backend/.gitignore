@@ -1,0 +1,14 @@
+# Environment variables
+.env
+
+# Go binaries
+backend
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# IDE folders
+.vscode/
+.idea/
