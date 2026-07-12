@@ -60,4 +60,3 @@ GET /:code
 
 ---
 توسعه‌دهنده: [AmirMotefaker](https://github.com/AmirMotefaker)
-```
