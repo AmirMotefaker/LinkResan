@@ -13,11 +13,10 @@ var Ctx = context.Background()
 func ConnectRedis(cfg *config.Config) *redis.Client {
     rdb := redis.NewClient(&redis.Options{
         Addr:     cfg.RedisAddr,
-        Password: cfg.RedisPassword,
-        DB:       0, // استفاده از دیتابیس پیش‌فرض Redis
+        Password: cfg.RedisPassword, // پسورد ردیس ابری
+        DB:       0,
     })
 
-    // تست اتصال
     _, err := rdb.Ping(Ctx).Result()
     if err != nil {
         log.Fatalf("Failed to connect to Redis: %v", err)

@@ -8,14 +8,9 @@ import (
 )
 
 type Config struct {
-    DBHost        string
-    DBPort        string
-    DBUser        string
-    DBPassword    string
-    DBName        string
-    DBSSLMode     string
-    ServerPort    string
-    RedisAddr     string
+    DatabaseURL  string // آدرس کامل پستگرس ابری
+    Port         string // پورتی که هاست ابری به ما میدهد
+    RedisAddr    string
     RedisPassword string
 }
 
@@ -26,14 +21,9 @@ func LoadConfig() *Config {
     }
 
     return &Config{
-        DBHost:        getEnv("DB_HOST", "localhost"),
-        DBPort:        getEnv("DB_PORT", "5432"),
-        DBUser:        getEnv("DB_USER", "postgres"),
-        DBPassword:    getEnv("DB_PASSWORD", ""),
-        DBName:        getEnv("DB_NAME", "linkresan_db"),
-        DBSSLMode:     getEnv("DB_SSLMODE", "disable"),
-        ServerPort:    getEnv("SERVER_PORT", "8080"),
-        RedisAddr:     getEnv("REDIS_ADDR", "localhost:6379"),
+        DatabaseURL:  getEnv("DATABASE_URL", "postgres://postgres:your_password@localhost:5432/linkresan_db?sslmode=disable"),
+        Port:         getEnv("PORT", "8080"), // هاست‌های ابری معمولا متغیر PORT را میدهند
+        RedisAddr:    getEnv("REDIS_ADDR", "localhost:6379"),
         RedisPassword: getEnv("REDIS_PASSWORD", ""),
     }
 }
