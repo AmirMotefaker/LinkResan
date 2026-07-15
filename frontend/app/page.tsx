@@ -85,7 +85,7 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center bg-white text-gray-900 px-4">
       
-      {/* هدر مینیمال */}
+            {/* هدر مینیمال */}
       <header className="w-full max-w-6xl flex justify-between items-center py-6">
         <div className="flex items-center gap-2">
           <div className="bg-black p-2 rounded-lg">
@@ -95,16 +95,21 @@ export default function Home() {
         </div>
         <div className="flex gap-4 items-center">
           {isLoggedIn ? (
-            <button onClick={handleLogout} className="px-5 py-2 text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors">
-              خروج
-            </button>
+            <>
+              <button onClick={() => router.push("/dashboard")} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                داشبورد
+              </button>
+              <button onClick={handleLogout} className="px-5 py-2 text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors">
+                خروج
+              </button>
+            </>
           ) : (
             <>
               <button onClick={() => router.push("/login")} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
                 ورود
               </button>
               <button onClick={() => router.push("/login")} className="px-5 py-2 text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors">
-                داشبورد
+                ثبت‌نام
               </button>
             </>
           )}
