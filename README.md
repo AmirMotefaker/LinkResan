@@ -107,34 +107,3 @@ npm run dev
 ## 📄 لایسنس
 این پروژه تحت لایسنس MIT منتشر شده است و استفاده از آن برای همه آزاد است.
 ```
-
----
-
-#### ۲. آماده‌سازی فایل `.gitignore` نهایی
-مطمئن شوید فایل `.gitignore` در پوشه اصلی پروژه (`C:\Projects\LinkResan\.gitignore`) این محتوا را داشته باشد تا فایل‌های حساس لو نروند:
-
-```text
-# dependencies
-node_modules/
-
-# next.js
-frontend/.next/
-frontend/out/
-
-# production
-backend/backend
-backend/*.exe
-
-# environment variables
-.env
-backend/.env
-frontend/.env*
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-```

@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+
+# next.js
+frontend/.next/
+frontend/out/
+
+# production
+backend/backend
+backend/*.exe
+
+# environment variables
+.env
+backend/.env
+frontend/.env*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
