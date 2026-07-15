@@ -10,6 +10,7 @@ type LinkRepository interface {
     FindByShortCode(code string) (*models.Link, error)
     CreateClick(click *models.Click) error
     IncrementClickCount(linkID uint) error
+    FindByUserID(userID uint) ([]models.Link, error) // اضافه شد
 }
 
 type linkRepository struct {
@@ -39,4 +40,14 @@ func (r *linkRepository) CreateClick(click *models.Click) error {
 
 func (r *linkRepository) IncrementClickCount(linkID uint) error {
     return r.db.Model(&models.Link{}).Where("id = ?", linkID).UpdateColumn("click_count", gorm.Expr("click_count + ?", 1)).Error
+}
+
+// تابع جدید برای داشبورد
+func (r *linkRepository) FindByUserID(userID uint) ([]models.Link, error) {
+    var links []models.Link
+    err := r.db.Where("user_id = ?", userID).Order("created_at desc").Find(&links).Error
+    if err != nil {
+        return nil, err
+    }
+    return links, nil
 }

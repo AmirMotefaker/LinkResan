@@ -52,8 +52,10 @@ func main() {
     api.Post("/register", authHandler.Register)
     api.Post("/login", authHandler.Login)
 
-    // روت ساخت لینک (محافظت شده! فقط کاربران لاگین شده با توکن معتبر می‌توانند لینک بسازند)
+    // روت‌های محافظت شده (نیازمند توکن JWT)
+    // فقط کاربران لاگین شده می‌توانند لینک بسازند یا لینک‌هایشان را ببینند
     api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)
+    api.Get("/links", middleware.Protected(), linkHandler.GetUserLinks) // روت داشبورد
 
     // روت ریدایرکت (باز است برای همه کاربران اینترنت)
     app.Get("/:code", linkHandler.ResolveShortLink)
