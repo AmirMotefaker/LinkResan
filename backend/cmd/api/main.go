@@ -11,6 +11,7 @@ import (
     "github.com/AmirMotefaker/LinkResan/backend/internal/repositories"
     "github.com/AmirMotefaker/LinkResan/backend/internal/services"
     "github.com/gofiber/fiber/v2"
+    "github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
@@ -26,6 +27,13 @@ func main() {
         AppName:      "LinkResan API v1.0",
         ServerHeader: "Fiber",
     })
+
+    // تنظیمات CORS برای ارتباط با فرانت‌اند Next.js
+    app.Use(cors.New(cors.Config{
+        AllowOrigins: "http://localhost:3000, http://127.0.0.1:3000",
+        AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+        AllowMethods: "GET, POST, HEAD, PUT, DELETE, PATCH",
+    }))
 
     // --- تزریق وابستگی‌ها (Dependency Injection) ---
     linkRepo := repositories.NewLinkRepository(database.DB)
@@ -53,9 +61,8 @@ func main() {
     api.Post("/login", authHandler.Login)
 
     // روت‌های محافظت شده (نیازمند توکن JWT)
-    // فقط کاربران لاگین شده می‌توانند لینک بسازند یا لینک‌هایشان را ببینند
     api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)
-    api.Get("/links", middleware.Protected(), linkHandler.GetUserLinks) // روت داشبورد
+    api.Get("/links", middleware.Protected(), linkHandler.GetUserLinks)
 
     // روت ریدایرکت (باز است برای همه کاربران اینترنت)
     app.Get("/:code", linkHandler.ResolveShortLink)
