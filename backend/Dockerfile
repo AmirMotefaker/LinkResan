@@ -1,5 +1,5 @@
-# استفاده از نسخه سبک گولنگ
-FROM golang:1.22-alpine AS builder
+# استفاده از نسخه سبک گولنگ (آپدیت شد به 1.25)
+FROM golang:1.25-alpine AS builder
 
 # تنظیم پوشه کاری
 WORKDIR /app
@@ -11,7 +11,7 @@ RUN go mod download
 # کپی بقیه کدها
 COPY . .
 
-# کامپایل کردن برنامه (CGO_DISABLED برای دیتابیس ابری ضروری است)
+# کامپایل کردن برنامه
 RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/api
 
 # استفاده از یک ایمیج بسیار سبک برای اجرا
