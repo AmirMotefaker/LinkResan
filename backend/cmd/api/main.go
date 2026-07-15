@@ -28,9 +28,9 @@ func main() {
         ServerHeader: "Fiber",
     })
 
-    // تنظیمات CORS برای ارتباط با فرانت‌اند Next.js
+    // تنظیمات CORS برای ارتباط با هر دامنه‌ای (برای دیپلوی)
     app.Use(cors.New(cors.Config{
-        AllowOrigins: "http://localhost:3000, http://127.0.0.1:3000",
+        AllowOrigins: "*",
         AllowHeaders: "Origin, Content-Type, Accept, Authorization",
         AllowMethods: "GET, POST, HEAD, PUT, DELETE, PATCH",
     }))
