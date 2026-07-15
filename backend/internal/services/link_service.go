@@ -1,12 +1,21 @@
 package services
 
 import (
+    "context"
+    "encoding/json"
     "math/rand"
     "time"
 
     "github.com/AmirMotefaker/LinkResan/backend/internal/models"
     "github.com/AmirMotefaker/LinkResan/backend/internal/repositories"
+    "github.com/redis/go-redis/v9"
 )
+
+// ساختار داده‌ای که در Redis کش می‌شود
+type CachedLink struct {
+    ID          uint   `json:"id"`
+    OriginalURL string `json:"original_url"`
+}
 
 type LinkService interface {
     CreateShortLink(originalURL string) (*models.Link, error)
@@ -14,11 +23,12 @@ type LinkService interface {
 }
 
 type linkService struct {
-    linkRepo repositories.LinkRepository
+    linkRepo    repositories.LinkRepository
+    redisClient *redis.Client
 }
 
-func NewLinkService(linkRepo repositories.LinkRepository) LinkService {
-    return &linkService{linkRepo: linkRepo}
+func NewLinkService(linkRepo repositories.LinkRepository, rdb *redis.Client) LinkService {
+    return &linkService{linkRepo: linkRepo, redisClient: rdb}
 }
 
 func generateShortCode() string {
@@ -50,25 +60,56 @@ func (s *linkService) CreateShortLink(originalURL string) (*models.Link, error) 
     return link, nil
 }
 
-// منطق ریدایرکت و ثبت کلیک
 func (s *linkService) ResolveShortLink(shortCode, ipAddress, userAgent, referrer string) (*models.Link, error) {
-    // ۱. پیدا کردن لینک در دیتابیس
+    ctx := context.Background()
+    cacheKey := "shortlink:" + shortCode
+
+    // ۱. بررسی اینکه آیا لینک در Redis وجود دارد؟
+    val, err := s.redisClient.Get(ctx, cacheKey).Result()
+    if err == nil {
+        // کش هیت (Cache Hit): لینک در Redis پیدا شد!
+        var cached CachedLink
+        if json.Unmarshal([]byte(val), &cached) == nil {
+            link := &models.Link{
+                ID:          cached.ID,
+                OriginalURL: cached.OriginalURL,
+            }
+
+            // ثبت کلیک به صورت ناهمگام (بدون متوقف کردن ریدایرکت)
+            go s.trackClick(link.ID, ipAddress, userAgent, referrer)
+
+            return link, nil
+        }
+    }
+
+    // ۲. کش میس (Cache Miss): لینک در Redis نبود، پس از دیتابیس می‌خوانیم
     link, err := s.linkRepo.FindByShortCode(shortCode)
     if err != nil {
         return nil, err
     }
 
-    // ۲. ثبت اطلاعات کلیک کاربر
+    // ۳. ذخیره لینک در Redis برای دفعات بعدی (با زمان انقضا ۱ ساعته)
+    cachedData := CachedLink{
+        ID:          link.ID,
+        OriginalURL: link.OriginalURL,
+    }
+    jsonData, _ := json.Marshal(cachedData)
+    s.redisClient.Set(ctx, cacheKey, jsonData, 1*time.Hour)
+
+    // ثبت کلیک به صورت ناهمگام
+    go s.trackClick(link.ID, ipAddress, userAgent, referrer)
+
+    return link, nil
+}
+
+// تابع ثبت کلیک که در بک‌گراند اجرا می‌شود
+func (s *linkService) trackClick(linkID uint, ipAddress, userAgent, referrer string) {
     click := &models.Click{
-        LinkID:    link.ID,
+        LinkID:    linkID,
         IPAddress: ipAddress,
         UserAgent: userAgent,
         Referrer:  referrer,
     }
-
-    // ۳. آپدیت کردن تعداد کلیک‌ها
     _ = s.linkRepo.CreateClick(click)
-    _ = s.linkRepo.IncrementClickCount(link.ID)
-
-    return link, nil
+    _ = s.linkRepo.IncrementClickCount(linkID)
 }

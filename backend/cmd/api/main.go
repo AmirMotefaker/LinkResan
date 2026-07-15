@@ -3,22 +3,25 @@ package main
 import (
     "log"
 
+    "github.com/AmirMotefaker/LinkResan/backend/internal/cache"
     "github.com/AmirMotefaker/LinkResan/backend/internal/config"
     "github.com/AmirMotefaker/LinkResan/backend/internal/database"
     "github.com/AmirMotefaker/LinkResan/backend/internal/handlers"
+    "github.com/AmirMotefaker/LinkResan/backend/internal/middleware"
     "github.com/AmirMotefaker/LinkResan/backend/internal/repositories"
     "github.com/AmirMotefaker/LinkResan/backend/internal/services"
     "github.com/gofiber/fiber/v2"
 )
 
 func main() {
-    // ۱. بارگذاری تنظیمات
+    // ۱. بارگذاری تنظیمات (.env)
     cfg := config.LoadConfig()
 
-    // ۲. اتصال به دیتابیس
+    // ۲. اتصال به دیتابیس‌ها (PostgreSQL و Redis)
     database.Connect(cfg)
+    rdb := cache.ConnectRedis(cfg)
 
-    // ۳. راه‌اندازی سرور
+    // ۳. راه‌اندازی سرور Fiber
     app := fiber.New(fiber.Config{
         AppName:      "LinkResan API v1.0",
         ServerHeader: "Fiber",
@@ -26,13 +29,18 @@ func main() {
 
     // --- تزریق وابستگی‌ها (Dependency Injection) ---
     linkRepo := repositories.NewLinkRepository(database.DB)
-    linkService := services.NewLinkService(linkRepo)
+    userRepo := repositories.NewUserRepository(database.DB)
+
+    linkService := services.NewLinkService(linkRepo, rdb) // سرویس لینک با قابلیت کش ردیس
+    authService := services.NewAuthService(userRepo)      // سرویس احراز هویت
+
     linkHandler := handlers.NewLinkHandler(linkService)
+    authHandler := handlers.NewAuthHandler(authService)
 
     // --- تعریف مسیرها (Routes) ---
     api := app.Group("/api")
 
-    // روت سلامت سرور
+    // روت تست سلامت سرور
     api.Get("/health", func(c *fiber.Ctx) error {
         return c.JSON(fiber.Map{
             "status":  "success",
@@ -40,13 +48,17 @@ func main() {
         })
     })
 
-    // روت ساخت لینک کوتاه (POST /api/links)
-    api.Post("/links", linkHandler.CreateShortLink)
+    // روت‌های احراز هویت (باز برای همه)
+    api.Post("/register", authHandler.Register)
+    api.Post("/login", authHandler.Login)
 
-	// روت ریدایرکت (GET /:code)
+    // روت ساخت لینک (محافظت شده! فقط کاربران لاگین شده با توکن معتبر می‌توانند لینک بسازند)
+    api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)
+
+    // روت ریدایرکت (باز است برای همه کاربران اینترنت)
     app.Get("/:code", linkHandler.ResolveShortLink)
 
-    // ۴. شروع سرور
+    // ۴. شروع به گوش دادن به پورت
     log.Printf("Server starting on port %s...", cfg.ServerPort)
     log.Fatal(app.Listen(":" + cfg.ServerPort))
 }
