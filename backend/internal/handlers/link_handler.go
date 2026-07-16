@@ -1,6 +1,8 @@
 package handlers
 
 import (
+    "time"
+
     "github.com/AmirMotefaker/LinkResan/backend/internal/services"
     "github.com/gofiber/fiber/v2"
 )
@@ -14,8 +16,10 @@ func NewLinkHandler(linkService services.LinkService) *LinkHandler {
 }
 
 type CreateLinkRequest struct {
-    OriginalURL string `json:"original_url"`
-    CustomCode  string `json:"custom_code"`
+    OriginalURL string     `json:"original_url"`
+    CustomCode  string     `json:"custom_code"`
+    ExpiresAt   *time.Time `json:"expires_at"`  // فرمت: ISO 8601 (YYYY-MM-DDTHH:MM:SSZ)
+    ClickLimit  *int       `json:"click_limit"` // عدد صحیح
 }
 
 func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
@@ -30,7 +34,7 @@ func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
 
     userID := c.Locals("user_id").(float64)
 
-    link, err := h.linkService.CreateShortLink(uint(userID), req.OriginalURL, req.CustomCode)
+    link, err := h.linkService.CreateShortLink(uint(userID), req.OriginalURL, req.CustomCode, req.ExpiresAt, req.ClickLimit)
     if err != nil {
         return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
     }
@@ -81,14 +85,15 @@ func (h *LinkHandler) ResolveShortLink(c *fiber.Ctx) error {
 
     link, err := h.linkService.ResolveShortLink(shortCode, ipAddress, userAgent, referrer)
     if err != nil {
-        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Link not found or expired"})
+        // اگر لینک منقضی شده بود یا به حد نصاب رسیده بود
+        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+            "error": "Link not found, expired, or reached click limit",
+        })
     }
 
-    // اضافه کردن هدرهای ضد کش (Anti-Caching) برای ثبت 100% دقیق آمار
     c.Set("Cache-Control", "no-cache, no-store, must-revalidate")
     c.Set("Pragma", "no-cache")
     c.Set("Expires", "0")
 
-    // کد 302 برای ریدایرکت
     return c.Redirect(link.OriginalURL, fiber.StatusFound)
 }

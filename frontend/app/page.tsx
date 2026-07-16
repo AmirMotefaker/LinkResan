@@ -16,6 +16,11 @@ export default function Home() {
   
   const [customCode, setCustomCode] = useState("");
   const [showCustomField, setShowCustomField] = useState(false);
+  
+  // متغیرهای تنظیمات پیشرفته
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [expirationDate, setExpirationDate] = useState("");
+  const [clickLimit, setClickLimit] = useState("");
 
   const router = useRouter();
 
@@ -43,16 +48,26 @@ export default function Home() {
     const token = localStorage.getItem("token");
 
     try {
+      // آماده‌سازی داده‌های تنظیمات پیشرفته
+      const bodyData: any = { 
+        original_url: url,
+        custom_code: customCode 
+      };
+
+      if (expirationDate) {
+        bodyData.expires_at = new Date(expirationDate).toISOString();
+      }
+      if (clickLimit) {
+        bodyData.click_limit = parseInt(clickLimit);
+      }
+
       const res = await fetch(`${API_URL}/links`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
-          original_url: url,
-          custom_code: customCode 
-        }),
+        body: JSON.stringify(bodyData),
       });
 
       const data = await res.json();
@@ -62,8 +77,12 @@ export default function Home() {
       }
 
       setShortUrl(data.short_url);
+      // پاک کردن فیلدها
       setCustomCode("");
       setShowCustomField(false);
+      setExpirationDate("");
+      setClickLimit("");
+      setShowAdvanced(false);
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -92,7 +111,7 @@ export default function Home() {
   return (
     <main className="h-screen flex flex-col items-center bg-white text-gray-900 px-4 overflow-hidden">
       
-      {/* هدر مینیمال (لوگو آبی بدون کادر) */}
+      {/* هدر مینیمال */}
       <header className="w-full max-w-6xl flex justify-between items-center py-4 flex-shrink-0">
         <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
           <Link2 className="w-7 h-7 text-blue-600" />
@@ -140,13 +159,22 @@ export default function Home() {
             required
           />
 
-          <button 
-            type="button" 
-            onClick={() => setShowCustomField(!showCustomField)}
-            className="text-xs text-gray-500 hover:text-indigo-600 mt-3 mb-2 cursor-pointer"
-          >
-            {showCustomField ? "حذف نام دلخواه" : "می‌خواهم نام لینک را خودم انتخاب کنم"}
-          </button>
+          <div className="flex gap-4 mt-3 mb-2">
+            <button 
+              type="button" 
+              onClick={() => setShowCustomField(!showCustomField)}
+              className="text-xs text-gray-500 hover:text-indigo-600 cursor-pointer"
+            >
+              {showCustomField ? "حذف نام دلخواه" : "نام دلخواه"}
+            </button>
+            <button 
+              type="button" 
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="text-xs text-gray-500 hover:text-indigo-600 cursor-pointer"
+            >
+              {showAdvanced ? "حذف تنظیمات پیشرفته" : "تنظیمات پیشرفته"}
+            </button>
+          </div>
 
           {showCustomField && (
             <div className="w-full flex items-center gap-2 bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 mb-3">
@@ -158,6 +186,30 @@ export default function Home() {
                 onChange={(e) => setCustomCode(e.target.value)}
                 className="w-full h-12 bg-transparent outline-none text-sm placeholder:text-gray-400"
               />
+            </div>
+          )}
+
+          {showAdvanced && (
+            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+              <div className="flex flex-col items-start gap-1 bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-2">
+                <label className="text-xs text-gray-500">تاریخ انقضا</label>
+                <input
+                  type="datetime-local"
+                  value={expirationDate}
+                  onChange={(e) => setExpirationDate(e.target.value)}
+                  className="w-full h-8 bg-transparent outline-none text-sm text-gray-700"
+                />
+              </div>
+              <div className="flex flex-col items-start gap-1 bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-2">
+                <label className="text-xs text-gray-500">محدودیت کلیک (اختیاری)</label>
+                <input
+                  type="number"
+                  placeholder="مثلا: 100"
+                  value={clickLimit}
+                  onChange={(e) => setClickLimit(e.target.value)}
+                  className="w-full h-8 bg-transparent outline-none text-sm placeholder:text-gray-400"
+                />
+              </div>
             </div>
           )}
           
@@ -194,7 +246,7 @@ export default function Home() {
         ))}
       </section>
 
-      {/* فوتر با رنگ‌های سفارشی */}
+      {/* فوتر */}
       <footer className="pb-6 text-gray-500 text-sm text-center flex-shrink-0">
         ساخته شده با ❤️ برای توسعه‌دهندگان ایرانی توسط{" "}
         <a href="https://amirmotefaker.ir/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-500 hover:text-red-600 transition-colors">
