@@ -6,6 +6,7 @@ import { Link2, Zap, Shield, BarChart2, Loader2, Copy, Check } from "lucide-reac
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import TimePicker from "react-multi-date-picker/plugins/time_picker"; // پلاگین ساعت اضافه شد
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -203,7 +204,7 @@ export default function Home() {
 
           {showAdvanced && (
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-              {/* تقویم شمسی و ساعت */}
+              {/* تقویم شمسی با پلاگین ساعت */}
               <div className="flex flex-col items-start gap-1 bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-2">
                 <label className="text-xs text-gray-500 mb-1">تاریخ و ساعت انقضا (شمسی)</label>
                 <DatePicker
@@ -212,7 +213,9 @@ export default function Home() {
                   calendar={persian}
                   locale={persian_fa}
                   format="YYYY/MM/DD HH:mm"
-                  timePicker
+                  plugins={[
+                    <TimePicker position="bottom" hideSeconds /> // ساعت زیبا در پایین تقویم
+                  ]}
                   className="w-full bg-transparent outline-none text-sm text-gray-700"
                   inputClass="w-full bg-transparent outline-none text-sm text-gray-700"
                 />
