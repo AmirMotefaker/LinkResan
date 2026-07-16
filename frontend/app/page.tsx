@@ -3,8 +3,23 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Link2, Zap, Shield, BarChart2, Loader2, Copy, Check } from "lucide-react";
+import DatePicker from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+// تابع تبدیل اعداد انگلیسی به فارسی
+const toFa = (num: any) => {
+  if (num === null || num === undefined) return "";
+  return num.toString().replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+};
+
+// تابع تبدیل اعداد فارسی به انگلیسی (برای ارسال به سرور)
+const toEn = (num: any) => {
+  if (num === null || num === undefined) return "";
+  return num.toString().replace(/[۰-۹]/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString());
+};
 
 export default function Home() {
   const [url, setUrl] = useState("");
@@ -19,7 +34,7 @@ export default function Home() {
   
   // متغیرهای تنظیمات پیشرفته
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [expirationDate, setExpirationDate] = useState("");
+  const [expirationDate, setExpirationDate] = useState<any>(null); // برای تقویم شمسی
   const [clickLimit, setClickLimit] = useState("");
 
   const router = useRouter();
@@ -48,17 +63,17 @@ export default function Home() {
     const token = localStorage.getItem("token");
 
     try {
-      // آماده‌سازی داده‌های تنظیمات پیشرفته
       const bodyData: any = { 
         original_url: url,
         custom_code: customCode 
       };
 
+      // تبدیل تاریخ شمسی به ISO 8601 برای بک‌اند
       if (expirationDate) {
-        bodyData.expires_at = new Date(expirationDate).toISOString();
+        bodyData.expires_at = new Date(expirationDate.toDate()).toISOString();
       }
       if (clickLimit) {
-        bodyData.click_limit = parseInt(clickLimit);
+        bodyData.click_limit = parseInt(toEn(clickLimit)); // تبدیل اعداد فارسی به انگلیسی
       }
 
       const res = await fetch(`${API_URL}/links`, {
@@ -77,10 +92,9 @@ export default function Home() {
       }
 
       setShortUrl(data.short_url);
-      // پاک کردن فیلدها
       setCustomCode("");
       setShowCustomField(false);
-      setExpirationDate("");
+      setExpirationDate(null);
       setClickLimit("");
       setShowAdvanced(false);
     } catch (error: any) {
@@ -111,7 +125,6 @@ export default function Home() {
   return (
     <main className="h-screen flex flex-col items-center bg-white text-gray-900 px-4 overflow-hidden">
       
-      {/* هدر مینیمال */}
       <header className="w-full max-w-6xl flex justify-between items-center py-4 flex-shrink-0">
         <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
           <Link2 className="w-7 h-7 text-blue-600" />
@@ -140,7 +153,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* بخش اصلی و فرم */}
       <section className="flex-grow w-full max-w-2xl flex flex-col items-center justify-center text-center">
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
           کوتاه‌کننده لینک حرفه‌ای
@@ -191,22 +203,28 @@ export default function Home() {
 
           {showAdvanced && (
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+              {/* تقویم شمسی و ساعت */}
               <div className="flex flex-col items-start gap-1 bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-2">
-                <label className="text-xs text-gray-500">تاریخ انقضا</label>
-                <input
-                  type="datetime-local"
+                <label className="text-xs text-gray-500 mb-1">تاریخ و ساعت انقضا (شمسی)</label>
+                <DatePicker
                   value={expirationDate}
-                  onChange={(e) => setExpirationDate(e.target.value)}
-                  className="w-full h-8 bg-transparent outline-none text-sm text-gray-700"
+                  onChange={setExpirationDate}
+                  calendar={persian}
+                  locale={persian_fa}
+                  format="YYYY/MM/DD HH:mm"
+                  timePicker
+                  className="w-full bg-transparent outline-none text-sm text-gray-700"
+                  inputClass="w-full bg-transparent outline-none text-sm text-gray-700"
                 />
               </div>
               <div className="flex flex-col items-start gap-1 bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-2">
                 <label className="text-xs text-gray-500">محدودیت کلیک (اختیاری)</label>
                 <input
-                  type="number"
-                  placeholder="مثلا: 100"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="مثلا: ۱۰۰"
                   value={clickLimit}
-                  onChange={(e) => setClickLimit(e.target.value)}
+                  onChange={(e) => setClickLimit(toFa(e.target.value))}
                   className="w-full h-8 bg-transparent outline-none text-sm placeholder:text-gray-400"
                 />
               </div>
@@ -233,7 +251,6 @@ export default function Home() {
         )}
       </section>
 
-      {/* بخش امکانات */}
       <section className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8 text-center mb-6 flex-shrink-0">
         {features.map((feature, index) => (
           <div key={index} className="flex flex-col items-center p-2">
@@ -246,7 +263,6 @@ export default function Home() {
         ))}
       </section>
 
-      {/* فوتر */}
       <footer className="pb-6 text-gray-500 text-sm text-center flex-shrink-0">
         ساخته شده با ❤️ برای توسعه‌دهندگان ایرانی توسط{" "}
         <a href="https://amirmotefaker.ir/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-500 hover:text-red-600 transition-colors">

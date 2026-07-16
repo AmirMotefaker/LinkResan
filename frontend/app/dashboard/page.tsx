@@ -7,6 +7,12 @@ import { QRCodeCanvas } from "qrcode.react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// تابع تبدیل اعداد انگلیسی به فارسی
+const toFa = (num: any) => {
+  if (num === null || num === undefined) return "";
+  return num.toString().replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+};
+
 export default function Dashboard() {
   const [links, setLinks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +87,6 @@ export default function Dashboard() {
     }
   };
 
-  // تابع دانلود QR Code به صورت تصویر PNG
   const downloadQR = () => {
     const canvas = document.getElementById("qr-canvas") as HTMLCanvasElement;
     if (canvas) {
@@ -98,7 +103,6 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen flex flex-col items-center bg-gray-50 text-gray-900 px-4">
       
-      {/* هدر داشبورد */}
       <header className="w-full max-w-6xl flex justify-between items-center py-6">
         <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
           <Link2 className="w-7 h-7 text-blue-600" />
@@ -115,9 +119,9 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* محتوای داشبورد */}
       <section className="w-full max-w-6xl mt-12 mb-12">
-        <h2 className="text-2xl font-bold mb-6">لینک‌های شما ({links.length})</h2>
+        {/* تعداد لینک‌ها فارسی شد */}
+        <h2 className="text-2xl font-bold mb-6">لینک‌های شما ({toFa(links.length)})</h2>
 
         {loading ? (
           <div className="flex justify-center items-center h-64">
@@ -132,7 +136,6 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden overflow-x-auto">
-            {/* هدر جدول */}
             <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-gray-100 bg-gray-50 text-sm font-medium text-gray-500 min-w-[900px]">
               <div className="col-span-1 text-center">#</div>
               <div className="col-span-4">لینک کوتاه</div>
@@ -142,14 +145,14 @@ export default function Dashboard() {
               <div className="col-span-1 text-center">عملیات</div>
             </div>
 
-            {/* ردیف‌های جدول */}
             {links.map((link, index) => {
               const shortUrl = `https://linkresan.ir/${link.ShortCode}`;
               return (
                 <div key={link.ID} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border-b border-gray-50 hover:bg-gray-50/50 transition-colors items-center min-w-[900px]">
                   
+                  {/* شماره ردیف فارسی شد */}
                   <div className="md:col-span-1 md:text-center font-medium text-gray-400">
-                    {index + 1}
+                    {toFa(index + 1)}
                   </div>
 
                   <div className="md:col-span-4 flex items-center gap-2">
@@ -173,11 +176,11 @@ export default function Dashboard() {
                   <div className="md:col-span-1 flex md:justify-center items-center">
                     <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
                       <MousePointerClick className="w-3 h-3" />
-                      {link.ClickCount}
+                      {/* تعداد کلیک‌ها فارسی شد */}
+                      {toFa(link.ClickCount)}
                     </span>
                   </div>
 
-                  {/* ستون عملیات (دکمه QR و دکمه حذف) */}
                   <div className="md:col-span-1 flex md:justify-center items-center gap-2">
                     <button 
                       onClick={() => setQrModalUrl(shortUrl)} 
@@ -201,7 +204,6 @@ export default function Dashboard() {
         )}
       </section>
 
-      {/* مودال نمایش QR Code */}
       {qrModalUrl && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setQrModalUrl(null)}>
           <div className="bg-white p-8 rounded-2xl shadow-xl flex flex-col items-center max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
