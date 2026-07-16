@@ -154,11 +154,12 @@ export default function Dashboard() {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                   <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#6b7280' }} tickMargin={8} />
-                  {/* محور عمودی: اعداد فارسی شدند و فاصله (tickMargin) گرفتند */}
+                  {/* محور عمودی: افزایش فاصله (tickMargin) و افزایش فضای اختصاص داده شده (width) */}
                   <YAxis 
                     tick={{ fontSize: 12, fill: '#6b7280' }} 
                     tickFormatter={(value) => toFa(value)}
-                    tickMargin={8}
+                    tickMargin={15}
+                    width={50}
                   />
                   <Tooltip 
                     contentStyle={{ direction: 'rtl', borderRadius: '12px', border: '1px solid #e5e7eb', fontSize: '14px' }} 
