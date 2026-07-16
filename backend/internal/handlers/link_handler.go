@@ -39,7 +39,7 @@ func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
     return c.Status(fiber.StatusCreated).JSON(fiber.Map{
         "original_url": link.OriginalURL,
         "short_code":   link.ShortCode,
-        "short_url":    "http://localhost:8080/" + link.ShortCode,
+        "short_url":    "https://linkresan.ir/" + link.ShortCode, // تغییر به دامنه واقعی
     })
 }
 
