@@ -84,6 +84,11 @@ func (h *LinkHandler) ResolveShortLink(c *fiber.Ctx) error {
         return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Link not found or expired"})
     }
 
-    // تغییر از 301 به 302 برای جلوگیری از کش مرورگر و ثبت دقیق آمار
+    // اضافه کردن هدرهای ضد کش (Anti-Caching) برای ثبت 100% دقیق آمار
+    c.Set("Cache-Control", "no-cache, no-store, must-revalidate")
+    c.Set("Pragma", "no-cache")
+    c.Set("Expires", "0")
+
+    // کد 302 برای ریدایرکت
     return c.Redirect(link.OriginalURL, fiber.StatusFound)
 }
