@@ -68,6 +68,6 @@ func main() {
     app.Get("/:code", linkHandler.ResolveShortLink)
 
     // ۴. شروع به گوش دادن به پورت
-    log.Printf("Server starting on port %s...", cfg.ServerPort)
-    log.Fatal(app.Listen(":" + cfg.ServerPort))
+    log.Printf("Server starting on port %s...", cfg.Port)
+    log.Fatal(app.Listen(":" + cfg.Port))
 }
