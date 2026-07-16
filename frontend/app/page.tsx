@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Link2, Zap, Shield, BarChart2, Loader2, Copy, Check } from "lucide-react";
 
-const API_URL = "http://localhost:8080/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function Home() {
   const [url, setUrl] = useState("");

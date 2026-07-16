@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Link2, Loader2 } from "lucide-react";
 
-const API_URL = "http://localhost:8080/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function Login() {
   const [email, setEmail] = useState("");
