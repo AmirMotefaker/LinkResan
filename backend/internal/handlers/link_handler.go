@@ -18,8 +18,8 @@ func NewLinkHandler(linkService services.LinkService) *LinkHandler {
 type CreateLinkRequest struct {
     OriginalURL string     `json:"original_url"`
     CustomCode  string     `json:"custom_code"`
-    ExpiresAt   *time.Time `json:"expires_at"`  // فرمت: ISO 8601 (YYYY-MM-DDTHH:MM:SSZ)
-    ClickLimit  *int       `json:"click_limit"` // عدد صحیح
+    ExpiresAt   *time.Time `json:"expires_at"`
+    ClickLimit  *int       `json:"click_limit"`
 }
 
 func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
@@ -60,6 +60,20 @@ func (h *LinkHandler) GetUserLinks(c *fiber.Ctx) error {
     })
 }
 
+// هندلر جدید برای گرفتن آمار نمودار
+func (h *LinkHandler) GetAnalytics(c *fiber.Ctx) error {
+    userID := c.Locals("user_id").(float64)
+
+    data, err := h.linkService.GetAnalytics(uint(userID))
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch analytics"})
+    }
+
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{
+        "analytics": data,
+    })
+}
+
 func (h *LinkHandler) DeleteLink(c *fiber.Ctx) error {
     linkID, err := c.ParamsInt("id")
     if err != nil {
@@ -85,12 +99,12 @@ func (h *LinkHandler) ResolveShortLink(c *fiber.Ctx) error {
 
     link, err := h.linkService.ResolveShortLink(shortCode, ipAddress, userAgent, referrer)
     if err != nil {
-        // اگر لینک منقضی شده بود یا به حد نصاب رسیده بود
         return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
             "error": "Link not found, expired, or reached click limit",
         })
     }
 
+    // هدرهای ضد کش برای ثبت دقیق آمار
     c.Set("Cache-Control", "no-cache, no-store, must-revalidate")
     c.Set("Pragma", "no-cache")
     c.Set("Expires", "0")

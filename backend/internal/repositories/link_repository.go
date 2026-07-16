@@ -1,9 +1,17 @@
 package repositories
 
 import (
+    "time"
+
     "github.com/AmirMotefaker/LinkResan/backend/internal/models"
     "gorm.io/gorm"
 )
+
+// ساختار برای ذخیره داده‌های آماری
+type DailyClickData struct {
+    Date  string `json:"date"`
+    Count int    `json:"count"`
+}
 
 type LinkRepository interface {
     Create(link *models.Link) error
@@ -11,7 +19,8 @@ type LinkRepository interface {
     CreateClick(click *models.Click) error
     IncrementClickCount(linkID uint) error
     FindByUserID(userID uint) ([]models.Link, error)
-    DeleteByIDAndUserID(linkID uint, userID uint) error // اضافه شد
+    DeleteByIDAndUserID(linkID uint, userID uint) error
+    GetDailyClicks(userID uint) ([]DailyClickData, error) // اضافه شد
 }
 
 type linkRepository struct {
@@ -52,7 +61,6 @@ func (r *linkRepository) FindByUserID(userID uint) ([]models.Link, error) {
     return links, nil
 }
 
-// تابع جدید برای حذف امن لینک
 func (r *linkRepository) DeleteByIDAndUserID(linkID uint, userID uint) error {
     result := r.db.Where("id = ? AND user_id = ?", linkID, userID).Delete(&models.Link{})
     if result.Error != nil {
@@ -62,4 +70,23 @@ func (r *linkRepository) DeleteByIDAndUserID(linkID uint, userID uint) error {
         return gorm.ErrRecordNotFound
     }
     return nil
+}
+
+// تابع جدید برای دریافت آمار ۷ روز اخیر
+func (r *linkRepository) GetDailyClicks(userID uint) ([]DailyClickData, error) {
+    var results []DailyClickData
+    sevenDaysAgo := time.Now().AddDate(0, 0, -7)
+
+    err := r.db.Model(&models.Click{}).
+        Select("DATE(created_at) as date, count(*) as count").
+        Joins("JOIN links ON links.id = clicks.link_id").
+        Where("links.user_id = ? AND clicks.created_at >= ?", userID, sevenDaysAgo).
+        Group("DATE(created_at)").
+        Order("date asc").
+        Scan(&results).Error
+
+    if err != nil {
+        return nil, err
+    }
+    return results, nil
 }

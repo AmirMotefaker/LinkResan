@@ -22,6 +22,7 @@ type LinkService interface {
     ResolveShortLink(shortCode, ipAddress, userAgent, referrer string) (*models.Link, error)
     GetUserLinks(userID uint) ([]models.Link, error)
     DeleteLink(userID uint, linkID uint) error
+    GetAnalytics(userID uint) ([]repositories.DailyClickData, error) // اضافه شد
 }
 
 type linkService struct {
@@ -45,7 +46,6 @@ func generateShortCode() string {
     return string(b)
 }
 
-// CreateShortLink با قابلیت تاریخ انقضا و محدودیت کلیک
 func (s *linkService) CreateShortLink(userID uint, originalURL, customCode string, expiresAt *time.Time, clickLimit *int) (*models.Link, error) {
     shortCode := generateShortCode()
     isCustom := false
@@ -65,8 +65,8 @@ func (s *linkService) CreateShortLink(userID uint, originalURL, customCode strin
         ShortCode:   shortCode,
         IsCustom:    isCustom,
         IsActive:    true,
-        ExpiresAt:   expiresAt,  // تاریخ انقضا
-        ClickLimit:  clickLimit, // محدودیت کلیک
+        ExpiresAt:   expiresAt,
+        ClickLimit:  clickLimit,
     }
 
     err := s.linkRepo.Create(link)
@@ -99,12 +99,12 @@ func (s *linkService) ResolveShortLink(shortCode, ipAddress, userAgent, referrer
         return nil, err
     }
 
-    // ۱. بررسی تاریخ انقضا
+    // بررسی تاریخ انقضا
     if link.ExpiresAt != nil && link.ExpiresAt.Before(time.Now()) {
         return nil, errors.New("این لینک منقضی شده است")
     }
 
-    // ۲. بررسی محدودیت کلیک
+    // بررسی محدودیت کلیک
     if link.ClickLimit != nil && link.ClickCount >= int64(*link.ClickLimit) {
         return nil, errors.New("محدودیت کلیک این لینک به پایان رسیده است")
     }
@@ -127,6 +127,11 @@ func (s *linkService) GetUserLinks(userID uint) ([]models.Link, error) {
 
 func (s *linkService) DeleteLink(userID uint, linkID uint) error {
     return s.linkRepo.DeleteByIDAndUserID(linkID, userID)
+}
+
+// متد جدید برای گرفتن آمار
+func (s *linkService) GetAnalytics(userID uint) ([]repositories.DailyClickData, error) {
+    return s.linkRepo.GetDailyClicks(userID)
 }
 
 func (s *linkService) trackClick(linkID uint, ipAddress, userAgent, referrer string) {

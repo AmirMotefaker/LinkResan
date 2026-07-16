@@ -28,7 +28,7 @@ func main() {
         ServerHeader: "Fiber",
     })
 
-    // تنظیمات CORS برای ارتباط با هر دامنه‌ای (برای دیپلوی)
+    // تنظیمات CORS برای ارتباط با فرانت‌اند Next.js
     app.Use(cors.New(cors.Config{
         AllowOrigins: "*",
         AllowHeaders: "Origin, Content-Type, Accept, Authorization",
@@ -39,8 +39,8 @@ func main() {
     linkRepo := repositories.NewLinkRepository(database.DB)
     userRepo := repositories.NewUserRepository(database.DB)
 
-    linkService := services.NewLinkService(linkRepo, rdb) // سرویس لینک با قابلیت کش ردیس
-    authService := services.NewAuthService(userRepo)      // سرویس احراز هویت
+    linkService := services.NewLinkService(linkRepo, rdb)
+    authService := services.NewAuthService(userRepo)
 
     linkHandler := handlers.NewLinkHandler(linkService)
     authHandler := handlers.NewAuthHandler(authService)
@@ -63,7 +63,8 @@ func main() {
     // روت‌های محافظت شده (نیازمند توکن JWT)
     api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)
     api.Get("/links", middleware.Protected(), linkHandler.GetUserLinks)
-    api.Delete("/links/:id", middleware.Protected(), linkHandler.DeleteLink) // اضافه شد
+    api.Get("/links/analytics", middleware.Protected(), linkHandler.GetAnalytics) // روت آمار اضافه شد
+    api.Delete("/links/:id", middleware.Protected(), linkHandler.DeleteLink)
 
     // روت ریدایرکت (باز است برای همه کاربران اینترنت)
     app.Get("/:code", linkHandler.ResolveShortLink)
