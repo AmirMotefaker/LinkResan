@@ -20,7 +20,7 @@ type LinkRepository interface {
     IncrementClickCount(linkID uint) error
     FindByUserID(userID uint) ([]models.Link, error)
     DeleteByIDAndUserID(linkID uint, userID uint) error
-    GetDailyClicks(userID uint) ([]DailyClickData, error) // اضافه شد
+    GetDailyClicks(userID uint) ([]DailyClickData, error)
 }
 
 type linkRepository struct {
@@ -72,37 +72,44 @@ func (r *linkRepository) DeleteByIDAndUserID(linkID uint, userID uint) error {
     return nil
 }
 
-// تابع جدید برای دریافت آمار ۷ روز اخیر (حتی روزهای بدون کلیک)
+// تابع جدید برای دریافت آمار ۷ روز اخیر (با حل مشکل منطقه زمانی)
 func (r *linkRepository) GetDailyClicks(userID uint) ([]DailyClickData, error) {
-    var dbResults []DailyClickData
-    sevenDaysAgo := time.Now().AddDate(0, 0, -6) // شامل امروز می‌شود ۷ روز
+    type RawClick struct {
+        CreatedAt time.Time
+    }
+    var rawClicks []RawClick
 
-    // استفاده از TO_CHAR برای فرمت کردن تاریخ به صورت رشته استاندارد
+    // تنظیم منطقه زمانی تهران
+    tehran, _ := time.LoadLocation("Asia/Tehran")
+    now := time.Now().In(tehran)
+    sevenDaysAgo := now.AddDate(0, 0, -6)
+
+    // گرفتن تمام کلیک‌های ۷ روز اخیر خام
     err := r.db.Model(&models.Click{}).
-        Select("TO_CHAR(created_at, 'YYYY-MM-DD') as date, count(*) as count").
         Joins("JOIN links ON links.id = clicks.link_id").
         Where("links.user_id = ? AND clicks.created_at >= ?", userID, sevenDaysAgo).
-        Group("TO_CHAR(created_at, 'YYYY-MM-DD')").
-        Order("date asc").
-        Scan(&dbResults).Error
+        Select("clicks.created_at").
+        Scan(&rawClicks).Error
 
     if err != nil {
         return nil, err
     }
 
-    // ایجاد یک آرایه ۷ روزه و پر کردن آن (حتی روزهایی که کلیک نداشتند)
+    // شمارش کلیک‌ها بر اساس تاریخ شمسی/قمری در منطقه زمانی تهران
+    counts := make(map[string]int)
+    for _, rc := range rawClicks {
+        dayStr := rc.CreatedAt.In(tehran).Format("2006-01-02")
+        counts[dayStr]++
+    }
+
+    // ساخت آرایه نهایی ۷ روزه
     finalResults := make([]DailyClickData, 0, 7)
-    now := time.Now()
     for i := 6; i >= 0; i-- {
         day := now.AddDate(0, 0, -i).Format("2006-01-02")
-        count := 0
-        for _, dbRes := range dbResults {
-            if dbRes.Date == day {
-                count = dbRes.Count
-                break
-            }
-        }
-        finalResults = append(finalResults, DailyClickData{Date: day, Count: count})
+        finalResults = append(finalResults, DailyClickData{
+            Date:  day,
+            Count: counts[day],
+        })
     }
 
     return finalResults, nil

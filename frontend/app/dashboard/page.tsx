@@ -29,7 +29,6 @@ export default function Dashboard() {
       return;
     }
 
-    // گرفتن لینک‌ها و آمار به صورت همزمان
     Promise.all([
       fetch(`${API_URL}/links`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()),
       fetch(`${API_URL}/links/analytics`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json())
@@ -89,9 +88,7 @@ export default function Dashboard() {
     }
   };
 
-  // فرمت کردن تاریخ‌های آمار برای نمایش در نمودار
   const formatChartData = analytics.map(item => {
-    // اضافه کردن T00:00:00 برای جلوگیری از جابجایی روز به دلیل اختلاف ساعت
     const dateObj = new Date(item.date + "T00:00:00");
     return {
       ...item,
@@ -122,10 +119,12 @@ export default function Dashboard() {
           <span className="text-xl font-bold tracking-tight">داشبورد لینک رسان</span>
         </div>
         <div className="flex gap-4 items-center">
-          <button onClick={() => router.push("/")} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          {/* cursor-pointer اضافه شد */}
+          <button onClick={() => router.push("/")} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
             ساخت لینک جدید
           </button>
-          <button onClick={handleLogout} className="px-5 py-2 text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors flex items-center gap-2">
+          {/* cursor-pointer اضافه شد */}
+          <button onClick={handleLogout} className="px-5 py-2 text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors flex items-center gap-2 cursor-pointer">
             <LogOut className="w-4 h-4" />
             خروج
           </button>
@@ -134,7 +133,6 @@ export default function Dashboard() {
 
       <section className="w-full max-w-6xl mt-8 mb-12">
         
-        {/* کارت نمودار آماری */}
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-8">
           <div className="flex items-center gap-2 mb-6">
             <TrendingUp className="w-5 h-5 text-indigo-600" />
@@ -169,7 +167,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* لیست لینک‌ها */}
         <h2 className="text-2xl font-bold mb-6">لینک‌های شما ({toFa(links.length)})</h2>
 
         {loading ? (
@@ -179,7 +176,7 @@ export default function Dashboard() {
         ) : links.length === 0 ? (
           <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center shadow-sm">
             <p className="text-gray-500 mb-4">شما هنوز هیچ لینکی نساخته‌اید.</p>
-            <button onClick={() => router.push("/")} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors">
+            <button onClick={() => router.push("/")} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors cursor-pointer">
               ساخت اولین لینک
             </button>
           </div>
@@ -208,7 +205,7 @@ export default function Dashboard() {
                       {shortUrl}
                       <ExternalLink className="w-3 h-3 flex-shrink-0" />
                     </a>
-                    <button onClick={() => handleCopy(shortUrl, link.ID)} className="p-1 hover:bg-indigo-50 rounded transition-colors flex-shrink-0">
+                    <button onClick={() => handleCopy(shortUrl, link.ID)} className="p-1 hover:bg-indigo-50 rounded transition-colors flex-shrink-0 cursor-pointer">
                       {copiedId === link.ID ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-gray-400" />}
                     </button>
                   </div>
@@ -231,14 +228,14 @@ export default function Dashboard() {
                   <div className="md:col-span-1 flex md:justify-center items-center gap-2">
                     <button 
                       onClick={() => setQrModalUrl(shortUrl)} 
-                      className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group"
+                      className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group cursor-pointer"
                       title="دانلود QR Code"
                     >
                       <QrCode className="w-4 h-4 text-gray-400 group-hover:text-indigo-600 transition-colors" />
                     </button>
                     <button 
                       onClick={() => handleDelete(link.ID)} 
-                      className="p-2 hover:bg-red-50 rounded-lg transition-colors group"
+                      className="p-2 hover:bg-red-50 rounded-lg transition-colors group cursor-pointer"
                       title="حذف لینک"
                     >
                       <Trash2 className="w-4 h-4 text-gray-400 group-hover:text-red-500 transition-colors" />
@@ -256,7 +253,7 @@ export default function Dashboard() {
           <div className="bg-white p-8 rounded-2xl shadow-xl flex flex-col items-center max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
             <div className="w-full flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold">QR Code</h3>
-              <button onClick={() => setQrModalUrl(null)} className="p-2 hover:bg-gray-100 rounded-lg">
+              <button onClick={() => setQrModalUrl(null)} className="p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -277,7 +274,7 @@ export default function Dashboard() {
 
             <button 
               onClick={downloadQR} 
-              className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+              className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
               <Download className="w-5 h-5" />
               دانلود تصویر QR
