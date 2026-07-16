@@ -13,10 +13,14 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginMsg, setShowLoginMsg] = useState(false);
+  
+  // متغیرهای اسلاگ دلخواه
+  const [customCode, setCustomCode] = useState("");
+  const [showCustomField, setShowCustomField] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
-    // چک کردن اینکه آیا کاربر لاگین کرده است یا خیر
     const token = localStorage.getItem("token");
     if (token) {
       setIsLoggedIn(true);
@@ -27,12 +31,11 @@ export default function Home() {
     e.preventDefault();
     if (!url) return;
 
-    // اگر لاگین نبود
     if (!isLoggedIn) {
       if (showLoginMsg) {
-        router.push("/login"); // اگر برای بار دوم کلیک کرد، بفرست به لاگین
+        router.push("/login");
       } else {
-        setShowLoginMsg(true); // بار اول کلیک کرد، فقط متن را عوض کن
+        setShowLoginMsg(true);
       }
       return;
     }
@@ -47,7 +50,10 @@ export default function Home() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ original_url: url }),
+        body: JSON.stringify({ 
+          original_url: url,
+          custom_code: customCode 
+        }),
       });
 
       const data = await res.json();
@@ -57,6 +63,9 @@ export default function Home() {
       }
 
       setShortUrl(data.short_url);
+      // پاک کردن فیلدها بعد از موفقیت
+      setCustomCode("");
+      setShowCustomField(false);
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -85,7 +94,6 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center bg-white text-gray-900 px-4">
       
-            {/* هدر مینیمال */}
       <header className="w-full max-w-6xl flex justify-between items-center py-6">
         <div className="flex items-center gap-2">
           <div className="bg-black p-2 rounded-lg">
@@ -116,7 +124,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* بخش اصلی (کاملاً وسط چین و خلوت) */}
       <section className="w-full max-w-2xl flex flex-col items-center text-center mt-20 md:mt-32">
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
           کوتاه‌کننده لینک حرفه‌ای
@@ -125,7 +132,6 @@ export default function Home() {
           لینک‌های طولانی خود را به لینک‌های کوتاه، امن و قابل اندازه‌گیری تبدیل کنید.
         </p>
 
-        {/* فرم کوتاه‌کننده */}
         <form onSubmit={handleShorten} className="w-full flex flex-col items-center">
           <input
             type="url"
@@ -135,21 +141,43 @@ export default function Home() {
             className="w-full h-16 px-6 text-lg bg-gray-50 border-2 border-gray-200 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white transition-all placeholder:text-gray-400 shadow-sm"
             required
           />
+
+          {/* دکمه نمایش فیلد دلخواه */}
+          <button 
+            type="button" 
+            onClick={() => setShowCustomField(!showCustomField)}
+            className="text-sm text-gray-500 hover:text-indigo-600 mt-4 mb-2"
+          >
+            {showCustomField ? "حذف نام دلخواه" : "می‌خواهم نام لینک را خودم انتخاب کنم"}
+          </button>
+
+          {/* فیلد نام دلخواه */}
+          {showCustomField && (
+            <div className="w-full flex items-center gap-2 bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 mb-4">
+              <span className="text-gray-400 text-sm whitespace-nowrap">linkresan.ir/</span>
+              <input
+                type="text"
+                placeholder="نام دلخواه (مثلا: amir-shop)"
+                value={customCode}
+                onChange={(e) => setCustomCode(e.target.value)}
+                className="w-full h-14 bg-transparent outline-none text-sm placeholder:text-gray-400"
+              />
+            </div>
+          )}
           
           <button 
             type="submit" 
             disabled={loading} 
-            className="mt-4 h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
+            className="mt-2 h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
           >
             {loading ? <Loader2 className="animate-spin w-6 h-6" /> : (showLoginMsg && !isLoggedIn ? "برای کوتاه کردن وارد شوید" : "کوتاه کن")}
           </button>
         </form>
 
-        {/* نمایش نتیجه */}
         {shortUrl && (
           <div className="mt-8 w-full p-4 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between">
-            <span className="text-lg font-medium text-green-700">{shortUrl}</span>
-            <button onClick={handleCopy} className="flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-800 px-3 py-1 rounded-lg hover:bg-green-100 transition-colors">
+            <span className="text-lg font-medium text-green-700 truncate ml-2">{shortUrl}</span>
+            <button onClick={handleCopy} className="flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-800 px-3 py-1 rounded-lg hover:bg-green-100 transition-colors flex-shrink-0">
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               {copied ? "کپی شد" : "کپی لینک"}
             </button>
@@ -157,7 +185,6 @@ export default function Home() {
         )}
       </section>
 
-      {/* بخش امکانات */}
       <section className="w-full max-w-5xl mt-32 grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
         {features.map((feature, index) => (
           <div key={index} className="flex flex-col items-center p-4">
@@ -170,7 +197,6 @@ export default function Home() {
         ))}
       </section>
 
-      {/* فوتر با لینک گیت‌هاب شما */}
       <footer className="mt-32 mb-8 text-gray-400 text-sm text-center">
         ساخته شده با ❤️ برای توسعه‌دهندگان ایرانی توسط{" "}
         <a href="https://github.com/AmirMotefaker" target="_blank" rel="noopener noreferrer" className="font-bold text-gray-600 hover:text-indigo-600 transition-colors">
