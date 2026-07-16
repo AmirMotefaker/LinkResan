@@ -119,11 +119,9 @@ export default function Dashboard() {
           <span className="text-xl font-bold tracking-tight">داشبورد لینک رسان</span>
         </div>
         <div className="flex gap-4 items-center">
-          {/* cursor-pointer اضافه شد */}
           <button onClick={() => router.push("/")} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
             ساخت لینک جدید
           </button>
-          {/* cursor-pointer اضافه شد */}
           <button onClick={handleLogout} className="px-5 py-2 text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors flex items-center gap-2 cursor-pointer">
             <LogOut className="w-4 h-4" />
             خروج
@@ -146,7 +144,8 @@ export default function Dashboard() {
           ) : (
             <div className="w-full h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={formatChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                {/* مارجین‌ها برای ایجاد فضای خوانایی تنظیم شدند */}
+                <AreaChart data={formatChartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorClick" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8}/>
@@ -154,8 +153,13 @@ export default function Dashboard() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
+                  <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#6b7280' }} tickMargin={8} />
+                  {/* محور عمودی: اعداد فارسی شدند و فاصله (tickMargin) گرفتند */}
+                  <YAxis 
+                    tick={{ fontSize: 12, fill: '#6b7280' }} 
+                    tickFormatter={(value) => toFa(value)}
+                    tickMargin={8}
+                  />
                   <Tooltip 
                     contentStyle={{ direction: 'rtl', borderRadius: '12px', border: '1px solid #e5e7eb', fontSize: '14px' }} 
                     formatter={(value: any) => [toFa(value) + ' کلیک', 'تعداد']}
