@@ -38,7 +38,7 @@ type Click struct {
     ID         uint      `gorm:"primaryKey"`
     LinkID     uint      `gorm:"index;not null"`
     Link       Link      `gorm:"foreignKey:LinkID"`
-    IPAddress  string    `gorm:"type:inet"`
+    IPAddress  string    `gorm:"type:text"` // تغییر از inet به text برای جلوگیری از ارور دیتابیس
     UserAgent  string    `gorm:"type:text"`
     Referrer   string    `gorm:"type:text"`
     Country    string    `gorm:"size:50"`

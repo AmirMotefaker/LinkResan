@@ -3,18 +3,18 @@
 import { useEffect } from "react";
 import { useParams } from "next/navigation";
 
-// آدرس بک‌اند آنلاین شما (بدون /api در آخر)
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "");
 
 export default function ShortLinkRedirect() {
   const params = useParams();
-  const code = params.code; // گرفتن کد از آدرس (مثلا xyz از linkresan.ir/xyz)
+  const code = params.code;
 
   useEffect(() => {
     if (code && API_BASE_URL) {
-      // ارسال کاربر به بک‌اند برای ریدایرکت 301
-      // بک‌اند Go او را به صورت خودکار به لینک اصلی می‌برد
-      window.location.href = `${API_BASE_URL}/${code}`;
+      // اضافه کردن تایم‌استمپ (Timestamp) برای جلوگیری از کش شدن ریدایرکت توسط مرورگر
+      // این کار باعث می‌شود مرورگر هر بار مجبور شود درخواست جدید به سرور بفرستد
+      const timestamp = new Date().getTime();
+      window.location.href = `${API_BASE_URL}/${code}?t=${timestamp}`;
     }
   }, [code, API_BASE_URL]);
 
