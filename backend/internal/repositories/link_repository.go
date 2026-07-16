@@ -72,21 +72,38 @@ func (r *linkRepository) DeleteByIDAndUserID(linkID uint, userID uint) error {
     return nil
 }
 
-// تابع جدید برای دریافت آمار ۷ روز اخیر
+// تابع جدید برای دریافت آمار ۷ روز اخیر (حتی روزهای بدون کلیک)
 func (r *linkRepository) GetDailyClicks(userID uint) ([]DailyClickData, error) {
-    var results []DailyClickData
-    sevenDaysAgo := time.Now().AddDate(0, 0, -7)
+    var dbResults []DailyClickData
+    sevenDaysAgo := time.Now().AddDate(0, 0, -6) // شامل امروز می‌شود ۷ روز
 
+    // استفاده از TO_CHAR برای فرمت کردن تاریخ به صورت رشته استاندارد
     err := r.db.Model(&models.Click{}).
-        Select("DATE(created_at) as date, count(*) as count").
+        Select("TO_CHAR(created_at, 'YYYY-MM-DD') as date, count(*) as count").
         Joins("JOIN links ON links.id = clicks.link_id").
         Where("links.user_id = ? AND clicks.created_at >= ?", userID, sevenDaysAgo).
-        Group("DATE(created_at)").
+        Group("TO_CHAR(created_at, 'YYYY-MM-DD')").
         Order("date asc").
-        Scan(&results).Error
+        Scan(&dbResults).Error
 
     if err != nil {
         return nil, err
     }
-    return results, nil
+
+    // ایجاد یک آرایه ۷ روزه و پر کردن آن (حتی روزهایی که کلیک نداشتند)
+    finalResults := make([]DailyClickData, 0, 7)
+    now := time.Now()
+    for i := 6; i >= 0; i-- {
+        day := now.AddDate(0, 0, -i).Format("2006-01-02")
+        count := 0
+        for _, dbRes := range dbResults {
+            if dbRes.Date == day {
+                count = dbRes.Count
+                break
+            }
+        }
+        finalResults = append(finalResults, DailyClickData{Date: day, Count: count})
+    }
+
+    return finalResults, nil
 }

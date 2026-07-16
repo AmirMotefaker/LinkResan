@@ -90,11 +90,15 @@ export default function Dashboard() {
   };
 
   // فرمت کردن تاریخ‌های آمار برای نمایش در نمودار
-  const formatChartData = analytics.map(item => ({
-    ...item,
-    date: new Date(item.date).toLocaleDateString('fa-IR', { weekday: 'short', day: 'numeric' }),
-    count: item.count
-  }));
+  const formatChartData = analytics.map(item => {
+    // اضافه کردن T00:00:00 برای جلوگیری از جابجایی روز به دلیل اختلاف ساعت
+    const dateObj = new Date(item.date + "T00:00:00");
+    return {
+      ...item,
+      date: dateObj.toLocaleDateString('fa-IR', { weekday: 'short', day: 'numeric' }),
+      count: item.count
+    };
+  });
 
   const downloadQR = () => {
     const canvas = document.getElementById("qr-canvas") as HTMLCanvasElement;
