@@ -56,7 +56,6 @@ export default function Dashboard() {
       });
 
       if (res.ok) {
-        // حذف لینک از لیست بدون نیاز به رفرش صفحه
         setLinks(links.filter(link => link.ID !== id));
       } else {
         alert("خطا در حذف لینک");
@@ -66,7 +65,6 @@ export default function Dashboard() {
     }
   };
 
-  // تابع فرمت کردن تاریخ به شمسی
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString('fa-IR', {
@@ -84,9 +82,9 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen flex flex-col items-center bg-gray-50 text-gray-900 px-4">
       
-      {/* هدر داشبورد */}
+      {/* هدر داشبورد (لوگو کلیک شدنی است) */}
       <header className="w-full max-w-6xl flex justify-between items-center py-6">
-        <div className="flex items-center gap-2">
+        <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
           <div className="bg-black p-2 rounded-lg">
             <Link2 className="w-5 h-5 text-white" />
           </div>
@@ -136,12 +134,10 @@ export default function Dashboard() {
               return (
                 <div key={link.ID} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border-b border-gray-50 hover:bg-gray-50/50 transition-colors items-center min-w-[800px]">
                   
-                  {/* شماره ردیف */}
                   <div className="md:col-span-1 md:text-center font-medium text-gray-400">
                     {index + 1}
                   </div>
 
-                  {/* لینک کوتاه */}
                   <div className="md:col-span-4 flex items-center gap-2">
                     <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 font-medium hover:underline flex items-center gap-1 truncate">
                       {shortUrl}
@@ -152,17 +148,14 @@ export default function Dashboard() {
                     </button>
                   </div>
 
-                  {/* لینک اصلی */}
                   <div className="md:col-span-3 text-gray-500 truncate text-sm">
                     {link.OriginalURL}
                   </div>
 
-                  {/* تاریخ و ساعت */}
                   <div className="md:col-span-2 text-gray-500 text-xs">
                     {formatDate(link.CreatedAt)}
                   </div>
 
-                  {/* تعداد کلیک */}
                   <div className="md:col-span-1 flex md:justify-center items-center">
                     <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
                       <MousePointerClick className="w-3 h-3" />
@@ -170,7 +163,6 @@ export default function Dashboard() {
                     </span>
                   </div>
 
-                  {/* دکمه حذف */}
                   <div className="md:col-span-1 flex md:justify-center">
                     <button 
                       onClick={() => handleDelete(link.ID)} 
