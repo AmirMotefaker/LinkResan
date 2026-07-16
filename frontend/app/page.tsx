@@ -92,12 +92,10 @@ export default function Home() {
   return (
     <main className="h-screen flex flex-col items-center bg-white text-gray-900 px-4 overflow-hidden">
       
-      {/* هدر مینیمال */}
+      {/* هدر مینیمال (لوگو آبی بدون کادر) */}
       <header className="w-full max-w-6xl flex justify-between items-center py-4 flex-shrink-0">
         <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
-          <div className="bg-black p-2 rounded-lg">
-            <Link2 className="w-5 h-5 text-white" />
-          </div>
+          <Link2 className="w-7 h-7 text-blue-600" />
           <span className="text-xl font-bold tracking-tight">لینک رسان</span>
         </div>
         <div className="flex gap-4 items-center">
@@ -183,7 +181,7 @@ export default function Home() {
         )}
       </section>
 
-      {/* بخش امکانات (بزرگتر شده و فاصله کمی بیشتر) */}
+      {/* بخش امکانات */}
       <section className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8 text-center mb-6 flex-shrink-0">
         {features.map((feature, index) => (
           <div key={index} className="flex flex-col items-center p-2">
@@ -196,14 +194,14 @@ export default function Home() {
         ))}
       </section>
 
-      {/* فوتر با لینک‌های جدید و سایز بزرگتر */}
+      {/* فوتر با رنگ‌های سفارشی */}
       <footer className="pb-6 text-gray-500 text-sm text-center flex-shrink-0">
         ساخته شده با ❤️ برای توسعه‌دهندگان ایرانی توسط{" "}
-        <a href="https://amirmotefaker.ir/" target="_blank" rel="noopener noreferrer" className="font-bold text-gray-700 hover:text-indigo-600 transition-colors">
+        <a href="https://amirmotefaker.ir/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-500 hover:text-red-600 transition-colors">
           امیر متفکر
         </a>
         {" "}-{" "}
-        <a href="https://github.com/AmirMotefaker/LinkResan" target="_blank" rel="noopener noreferrer" className="font-bold text-gray-700 hover:text-indigo-600 transition-colors">
+        <a href="https://github.com/AmirMotefaker/LinkResan" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-600 hover:text-blue-700 transition-colors">
           لینک رسان
         </a>
       </footer>
