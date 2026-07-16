@@ -2,6 +2,7 @@ package cache
 
 import (
     "context"
+    "crypto/tls"
     "log"
 
     "github.com/AmirMotefaker/LinkResan/backend/internal/config"
@@ -13,8 +14,9 @@ var Ctx = context.Background()
 func ConnectRedis(cfg *config.Config) *redis.Client {
     rdb := redis.NewClient(&redis.Options{
         Addr:     cfg.RedisAddr,
-        Password: cfg.RedisPassword, // پسورد ردیس ابری
+        Password: cfg.RedisPassword,
         DB:       0,
+        TLSConfig: &tls.Config{}, // فعال کردن TLS برای اتصال امن به Upstash
     })
 
     _, err := rdb.Ping(Ctx).Result()
