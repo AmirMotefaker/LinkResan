@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2 } from "lucide-react";
+import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download } from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -10,6 +11,7 @@ export default function Dashboard() {
   const [links, setLinks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [qrModalUrl, setQrModalUrl] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -79,16 +81,29 @@ export default function Dashboard() {
     }
   };
 
+  // تابع دانلود QR Code به صورت تصویر PNG
+  const downloadQR = () => {
+    const canvas = document.getElementById("qr-canvas") as HTMLCanvasElement;
+    if (canvas) {
+      const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+      let downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl;
+      downloadLink.download = "linkresan-qr.png";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+  };
+
   return (
     <main className="min-h-screen flex flex-col items-center bg-gray-50 text-gray-900 px-4">
       
-      {/* هدر داشبورد (لوگو کلیک شدنی است) */}
+      {/* هدر داشبورد */}
       <header className="w-full max-w-6xl flex justify-between items-center py-6">
         <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
           <Link2 className="w-7 h-7 text-blue-600" />
           <span className="text-xl font-bold tracking-tight">داشبورد لینک رسان</span>
         </div>
-        
         <div className="flex gap-4 items-center">
           <button onClick={() => router.push("/")} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
             ساخت لینک جدید
@@ -118,20 +133,20 @@ export default function Dashboard() {
         ) : (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden overflow-x-auto">
             {/* هدر جدول */}
-            <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-gray-100 bg-gray-50 text-sm font-medium text-gray-500 min-w-[800px]">
+            <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-gray-100 bg-gray-50 text-sm font-medium text-gray-500 min-w-[900px]">
               <div className="col-span-1 text-center">#</div>
               <div className="col-span-4">لینک کوتاه</div>
               <div className="col-span-3">لینک اصلی</div>
               <div className="col-span-2">تاریخ ساخت</div>
               <div className="col-span-1 text-center">کلیک‌ها</div>
-              <div className="col-span-1 text-center">حذف</div>
+              <div className="col-span-1 text-center">عملیات</div>
             </div>
 
             {/* ردیف‌های جدول */}
             {links.map((link, index) => {
               const shortUrl = `https://linkresan.ir/${link.ShortCode}`;
               return (
-                <div key={link.ID} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border-b border-gray-50 hover:bg-gray-50/50 transition-colors items-center min-w-[800px]">
+                <div key={link.ID} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border-b border-gray-50 hover:bg-gray-50/50 transition-colors items-center min-w-[900px]">
                   
                   <div className="md:col-span-1 md:text-center font-medium text-gray-400">
                     {index + 1}
@@ -162,7 +177,15 @@ export default function Dashboard() {
                     </span>
                   </div>
 
-                  <div className="md:col-span-1 flex md:justify-center">
+                  {/* ستون عملیات (دکمه QR و دکمه حذف) */}
+                  <div className="md:col-span-1 flex md:justify-center items-center gap-2">
+                    <button 
+                      onClick={() => setQrModalUrl(shortUrl)} 
+                      className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group"
+                      title="دانلود QR Code"
+                    >
+                      <QrCode className="w-4 h-4 text-gray-400 group-hover:text-indigo-600 transition-colors" />
+                    </button>
                     <button 
                       onClick={() => handleDelete(link.ID)} 
                       className="p-2 hover:bg-red-50 rounded-lg transition-colors group"
@@ -177,6 +200,42 @@ export default function Dashboard() {
           </div>
         )}
       </section>
+
+      {/* مودال نمایش QR Code */}
+      {qrModalUrl && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setQrModalUrl(null)}>
+          <div className="bg-white p-8 rounded-2xl shadow-xl flex flex-col items-center max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold">QR Code</h3>
+              <button onClick={() => setQrModalUrl(null)} className="p-2 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-4 border-2 border-gray-100 rounded-xl mb-6">
+              <QRCodeCanvas 
+                id="qr-canvas"
+                value={qrModalUrl} 
+                size={200} 
+                bgColor="#ffffff" 
+                fgColor="#000000" 
+                level="H" 
+                includeMargin={true} 
+              />
+            </div>
+
+            <p className="text-sm text-gray-500 mb-6 text-center break-all">{qrModalUrl}</p>
+
+            <button 
+              onClick={downloadQR} 
+              className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+            >
+              <Download className="w-5 h-5" />
+              دانلود تصویر QR
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
