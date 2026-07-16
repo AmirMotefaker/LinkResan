@@ -72,3 +72,19 @@ func (h *LinkHandler) ResolveShortLink(c *fiber.Ctx) error {
 
     return c.Redirect(link.OriginalURL, fiber.StatusMovedPermanently)
 }
+
+func (h *LinkHandler) DeleteLink(c *fiber.Ctx) error {
+    linkID, err := c.ParamsInt("id")
+    if err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid link ID"})
+    }
+
+    userID := c.Locals("user_id").(float64)
+
+    err = h.linkService.DeleteLink(uint(userID), uint(linkID))
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete link"})
+    }
+
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Link deleted successfully"})
+}

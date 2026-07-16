@@ -10,7 +10,8 @@ type LinkRepository interface {
     FindByShortCode(code string) (*models.Link, error)
     CreateClick(click *models.Click) error
     IncrementClickCount(linkID uint) error
-    FindByUserID(userID uint) ([]models.Link, error) // اضافه شد
+    FindByUserID(userID uint) ([]models.Link, error)
+    DeleteByIDAndUserID(linkID uint, userID uint) error // اضافه شد
 }
 
 type linkRepository struct {
@@ -42,7 +43,6 @@ func (r *linkRepository) IncrementClickCount(linkID uint) error {
     return r.db.Model(&models.Link{}).Where("id = ?", linkID).UpdateColumn("click_count", gorm.Expr("click_count + ?", 1)).Error
 }
 
-// تابع جدید برای داشبورد
 func (r *linkRepository) FindByUserID(userID uint) ([]models.Link, error) {
     var links []models.Link
     err := r.db.Where("user_id = ?", userID).Order("created_at desc").Find(&links).Error
@@ -50,4 +50,16 @@ func (r *linkRepository) FindByUserID(userID uint) ([]models.Link, error) {
         return nil, err
     }
     return links, nil
+}
+
+// تابع جدید برای حذف امن لینک
+func (r *linkRepository) DeleteByIDAndUserID(linkID uint, userID uint) error {
+    result := r.db.Where("id = ? AND user_id = ?", linkID, userID).Delete(&models.Link{})
+    if result.Error != nil {
+        return result.Error
+    }
+    if result.RowsAffected == 0 {
+        return gorm.ErrRecordNotFound
+    }
+    return nil
 }

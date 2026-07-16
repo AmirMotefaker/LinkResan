@@ -20,6 +20,7 @@ type LinkService interface {
     CreateShortLink(userID uint, originalURL string) (*models.Link, error) // تغییر کرد
     ResolveShortLink(shortCode, ipAddress, userAgent, referrer string) (*models.Link, error)
     GetUserLinks(userID uint) ([]models.Link, error) // اضافه شد
+    DeleteLink(userID uint, linkID uint) error // اضافه شود
 }
 
 type linkService struct {
@@ -110,4 +111,8 @@ func (s *linkService) trackClick(linkID uint, ipAddress, userAgent, referrer str
     }
     _ = s.linkRepo.CreateClick(click)
     _ = s.linkRepo.IncrementClickCount(linkID)
+}
+
+func (s *linkService) DeleteLink(userID uint, linkID uint) error {
+    return s.linkRepo.DeleteByIDAndUserID(linkID, userID)
 }

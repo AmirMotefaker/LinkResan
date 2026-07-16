@@ -63,6 +63,7 @@ func main() {
     // روت‌های محافظت شده (نیازمند توکن JWT)
     api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)
     api.Get("/links", middleware.Protected(), linkHandler.GetUserLinks)
+    api.Delete("/links/:id", middleware.Protected(), linkHandler.DeleteLink) // اضافه شد
 
     // روت ریدایرکت (باز است برای همه کاربران اینترنت)
     app.Get("/:code", linkHandler.ResolveShortLink)
