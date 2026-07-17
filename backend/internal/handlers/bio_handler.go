@@ -1,7 +1,6 @@
 package handlers
 
 import (
-    "github.com/AmirMotefaker/LinkResan/backend/internal/models"
     "github.com/AmirMotefaker/LinkResan/backend/internal/services"
     "github.com/gofiber/fiber/v2"
 )
