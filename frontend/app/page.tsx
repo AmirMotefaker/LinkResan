@@ -35,12 +35,23 @@ export default function Home() {
   const [expirationDate, setExpirationDate] = useState<any>(null);
   const [clickLimit, setClickLimit] = useState("");
 
+  // متغیرهای دامنه اختصاصی
+  const [domains, setDomains] = useState<any[]>([]);
+  const [selectedDomain, setSelectedDomain] = useState<string>("linkresan.ir");
+
   const router = useRouter();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       setIsLoggedIn(true);
+      // گرفتن لیست دامنه‌های کاربر
+      fetch(`${API_URL}/domains`, { headers: { Authorization: `Bearer ${token}` } })
+        .then(res => res.json())
+        .then(data => {
+          if (data.domains) setDomains(data.domains);
+        })
+        .catch(() => {});
     }
   }, []);
 
@@ -66,6 +77,12 @@ export default function Home() {
         custom_code: customCode 
       };
 
+      // اگر کاربر دامنه اختصاصی انتخاب کرده بود، ID آن را بفرست
+      const selectedDomainObj = domains.find(d => d.Domain === selectedDomain);
+      if (selectedDomainObj) {
+        bodyData.domain_id = selectedDomainObj.ID;
+      }
+
       if (expirationDate) {
         bodyData.expires_at = new Date(expirationDate.toDate()).toISOString();
       }
@@ -88,7 +105,10 @@ export default function Home() {
         throw new Error(data.error || "خطا در ساخت لینک");
       }
 
-      setShortUrl(data.short_url);
+      // ساخت لینک نهایی برای نمایش به کاربر
+      const finalShortUrl = `https://${selectedDomain}/${data.short_code}`;
+      setShortUrl(finalShortUrl);
+      
       setCustomCode("");
       setShowCustomField(false);
       setExpirationDate(null);
@@ -111,6 +131,8 @@ export default function Home() {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     setShortUrl("");
+    setDomains([]);
+    setSelectedDomain("linkresan.ir");
   };
 
   const features = [
@@ -120,7 +142,6 @@ export default function Home() {
   ];
 
   return (
-    // استفاده از min-h-screen و flex-col برای مدیریت فضا
     <main className="min-h-screen flex flex-col items-center bg-white text-gray-900 px-4">
       
       <header className="w-full max-w-6xl flex justify-between items-center py-3 sm:py-4 flex-shrink-0">
@@ -131,36 +152,40 @@ export default function Home() {
         <div className="flex gap-2 sm:gap-4 items-center">
           {isLoggedIn ? (
             <>
-              <button onClick={() => router.push("/dashboard")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
-                داشبورد
-              </button>
-              <button onClick={handleLogout} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors cursor-pointer">
-                خروج
-              </button>
+              <button onClick={() => router.push("/dashboard")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">داشبورد</button>
+              <button onClick={handleLogout} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors cursor-pointer">خروج</button>
             </>
           ) : (
             <>
-              <button onClick={() => router.push("/login")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
-                ورود
-              </button>
-              <button onClick={() => router.push("/login")} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors cursor-pointer">
-                ثبت‌نام
-              </button>
+              <button onClick={() => router.push("/login")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">ورود</button>
+              <button onClick={() => router.push("/login")} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors cursor-pointer">ثبت‌نام</button>
             </>
           )}
         </div>
       </header>
 
-      {/* بخش اصلی: استفاده از flex-grow برای میل کردن به وسط و هل دادن بقیه به پایین */}
       <section className="flex-grow w-full max-w-2xl flex flex-col items-center justify-center text-center mt-10 sm:mt-0">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 sm:mb-4">
-          کوتاه‌کننده لینک حرفه‌ای
-        </h1>
-        <p className="text-sm sm:text-base md:text-lg text-gray-500 mb-6 sm:mb-8 max-w-xl">
-          لینک‌های طولانی خود را به لینک‌های کوتاه، امن و قابل اندازه‌گیری تبدیل کنید.
-        </p>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 sm:mb-4">کوتاه‌کننده لینک حرفه‌ای</h1>
+        <p className="text-sm sm:text-base md:text-lg text-gray-500 mb-6 sm:mb-8 max-w-xl">لینک‌های طولانی خود را به لینک‌های کوتاه، امن و قابل اندازه‌گیری تبدیل کنید.</p>
 
         <form onSubmit={handleShorten} className="w-full flex flex-col items-center">
+          
+          {/* انتخابگر دامنه (اگر کاربر دامنه اختصاصی داشت) */}
+          {isLoggedIn && domains.length > 0 && (
+            <div className="w-full mb-2 flex justify-center">
+              <select 
+                value={selectedDomain}
+                onChange={(e) => setSelectedDomain(e.target.value)}
+                className="bg-gray-50 border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-600 outline-none cursor-pointer"
+              >
+                <option value="linkresan.ir">linkresan.ir (پیش‌فرض)</option>
+                {domains.map((domain) => (
+                  <option key={domain.ID} value={domain.Domain}>{domain.Domain}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <input
             type="url"
             placeholder="لینک خود را اینجا وارد کنید..."
@@ -171,25 +196,17 @@ export default function Home() {
           />
 
           <div className="flex gap-4 mt-3 mb-2">
-            <button 
-              type="button" 
-              onClick={() => setShowCustomField(!showCustomField)}
-              className="text-xs sm:text-sm text-gray-500 hover:text-indigo-600 cursor-pointer"
-            >
+            <button type="button" onClick={() => setShowCustomField(!showCustomField)} className="text-xs sm:text-sm text-gray-500 hover:text-indigo-600 cursor-pointer">
               {showCustomField ? "حذف نام دلخواه" : "نام دلخواه"}
             </button>
-            <button 
-              type="button" 
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-xs sm:text-sm text-gray-500 hover:text-indigo-600 cursor-pointer"
-            >
+            <button type="button" onClick={() => setShowAdvanced(!showAdvanced)} className="text-xs sm:text-sm text-gray-500 hover:text-indigo-600 cursor-pointer">
               {showAdvanced ? "حذف تنظیمات پیشرفته" : "تنظیمات پیشرفته"}
             </button>
           </div>
 
           {showCustomField && (
             <div className="w-full flex items-center gap-2 bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 mb-3">
-              <span className="text-gray-400 text-xs whitespace-nowrap">linkresan.ir/</span>
+              <span className="text-gray-400 text-xs whitespace-nowrap">{selectedDomain}/</span>
               <input
                 type="text"
                 placeholder="نام دلخواه (مثلا: amir-shop)"
@@ -210,9 +227,7 @@ export default function Home() {
                   calendar={persian}
                   locale={persian_fa}
                   format="YYYY/MM/DD HH:mm"
-                  plugins={[
-                    <TimePicker position="bottom" hideSeconds />
-                  ]}
+                  plugins={[<TimePicker position="bottom" hideSeconds />]}
                   className="w-full bg-transparent outline-none text-sm text-gray-700"
                   inputClass="w-full bg-transparent outline-none text-sm text-gray-700"
                 />
@@ -231,11 +246,7 @@ export default function Home() {
             </div>
           )}
           
-          <button 
-            type="submit" 
-            disabled={loading} 
-            className="mt-2 h-12 px-8 sm:px-10 text-sm sm:text-base font-bold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 cursor-pointer"
-          >
+          <button type="submit" disabled={loading} className="mt-2 h-12 px-8 sm:px-10 text-sm sm:text-base font-bold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 cursor-pointer">
             {loading ? <Loader2 className="animate-spin w-5 h-5" /> : (showLoginMsg && !isLoggedIn ? "برای کوتاه کردن وارد شوید" : "کوتاه کن")}
           </button>
         </form>
@@ -251,7 +262,6 @@ export default function Home() {
         )}
       </section>
 
-      {/* بخش امکانات: فاصله زیادتر با فوتر (mb-12) */}
       <section className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 text-center mt-16 sm:mt-24 mb-10 sm:mb-12 flex-shrink-0">
         {features.map((feature, index) => (
           <div key={index} className="flex flex-col items-center p-2">
@@ -264,16 +274,11 @@ export default function Home() {
         ))}
       </section>
 
-      {/* فوتر: سایز فونت مخصوص موبایل (text-[10px]) و جلوگیری از شکست خط (whitespace-nowrap) */}
       <footer className="pb-6 text-[10px] sm:text-xs text-gray-500 text-center flex-shrink-0 whitespace-nowrap">
         ساخته شده با ❤️ برای توسعه‌دهندگان ایرانی توسط{" "}
-        <a href="https://amirmotefaker.ir/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-500 hover:text-red-600 transition-colors">
-          امیر متفکر
-        </a>
+        <a href="https://amirmotefaker.ir/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-500 hover:text-red-600 transition-colors">امیر متفکر</a>
         {" "}-{" "}
-        <a href="https://github.com/AmirMotefaker/LinkResan" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-600 hover:text-blue-700 transition-colors">
-          لینک رسان
-        </a>
+        <a href="https://github.com/AmirMotefaker/LinkResan" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-600 hover:text-blue-700 transition-colors">لینک رسان</a>
       </footer>
     </main>
   );
