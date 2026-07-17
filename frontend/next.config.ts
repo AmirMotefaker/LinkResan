@@ -4,10 +4,7 @@ const nextConfig = {
     // نادیده گرفتن ارورهای تایپ‌اسکریپت هنگام بیلد
     ignoreBuildErrors: true,
   },
-  eslint: {
-    // نادیده گرفتن ارورهای لینت هنگام بیلد
-    ignoreDuringBuilds: true,
-  },
+  // بخش eslint کاملاً حذف شد
 };
 
 export default nextConfig;
