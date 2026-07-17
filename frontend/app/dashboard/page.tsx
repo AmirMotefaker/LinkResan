@@ -8,7 +8,6 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// تابع تبدیل اعداد انگلیسی به فارسی
 const toFa = (num: any) => {
   if (num === null || num === undefined) return "";
   return num.toString().replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
@@ -113,16 +112,17 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen flex flex-col items-center bg-gray-50 text-gray-900 px-4">
       
-      <header className="w-full max-w-6xl flex justify-between items-center py-6">
+      {/* هدر با سایز موبایل */}
+      <header className="w-full max-w-6xl flex justify-between items-center py-3 sm:py-6">
         <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
-          <Link2 className="w-7 h-7 text-blue-600" />
-          <span className="text-xl font-bold tracking-tight">داشبورد لینک رسان</span>
+          <Link2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" />
+          <span className="text-lg sm:text-xl font-bold tracking-tight">داشبورد</span>
         </div>
-        <div className="flex gap-4 items-center">
-          <button onClick={() => router.push("/")} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
-            ساخت لینک جدید
+        <div className="flex gap-2 sm:gap-4 items-center">
+          <button onClick={() => router.push("/")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
+            ساخت لینک
           </button>
-          <button onClick={handleLogout} className="px-5 py-2 text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors flex items-center gap-2 cursor-pointer">
+          <button onClick={handleLogout} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors flex items-center gap-2 cursor-pointer">
             <LogOut className="w-4 h-4" />
             خروج
           </button>
@@ -131,10 +131,11 @@ export default function Dashboard() {
 
       <section className="w-full max-w-6xl mt-8 mb-12">
         
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-8">
+        {/* کارت نمودار با پدینگ موبایل */}
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm mb-8">
           <div className="flex items-center gap-2 mb-6">
             <TrendingUp className="w-5 h-5 text-indigo-600" />
-            <h3 className="text-lg font-bold">آمار کلیک‌های ۷ روز اخیر</h3>
+            <h3 className="text-base sm:text-lg font-bold">آمار کلیک‌های ۷ روز اخیر</h3>
           </div>
           
           {loading ? (
@@ -142,10 +143,10 @@ export default function Dashboard() {
               <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
             </div>
           ) : (
-            <div className="w-full h-64">
+            // ارتفاع نمودار در موبایل کمتر شده
+            <div className="w-full h-48 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
-                {/* مارجین‌ها برای ایجاد فضای خوانایی تنظیم شدند */}
-                <AreaChart data={formatChartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
+                <AreaChart data={formatChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorClick" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8}/>
@@ -153,10 +154,9 @@ export default function Dashboard() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#6b7280' }} tickMargin={8} />
-                  {/* محور عمودی: افزایش فاصله (tickMargin) و افزایش فضای اختصاص داده شده (width) */}
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6b7280' }} tickMargin={8} />
                   <YAxis 
-                    tick={{ fontSize: 12, fill: '#6b7280' }} 
+                    tick={{ fontSize: 11, fill: '#6b7280' }} 
                     tickFormatter={(value) => toFa(value)}
                     tickMargin={15}
                     width={50}
@@ -172,7 +172,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        <h2 className="text-2xl font-bold mb-6">لینک‌های شما ({toFa(links.length)})</h2>
+        <h2 className="text-xl sm:text-2xl font-bold mb-6">لینک‌های شما ({toFa(links.length)})</h2>
 
         {loading ? (
           <div className="flex justify-center items-center h-64">
@@ -186,6 +186,7 @@ export default function Dashboard() {
             </button>
           </div>
         ) : (
+          // جدول با قابلیت اسکرول افقی در موبایل
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden overflow-x-auto">
             <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-gray-100 bg-gray-50 text-sm font-medium text-gray-500 min-w-[900px]">
               <div className="col-span-1 text-center">#</div>
@@ -255,9 +256,9 @@ export default function Dashboard() {
 
       {qrModalUrl && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setQrModalUrl(null)}>
-          <div className="bg-white p-8 rounded-2xl shadow-xl flex flex-col items-center max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl flex flex-col items-center max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
             <div className="w-full flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold">QR Code</h3>
+              <h3 className="text-lg sm:text-xl font-bold">QR Code</h3>
               <button onClick={() => setQrModalUrl(null)} className="p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
                 <X className="w-5 h-5" />
               </button>

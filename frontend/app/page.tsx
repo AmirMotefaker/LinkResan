@@ -6,7 +6,7 @@ import { Link2, Zap, Shield, BarChart2, Loader2, Copy, Check } from "lucide-reac
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
-import TimePicker from "react-multi-date-picker/plugins/time_picker"; // پلاگین ساعت اضافه شد
+import TimePicker from "react-multi-date-picker/plugins/time_picker";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -16,7 +16,6 @@ const toFa = (num: any) => {
   return num.toString().replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
 };
 
-// تابع تبدیل اعداد فارسی به انگلیسی (برای ارسال به سرور)
 const toEn = (num: any) => {
   if (num === null || num === undefined) return "";
   return num.toString().replace(/[۰-۹]/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString());
@@ -33,9 +32,8 @@ export default function Home() {
   const [customCode, setCustomCode] = useState("");
   const [showCustomField, setShowCustomField] = useState(false);
   
-  // متغیرهای تنظیمات پیشرفته
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [expirationDate, setExpirationDate] = useState<any>(null); // برای تقویم شمسی
+  const [expirationDate, setExpirationDate] = useState<any>(null);
   const [clickLimit, setClickLimit] = useState("");
 
   const router = useRouter();
@@ -69,12 +67,11 @@ export default function Home() {
         custom_code: customCode 
       };
 
-      // تبدیل تاریخ شمسی به ISO 8601 برای بک‌اند
       if (expirationDate) {
         bodyData.expires_at = new Date(expirationDate.toDate()).toISOString();
       }
       if (clickLimit) {
-        bodyData.click_limit = parseInt(toEn(clickLimit)); // تبدیل اعداد فارسی به انگلیسی
+        bodyData.click_limit = parseInt(toEn(clickLimit));
       }
 
       const res = await fetch(`${API_URL}/links`, {
@@ -124,29 +121,31 @@ export default function Home() {
   ];
 
   return (
-    <main className="h-screen flex flex-col items-center bg-white text-gray-900 px-4 overflow-hidden">
+    // تغییر از h-screen به min-h-screen برای اجازه اسکرول در موبایل
+    <main className="min-h-screen flex flex-col items-center bg-white text-gray-900 px-4">
       
-      <header className="w-full max-w-6xl flex justify-between items-center py-4 flex-shrink-0">
+      {/* هدر مینیمال (فاصله‌ها و سایز فونت برای موبایل تنظیم شد) */}
+      <header className="w-full max-w-6xl flex justify-between items-center py-3 sm:py-4 flex-shrink-0">
         <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
-          <Link2 className="w-7 h-7 text-blue-600" />
-          <span className="text-xl font-bold tracking-tight">لینک رسان</span>
+          <Link2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" />
+          <span className="text-lg sm:text-xl font-bold tracking-tight">لینک رسان</span>
         </div>
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-2 sm:gap-4 items-center">
           {isLoggedIn ? (
             <>
-              <button onClick={() => router.push("/dashboard")} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
+              <button onClick={() => router.push("/dashboard")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
                 داشبورد
               </button>
-              <button onClick={handleLogout} className="px-5 py-2 text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors cursor-pointer">
+              <button onClick={handleLogout} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors cursor-pointer">
                 خروج
               </button>
             </>
           ) : (
             <>
-              <button onClick={() => router.push("/login")} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
+              <button onClick={() => router.push("/login")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
                 ورود
               </button>
-              <button onClick={() => router.push("/login")} className="px-5 py-2 text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors cursor-pointer">
+              <button onClick={() => router.push("/login")} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors cursor-pointer">
                 ثبت‌نام
               </button>
             </>
@@ -154,11 +153,12 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="flex-grow w-full max-w-2xl flex flex-col items-center justify-center text-center">
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+      {/* بخش اصلی و فرم (با حذف flex-grow مشکلات بریدگی در موبایل حل شد) */}
+      <section className="w-full max-w-2xl flex flex-col items-center justify-center text-center mt-10 sm:mt-20 md:mt-24">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 sm:mb-4">
           کوتاه‌کننده لینک حرفه‌ای
         </h1>
-        <p className="text-base md:text-lg text-gray-500 mb-6 max-w-xl">
+        <p className="text-sm sm:text-base md:text-lg text-gray-500 mb-6 sm:mb-8 max-w-xl">
           لینک‌های طولانی خود را به لینک‌های کوتاه، امن و قابل اندازه‌گیری تبدیل کنید.
         </p>
 
@@ -168,7 +168,7 @@ export default function Home() {
             placeholder="لینک خود را اینجا وارد کنید..."
             value={url}
             onChange={(e) => { setUrl(e.target.value); setShowLoginMsg(false); }}
-            className="w-full h-14 px-6 text-base bg-gray-50 border-2 border-gray-200 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white transition-all placeholder:text-gray-400 shadow-sm cursor-pointer"
+            className="w-full h-12 sm:h-14 px-4 sm:px-6 text-sm sm:text-base bg-gray-50 border-2 border-gray-200 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white transition-all placeholder:text-gray-400 shadow-sm cursor-pointer"
             required
           />
 
@@ -176,14 +176,14 @@ export default function Home() {
             <button 
               type="button" 
               onClick={() => setShowCustomField(!showCustomField)}
-              className="text-xs text-gray-500 hover:text-indigo-600 cursor-pointer"
+              className="text-xs sm:text-sm text-gray-500 hover:text-indigo-600 cursor-pointer"
             >
               {showCustomField ? "حذف نام دلخواه" : "نام دلخواه"}
             </button>
             <button 
               type="button" 
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-xs text-gray-500 hover:text-indigo-600 cursor-pointer"
+              className="text-xs sm:text-sm text-gray-500 hover:text-indigo-600 cursor-pointer"
             >
               {showAdvanced ? "حذف تنظیمات پیشرفته" : "تنظیمات پیشرفته"}
             </button>
@@ -197,14 +197,14 @@ export default function Home() {
                 placeholder="نام دلخواه (مثلا: amir-shop)"
                 value={customCode}
                 onChange={(e) => setCustomCode(e.target.value)}
-                className="w-full h-12 bg-transparent outline-none text-sm placeholder:text-gray-400"
+                className="w-full h-11 sm:h-12 bg-transparent outline-none text-sm placeholder:text-gray-400"
               />
             </div>
           )}
 
           {showAdvanced && (
-            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-              {/* تقویم شمسی با پلاگین ساعت */}
+            // در موبایل زیر هم ست می‌شوند تا فشردگی ایجاد نکنند
+            <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <div className="flex flex-col items-start gap-1 bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-2">
                 <label className="text-xs text-gray-500 mb-1">تاریخ و ساعت انقضا (شمسی)</label>
                 <DatePicker
@@ -214,7 +214,7 @@ export default function Home() {
                   locale={persian_fa}
                   format="YYYY/MM/DD HH:mm"
                   plugins={[
-                    <TimePicker position="bottom" hideSeconds /> // ساعت زیبا در پایین تقویم
+                    <TimePicker position="bottom" hideSeconds />
                   ]}
                   className="w-full bg-transparent outline-none text-sm text-gray-700"
                   inputClass="w-full bg-transparent outline-none text-sm text-gray-700"
@@ -237,7 +237,7 @@ export default function Home() {
           <button 
             type="submit" 
             disabled={loading} 
-            className="mt-2 h-12 px-10 text-base font-bold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 cursor-pointer"
+            className="mt-2 h-12 px-8 sm:px-10 text-sm sm:text-base font-bold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 cursor-pointer"
           >
             {loading ? <Loader2 className="animate-spin w-5 h-5" /> : (showLoginMsg && !isLoggedIn ? "برای کوتاه کردن وارد شوید" : "کوتاه کن")}
           </button>
@@ -245,8 +245,8 @@ export default function Home() {
 
         {shortUrl && (
           <div className="mt-6 w-full p-3 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between">
-            <span className="text-base font-medium text-green-700 truncate ml-2">{shortUrl}</span>
-            <button onClick={handleCopy} className="flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-800 px-3 py-1 rounded-lg hover:bg-green-100 transition-colors flex-shrink-0 cursor-pointer">
+            <span className="text-sm sm:text-base font-medium text-green-700 truncate ml-2">{shortUrl}</span>
+            <button onClick={handleCopy} className="flex items-center gap-1 text-xs sm:text-sm font-medium text-green-600 hover:text-green-800 px-3 py-1 rounded-lg hover:bg-green-100 transition-colors flex-shrink-0 cursor-pointer">
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               {copied ? "کپی شد" : "کپی لینک"}
             </button>
@@ -254,19 +254,20 @@ export default function Home() {
         )}
       </section>
 
-      <section className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8 text-center mb-6 flex-shrink-0">
+      {/* بخش امکانات (بهینه شده برای موبایل) */}
+      <section className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 text-center mt-16 sm:mt-24 mb-6 flex-shrink-0">
         {features.map((feature, index) => (
           <div key={index} className="flex flex-col items-center p-2">
-            <div className="bg-indigo-50 p-4 rounded-2xl mb-3 border border-indigo-100">
-              <feature.icon className="w-8 h-8 text-indigo-600" />
+            <div className="bg-indigo-50 p-3 sm:p-4 rounded-2xl mb-3 border border-indigo-100">
+              <feature.icon className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" />
             </div>
-            <h3 className="text-lg font-bold mb-1 tracking-tight">{feature.title}</h3>
-            <p className="text-gray-500 text-sm leading-relaxed max-w-xs">{feature.desc}</p>
+            <h3 className="text-base sm:text-lg font-bold mb-1 tracking-tight">{feature.title}</h3>
+            <p className="text-gray-500 text-xs sm:text-sm leading-relaxed max-w-xs">{feature.desc}</p>
           </div>
         ))}
       </section>
 
-      <footer className="pb-6 text-gray-500 text-sm text-center flex-shrink-0">
+      <footer className="pb-6 text-gray-500 text-xs sm:text-sm text-center flex-shrink-0">
         ساخته شده با ❤️ برای توسعه‌دهندگان ایرانی توسط{" "}
         <a href="https://amirmotefaker.ir/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-500 hover:text-red-600 transition-colors">
           امیر متفکر
