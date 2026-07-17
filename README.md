@@ -1,10 +1,6 @@
 <div align="center">
 
-<img
-  src="https://capsule-render.vercel.app/api?type=waving&color=0:0F172A,30:1D4ED8,65:4F46E5,100:7C3AED&height=250&section=header&text=LinkResan&fontSize=74&fontColor=FFFFFF&animation=fadeIn&fontAlignY=34&desc=Persian-First%20URL%20Shortener%20%26%20Analytics%20Platform&descAlignY=57&descSize=19"
-  width="100%"
-  alt="LinkResan — Persian-first URL shortener and analytics platform"
-/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:4F46E5,50:7C3AED,100:DB2777&height=230&section=header&text=LinkResan&fontSize=72&fontColor=FFFFFF&animation=fadeIn&fontAlignY=35&desc=Fast%20%C2%B7%20Open-Source%20%C2%B7%20Persian-First%20URL%20Shortener&descAlignY=57&descSize=18" width="100%" alt="LinkResan — Persian-first open-source URL shortener" />
 
 # 🔗 لینک‌رسان | LinkResan
 

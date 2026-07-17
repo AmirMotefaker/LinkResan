@@ -5,6 +5,7 @@ import (
     "encoding/json"
     "errors"
     "math/rand"
+    "strings"
     "time"
 
     "github.com/AmirMotefaker/LinkResan/backend/internal/models"
@@ -26,6 +27,7 @@ type LinkService interface {
     GetUserLinks(userID uint) ([]models.Link, error)
     DeleteLink(userID uint, linkID uint) error
     GetAnalytics(userID uint) ([]repositories.DailyClickData, error)
+    GetClickStats(userID uint) (map[string][]repositories.NameCount, error) // اضافه شد
 }
 
 type linkService struct {
@@ -41,7 +43,6 @@ func NewLinkService(linkRepo repositories.LinkRepository, domainRepo repositorie
 func generateShortCode() string {
     const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     const codeLength = 6
-
     seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
     b := make([]byte, codeLength)
     for i := range b {
@@ -50,7 +51,6 @@ func generateShortCode() string {
     return string(b)
 }
 
-// اضافه شدن password
 func (s *linkService) CreateShortLink(userID uint, originalURL, customCode, password string, expiresAt *time.Time, clickLimit *int, domainID *uint) (*models.Link, error) {
     shortCode := generateShortCode()
     isCustom := false
@@ -93,12 +93,10 @@ func (s *linkService) CreateShortLink(userID uint, originalURL, customCode, pass
     return link, nil
 }
 
-// این تابع فقط لینک را پیدا می‌کند و ریدایرکت انجام نمی‌دهد
 func (s *linkService) GetLinkByCode(shortCode, host string) (*models.Link, error) {
     ctx := context.Background()
-    
     var domainID *uint
-    
+
     if host != "linkresan.ir" && host != "www.linkresan.ir" && host != "localhost:8080" && host != "127.0.0.1:8080" {
         domain, err := s.domainRepo.FindByName(host)
         if err == nil && domain != nil {
@@ -107,16 +105,11 @@ func (s *linkService) GetLinkByCode(shortCode, host string) (*models.Link, error
     }
 
     cacheKey := "shortlink:" + host + ":" + shortCode
-
     val, err := s.redisClient.Get(ctx, cacheKey).Result()
     if err == nil {
         var cached CachedLink
         if json.Unmarshal([]byte(val), &cached) == nil {
-            link := &models.Link{
-                ID:           cached.ID,
-                OriginalURL:  cached.OriginalURL,
-                PasswordHash: cached.PasswordHash,
-            }
+            link := &models.Link{ID: cached.ID, OriginalURL: cached.OriginalURL, PasswordHash: cached.PasswordHash}
             return link, nil
         }
     }
@@ -134,24 +127,55 @@ func (s *linkService) GetLinkByCode(shortCode, host string) (*models.Link, error
         return nil, errors.New("محدودیت کلیک این لینک به پایان رسیده است")
     }
 
-    cachedData := CachedLink{
-        ID:           link.ID,
-        OriginalURL:  link.OriginalURL,
-        PasswordHash: link.PasswordHash,
-    }
+    cachedData := CachedLink{ID: link.ID, OriginalURL: link.OriginalURL, PasswordHash: link.PasswordHash}
     jsonData, _ := json.Marshal(cachedData)
     s.redisClient.Set(ctx, cacheKey, jsonData, 1*time.Hour)
 
     return link, nil
 }
 
-// تابع ثبت کلیک که به صورت عمومی در دسترس هندلر قرار گرفت
+// تابع تشخیص مرورگر و سیستم‌عامل
+func parseUserAgent(ua string) (browser, device string) {
+    uaLower := strings.ToLower(ua)
+
+    if strings.Contains(uaLower, "edg") {
+        browser = "Edge"
+    } else if strings.Contains(uaLower, "chrome") {
+        browser = "Chrome"
+    } else if strings.Contains(uaLower, "firefox") {
+        browser = "Firefox"
+    } else if strings.Contains(uaLower, "safari") {
+        browser = "Safari"
+    } else {
+        browser = "Other"
+    }
+
+    if strings.Contains(uaLower, "android") {
+        device = "Android"
+    } else if strings.Contains(uaLower, "iphone") || strings.Contains(uaLower, "ipad") {
+        device = "iOS"
+    } else if strings.Contains(uaLower, "windows") {
+        device = "Windows"
+    } else if strings.Contains(uaLower, "mac os") || strings.Contains(uaLower, "macintosh") {
+        device = "macOS"
+    } else if strings.Contains(uaLower, "linux") {
+        device = "Linux"
+    } else {
+        device = "Other"
+    }
+    return
+}
+
 func (s *linkService) TrackClick(linkID uint, ipAddress, userAgent, referrer string) {
+    browser, device := parseUserAgent(userAgent)
+
     click := &models.Click{
-        LinkID:    linkID,
-        IPAddress: ipAddress,
-        UserAgent: userAgent,
-        Referrer:  referrer,
+        LinkID:     linkID,
+        IPAddress:  ipAddress,
+        UserAgent:  userAgent,
+        Referrer:   referrer,
+        Browser:    browser,
+        DeviceType: device,
     }
     _ = s.linkRepo.CreateClick(click)
     _ = s.linkRepo.IncrementClickCount(linkID)
@@ -167,4 +191,9 @@ func (s *linkService) DeleteLink(userID uint, linkID uint) error {
 
 func (s *linkService) GetAnalytics(userID uint) ([]repositories.DailyClickData, error) {
     return s.linkRepo.GetDailyClicks(userID)
+}
+
+// متد جدید برای گرفتن آمار
+func (s *linkService) GetClickStats(userID uint) (map[string][]repositories.NameCount, error) {
+    return s.linkRepo.GetClickStats(userID)
 }

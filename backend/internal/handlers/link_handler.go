@@ -22,7 +22,7 @@ type CreateLinkRequest struct {
     ExpiresAt   *time.Time `json:"expires_at"`
     ClickLimit  *int       `json:"click_limit"`
     DomainID    *uint      `json:"domain_id"`
-    Password    string     `json:"password"` // اضافه شد
+    Password    string     `json:"password"`
 }
 
 func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
@@ -69,6 +69,16 @@ func (h *LinkHandler) GetAnalytics(c *fiber.Ctx) error {
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"analytics": data})
 }
 
+// هندلر جدید: آمار مرورگر و سیستم‌عامل
+func (h *LinkHandler) GetClickStats(c *fiber.Ctx) error {
+    userID := c.Locals("user_id").(float64)
+    stats, err := h.linkService.GetClickStats(uint(userID))
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch stats"})
+    }
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"stats": stats})
+}
+
 func (h *LinkHandler) DeleteLink(c *fiber.Ctx) error {
     linkID, err := c.ParamsInt("id")
     if err != nil {
@@ -82,7 +92,6 @@ func (h *LinkHandler) DeleteLink(c *fiber.Ctx) error {
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Link deleted successfully"})
 }
 
-// هندلر جدید: بررسی اطلاعات لینک (آیا رمز دارد؟)
 func (h *LinkHandler) GetLinkInfo(c *fiber.Ctx) error {
     shortCode := c.Params("code")
     host := c.Hostname()
@@ -92,22 +101,18 @@ func (h *LinkHandler) GetLinkInfo(c *fiber.Ctx) error {
         return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Link not found or expired"})
     }
 
-    // ثبت آمار کلیک به صورت ناهمگام
     go h.linkService.TrackClick(link.ID, c.IP(), c.Get("User-Agent"), c.Get("Referer"))
 
-    // اگر لینک رمز داشت
     if link.PasswordHash != nil {
         return c.Status(fiber.StatusOK).JSON(fiber.Map{"requires_password": true})
     }
 
-    // اگر رمز نداشت، لینک اصلی را بفرست
     return c.Status(fiber.StatusOK).JSON(fiber.Map{
         "requires_password": false,
         "original_url":      link.OriginalURL,
     })
 }
 
-// هندلر جدید: بررسی رمز عبور
 func (h *LinkHandler) VerifyLinkPassword(c *fiber.Ctx) error {
     shortCode := c.Params("code")
     host := c.Hostname()
@@ -128,7 +133,6 @@ func (h *LinkHandler) VerifyLinkPassword(c *fiber.Ctx) error {
         return c.Status(fiber.StatusOK).JSON(fiber.Map{"original_url": link.OriginalURL})
     }
 
-    // مقایسه رمز وارد شده با هش دیتابیس
     if bcrypt.CompareHashAndPassword([]byte(*link.PasswordHash), []byte(req.Password)) != nil {
         return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "رمز عبور اشتباه است"})
     }

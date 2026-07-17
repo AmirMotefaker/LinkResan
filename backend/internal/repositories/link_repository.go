@@ -12,14 +12,21 @@ type DailyClickData struct {
     Count int    `json:"count"`
 }
 
+// ساختار جدید برای آمار کلی
+type NameCount struct {
+    Name  string `json:"name"`
+    Count int    `json:"count"`
+}
+
 type LinkRepository interface {
     Create(link *models.Link) error
-    FindByShortCodeAndDomain(code string, domainID *uint) (*models.Link, error) // تغییر کرد
+    FindByShortCodeAndDomain(code string, domainID *uint) (*models.Link, error)
     CreateClick(click *models.Click) error
     IncrementClickCount(linkID uint) error
     FindByUserID(userID uint) ([]models.Link, error)
     DeleteByIDAndUserID(linkID uint, userID uint) error
     GetDailyClicks(userID uint) ([]DailyClickData, error)
+    GetClickStats(userID uint) (map[string][]NameCount, error) // اضافه شد
 }
 
 type linkRepository struct {
@@ -34,17 +41,14 @@ func (r *linkRepository) Create(link *models.Link) error {
     return r.db.Create(link).Error
 }
 
-// اضافه شدن چک دامنه هنگام پیدا کردن لینک
 func (r *linkRepository) FindByShortCodeAndDomain(code string, domainID *uint) (*models.Link, error) {
     var link models.Link
     query := r.db.Where("short_code = ? AND is_active = ?", code, true)
-    
     if domainID == nil {
         query = query.Where("domain_id IS NULL")
     } else {
         query = query.Where("domain_id = ?", *domainID)
     }
-    
     err := query.First(&link).Error
     if err != nil {
         return nil, err
@@ -63,21 +67,12 @@ func (r *linkRepository) IncrementClickCount(linkID uint) error {
 func (r *linkRepository) FindByUserID(userID uint) ([]models.Link, error) {
     var links []models.Link
     err := r.db.Where("user_id = ?", userID).Order("created_at desc").Find(&links).Error
-    if err != nil {
-        return nil, err
-    }
-    return links, nil
+    return links, err
 }
 
 func (r *linkRepository) DeleteByIDAndUserID(linkID uint, userID uint) error {
     result := r.db.Where("id = ? AND user_id = ?", linkID, userID).Delete(&models.Link{})
-    if result.Error != nil {
-        return result.Error
-    }
-    if result.RowsAffected == 0 {
-        return gorm.ErrRecordNotFound
-    }
-    return nil
+    return result.Error
 }
 
 func (r *linkRepository) GetDailyClicks(userID uint) ([]DailyClickData, error) {
@@ -109,11 +104,34 @@ func (r *linkRepository) GetDailyClicks(userID uint) ([]DailyClickData, error) {
     finalResults := make([]DailyClickData, 0, 7)
     for i := 6; i >= 0; i-- {
         day := now.AddDate(0, 0, -i).Format("2006-01-02")
-        finalResults = append(finalResults, DailyClickData{
-            Date:  day,
-            Count: counts[day],
-        })
+        finalResults = append(finalResults, DailyClickData{Date: day, Count: counts[day]})
     }
 
     return finalResults, nil
+}
+
+// تابع جدید برای گرفتن آمار مرورگرها و دستگاه‌ها
+func (r *linkRepository) GetClickStats(userID uint) (map[string][]NameCount, error) {
+    var browsers []NameCount
+    r.db.Model(&models.Click{}).
+        Joins("JOIN links ON links.id = clicks.link_id").
+        Where("links.user_id = ?", userID).
+        Select("browser as name, count(*) as count").
+        Group("browser").
+        Order("count desc").
+        Scan(&browsers)
+
+    var devices []NameCount
+    r.db.Model(&models.Click{}).
+        Joins("JOIN links ON links.id = clicks.link_id").
+        Where("links.user_id = ?", userID).
+        Select("device_type as name, count(*) as count").
+        Group("device_type").
+        Order("count desc").
+        Scan(&devices)
+
+    return map[string][]NameCount{
+        "browsers": browsers,
+        "devices":  devices,
+    }, nil
 }

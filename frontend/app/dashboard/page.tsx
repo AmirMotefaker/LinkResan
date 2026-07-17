@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus } from "lucide-react";
+import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Chrome, Smartphone, Monitor } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
@@ -16,13 +16,13 @@ const toFa = (num: any) => {
 export default function Dashboard() {
   const [links, setLinks] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>(null);
   const [domains, setDomains] = useState<any[]>([]);
   
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [qrModalUrl, setQrModalUrl] = useState<string | null>(null);
   
-  // متغیرهای مربوط به دامنه‌ها
   const [newDomain, setNewDomain] = useState("");
   const [domainLoading, setDomainLoading] = useState(false);
 
@@ -38,11 +38,13 @@ export default function Dashboard() {
     Promise.all([
       fetch(`${API_URL}/links`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()),
       fetch(`${API_URL}/links/analytics`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()),
+      fetch(`${API_URL}/links/stats`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()), // اضافه شد
       fetch(`${API_URL}/domains`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json())
     ])
-      .then(([linksData, analyticsData, domainsData]) => {
+      .then(([linksData, analyticsData, statsData, domainsData]) => {
         if (linksData.links) setLinks(linksData.links);
         if (analyticsData.analytics) setAnalytics(analyticsData.analytics);
+        if (statsData.stats) setStats(statsData.stats); // اضافه شد
         if (domainsData.domains) setDomains(domainsData.domains);
         setLoading(false);
       })
@@ -99,7 +101,7 @@ export default function Dashboard() {
   };
 
   const handleDeleteDomain = async (id: number) => {
-    if (!confirm("آیا از حذف این دامنه مطمئن هستید؟ لینک‌های این دامنه دیگر کار نخواهند کرد.")) return;
+    if (!confirm("آیا از حذف این دامنه مطمئن هستید؟")) return;
     const token = localStorage.getItem("token");
     try {
       const res = await fetch(`${API_URL}/domains/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
@@ -151,7 +153,6 @@ export default function Dashboard() {
 
       <section className="w-full max-w-6xl mt-8 mb-12">
         
-        {/* کارت مدیریت دامنه‌های اختصاصی */}
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm mb-8">
           <div className="flex items-center gap-2 mb-6">
             <Globe className="w-5 h-5 text-indigo-600" />
@@ -201,36 +202,81 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* کارت نمودار آماری */}
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm mb-8">
-          <div className="flex items-center gap-2 mb-6">
-            <TrendingUp className="w-5 h-5 text-indigo-600" />
-            <h3 className="text-base sm:text-lg font-bold">آمار کلیک‌های ۷ روز اخیر</h3>
+        {/* کارت نمودار و آمار کلی */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <div className="lg:col-span-2 bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <div className="flex items-center gap-2 mb-6">
+              <TrendingUp className="w-5 h-5 text-indigo-600" />
+              <h3 className="text-base sm:text-lg font-bold">آمار کلیک‌های ۷ روز اخیر</h3>
+            </div>
+            
+            {loading ? (
+              <div className="flex justify-center items-center h-48">
+                <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+              </div>
+            ) : (
+              <div className="w-full h-48 sm:h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={formatChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorClick" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6b7280' }} tickMargin={8} />
+                    <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(value) => toFa(value)} tickMargin={15} width={50} />
+                    <Tooltip contentStyle={{ direction: 'rtl', borderRadius: '12px', border: '1px solid #e5e7eb', fontSize: '14px' }} formatter={(value: any) => [toFa(value) + ' کلیک', 'تعداد']} />
+                    <Area type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorClick)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
-          
-          {loading ? (
-            <div className="flex justify-center items-center h-48">
-              <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
-            </div>
-          ) : (
-            <div className="w-full h-48 sm:h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={formatChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorClick" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6b7280' }} tickMargin={8} />
-                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(value) => toFa(value)} tickMargin={15} width={50} />
-                  <Tooltip contentStyle={{ direction: 'rtl', borderRadius: '12px', border: '1px solid #e5e7eb', fontSize: '14px' }} formatter={(value: any) => [toFa(value) + ' کلیک', 'تعداد']} />
-                  <Area type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorClick)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+
+          {/* کارت آمار مرورگر و سیستم‌عامل */}
+          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h3 className="text-base sm:text-lg font-bold mb-6">دستگاه‌ها و مرورگرها</h3>
+            {loading ? (
+              <div className="flex justify-center items-center h-32">
+                <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+              </div>
+            ) : stats ? (
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-3">سیستم‌عامل‌ها</h4>
+                  <div className="space-y-2">
+                    {stats.devices.slice(0, 3).map((device: any, i: number) => (
+                      <div key={i} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <Monitor className="w-4 h-4 text-gray-400" />
+                          <span>{device.name}</span>
+                        </div>
+                        <span className="font-bold text-gray-700">{toFa(device.count)}</span>
+                      </div>
+                    ))}
+                    {stats.devices.length === 0 && <p className="text-xs text-gray-400">داده‌ای موجود نیست</p>}
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-3">مرورگرها</h4>
+                  <div className="space-y-2">
+                    {stats.browsers.slice(0, 3).map((browser: any, i: number) => (
+                      <div key={i} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <Chrome className="w-4 h-4 text-gray-400" />
+                          <span>{browser.name}</span>
+                        </div>
+                        <span className="font-bold text-gray-700">{toFa(browser.count)}</span>
+                      </div>
+                    ))}
+                    {stats.browsers.length === 0 && <p className="text-xs text-gray-400">داده‌ای موجود نیست</p>}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
         </div>
 
         <h2 className="text-xl sm:text-2xl font-bold mb-6">لینک‌های شما ({toFa(links.length)})</h2>
@@ -256,7 +302,6 @@ export default function Dashboard() {
             </div>
 
             {links.map((link, index) => {
-              // پیدا کردن دامنه اختصاصی برای لینک
               const domain = domains.find(d => d.ID === link.DomainID);
               const shortUrl = `https://${domain ? domain.Domain : 'linkresan.ir'}/${link.ShortCode}`;
               

@@ -60,6 +60,7 @@ func main() {
     api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)
     api.Get("/links", middleware.Protected(), linkHandler.GetUserLinks)
     api.Get("/links/analytics", middleware.Protected(), linkHandler.GetAnalytics)
+    api.Get("/links/stats", middleware.Protected(), linkHandler.GetClickStats) // اضافه شد
     api.Delete("/links/:id", middleware.Protected(), linkHandler.DeleteLink)
 
     // Domain Routes (Protected)
@@ -67,9 +68,9 @@ func main() {
     api.Get("/domains", middleware.Protected(), domainHandler.GetUserDomains)
     api.Delete("/domains/:id", middleware.Protected(), domainHandler.DeleteDomain)
 
-    // Public Link Resolution Routes (برای فرانت‌اند)
-    api.Get("/links/info/:code", linkHandler.GetLinkInfo)         // اضافه شد
-    api.Post("/links/verify/:code", linkHandler.VerifyLinkPassword) // اضافه شد
+    // Public Link Resolution Routes
+    api.Get("/links/info/:code", linkHandler.GetLinkInfo)
+    api.Post("/links/verify/:code", linkHandler.VerifyLinkPassword)
 
     log.Printf("Server starting on port %s...", cfg.Port)
     log.Fatal(app.Listen(":" + cfg.Port))

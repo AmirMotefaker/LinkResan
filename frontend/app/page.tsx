@@ -34,7 +34,12 @@ export default function Home() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [expirationDate, setExpirationDate] = useState<any>(null);
   const [clickLimit, setClickLimit] = useState("");
-  const [password, setPassword] = useState(""); // اضافه شد
+  const [password, setPassword] = useState("");
+
+  // متغیرهای UTM
+  const [utmSource, setUtmSource] = useState("");
+  const [utmMedium, setUtmMedium] = useState("");
+  const [utmCampaign, setUtmCampaign] = useState("");
 
   const [domains, setDomains] = useState<any[]>([]);
   const [selectedDomain, setSelectedDomain] = useState<string>("linkresan.ir");
@@ -71,10 +76,24 @@ export default function Home() {
     const token = localStorage.getItem("token");
 
     try {
+      // ساخت لینک نهایی با UTM
+      let finalUrl = url;
+      if (utmSource || utmMedium || utmCampaign) {
+        try {
+          const u = new URL(url);
+          if (utmSource) u.searchParams.set("utm_source", utmSource);
+          if (utmMedium) u.searchParams.set("utm_medium", utmMedium);
+          if (utmCampaign) u.searchParams.set("utm_campaign", utmCampaign);
+          finalUrl = u.toString();
+        } catch {
+          // اگر لینک معتبر نبود، همینطور بفرست
+        }
+      }
+
       const bodyData: any = { 
-        original_url: url,
+        original_url: finalUrl,
         custom_code: customCode,
-        password: password // اضافه شد
+        password: password
       };
 
       const selectedDomainObj = domains.find(d => d.Domain === selectedDomain);
@@ -111,7 +130,10 @@ export default function Home() {
       setShowCustomField(false);
       setExpirationDate(null);
       setClickLimit("");
-      setPassword(""); // اضافه شد
+      setPassword("");
+      setUtmSource("");
+      setUtmMedium("");
+      setUtmCampaign("");
       setShowAdvanced(false);
     } catch (error: any) {
       alert(error.message);
@@ -241,7 +263,6 @@ export default function Home() {
                   className="w-full h-8 bg-transparent outline-none text-sm placeholder:text-gray-400"
                 />
               </div>
-              {/* فیلد رمز عبور اضافه شد */}
               <div className="flex flex-col items-start gap-1 bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-2 sm:col-span-2">
                 <label className="text-xs text-gray-500">رمز عبور لینک (اختیاری)</label>
                 <input
@@ -251,6 +272,16 @@ export default function Home() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full h-8 bg-transparent outline-none text-sm placeholder:text-gray-400"
                 />
+              </div>
+
+              {/* ابزار سازنده UTM اضافه شد */}
+              <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-2 sm:col-span-2 mt-2">
+                <label className="text-xs text-gray-500 mb-2 block">سازنده تگ UTM (برای ردیابی کمپین‌ها)</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <input type="text" placeholder="منبع (source)" value={utmSource} onChange={(e) => setUtmSource(e.target.value)} className="w-full h-9 px-2 bg-white border border-gray-200 rounded-lg outline-none text-xs focus:border-indigo-500" />
+                  <input type="text" placeholder="رسانه (medium)" value={utmMedium} onChange={(e) => setUtmMedium(e.target.value)} className="w-full h-9 px-2 bg-white border border-gray-200 rounded-lg outline-none text-xs focus:border-indigo-500" />
+                  <input type="text" placeholder="نام کمپین (campaign)" value={utmCampaign} onChange={(e) => setUtmCampaign(e.target.value)} className="w-full h-9 px-2 bg-white border border-gray-200 rounded-lg outline-none text-xs focus:border-indigo-500" />
+                </div>
               </div>
             </div>
           )}
