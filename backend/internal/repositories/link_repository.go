@@ -7,7 +7,6 @@ import (
     "gorm.io/gorm"
 )
 
-// ساختار برای ذخیره داده‌های آماری
 type DailyClickData struct {
     Date  string `json:"date"`
     Count int    `json:"count"`
@@ -15,7 +14,7 @@ type DailyClickData struct {
 
 type LinkRepository interface {
     Create(link *models.Link) error
-    FindByShortCode(code string) (*models.Link, error)
+    FindByShortCodeAndDomain(code string, domainID *uint) (*models.Link, error) // تغییر کرد
     CreateClick(click *models.Click) error
     IncrementClickCount(linkID uint) error
     FindByUserID(userID uint) ([]models.Link, error)
@@ -35,9 +34,18 @@ func (r *linkRepository) Create(link *models.Link) error {
     return r.db.Create(link).Error
 }
 
-func (r *linkRepository) FindByShortCode(code string) (*models.Link, error) {
+// اضافه شدن چک دامنه هنگام پیدا کردن لینک
+func (r *linkRepository) FindByShortCodeAndDomain(code string, domainID *uint) (*models.Link, error) {
     var link models.Link
-    err := r.db.Where("short_code = ? AND is_active = ?", code, true).First(&link).Error
+    query := r.db.Where("short_code = ? AND is_active = ?", code, true)
+    
+    if domainID == nil {
+        query = query.Where("domain_id IS NULL")
+    } else {
+        query = query.Where("domain_id = ?", *domainID)
+    }
+    
+    err := query.First(&link).Error
     if err != nil {
         return nil, err
     }
@@ -72,19 +80,16 @@ func (r *linkRepository) DeleteByIDAndUserID(linkID uint, userID uint) error {
     return nil
 }
 
-// تابع جدید برای دریافت آمار ۷ روز اخیر (با حل مشکل منطقه زمانی)
 func (r *linkRepository) GetDailyClicks(userID uint) ([]DailyClickData, error) {
     type RawClick struct {
         CreatedAt time.Time
     }
     var rawClicks []RawClick
 
-    // تنظیم منطقه زمانی تهران
     tehran, _ := time.LoadLocation("Asia/Tehran")
     now := time.Now().In(tehran)
     sevenDaysAgo := now.AddDate(0, 0, -6)
 
-    // گرفتن تمام کلیک‌های ۷ روز اخیر خام
     err := r.db.Model(&models.Click{}).
         Joins("JOIN links ON links.id = clicks.link_id").
         Where("links.user_id = ? AND clicks.created_at >= ?", userID, sevenDaysAgo).
@@ -95,14 +100,12 @@ func (r *linkRepository) GetDailyClicks(userID uint) ([]DailyClickData, error) {
         return nil, err
     }
 
-    // شمارش کلیک‌ها بر اساس تاریخ شمسی/قمری در منطقه زمانی تهران
     counts := make(map[string]int)
     for _, rc := range rawClicks {
         dayStr := rc.CreatedAt.In(tehran).Format("2006-01-02")
         counts[dayStr]++
     }
 
-    // ساخت آرایه نهایی ۷ روزه
     finalResults := make([]DailyClickData, 0, 7)
     for i := 6; i >= 0; i-- {
         day := now.AddDate(0, 0, -i).Format("2006-01-02")

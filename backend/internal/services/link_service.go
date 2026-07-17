@@ -18,20 +18,22 @@ type CachedLink struct {
 }
 
 type LinkService interface {
-    CreateShortLink(userID uint, originalURL, customCode string, expiresAt *time.Time, clickLimit *int) (*models.Link, error)
-    ResolveShortLink(shortCode, ipAddress, userAgent, referrer string) (*models.Link, error)
+    CreateShortLink(userID uint, originalURL, customCode string, expiresAt *time.Time, clickLimit *int, domainID *uint) (*models.Link, error)
+    ResolveShortLink(shortCode, host, ipAddress, userAgent, referrer string) (*models.Link, error)
     GetUserLinks(userID uint) ([]models.Link, error)
     DeleteLink(userID uint, linkID uint) error
-    GetAnalytics(userID uint) ([]repositories.DailyClickData, error) // اضافه شد
+    GetAnalytics(userID uint) ([]repositories.DailyClickData, error)
 }
 
 type linkService struct {
     linkRepo    repositories.LinkRepository
+    domainRepo  repositories.DomainRepository // اضافه شد
     redisClient *redis.Client
 }
 
-func NewLinkService(linkRepo repositories.LinkRepository, rdb *redis.Client) LinkService {
-    return &linkService{linkRepo: linkRepo, redisClient: rdb}
+// نیازمندی‌های سرویس آپدیت شد
+func NewLinkService(linkRepo repositories.LinkRepository, domainRepo repositories.DomainRepository, rdb *redis.Client) LinkService {
+    return &linkService{linkRepo: linkRepo, domainRepo: domainRepo, redisClient: rdb}
 }
 
 func generateShortCode() string {
@@ -46,12 +48,14 @@ func generateShortCode() string {
     return string(b)
 }
 
-func (s *linkService) CreateShortLink(userID uint, originalURL, customCode string, expiresAt *time.Time, clickLimit *int) (*models.Link, error) {
+// اضافه شدن domainID
+func (s *linkService) CreateShortLink(userID uint, originalURL, customCode string, expiresAt *time.Time, clickLimit *int, domainID *uint) (*models.Link, error) {
     shortCode := generateShortCode()
     isCustom := false
 
     if customCode != "" {
-        existingLink, err := s.linkRepo.FindByShortCode(customCode)
+        // چک کردن اینکه آیا این کد قبلا روی این دامنه استفاده شده است یا خیر
+        existingLink, err := s.linkRepo.FindByShortCodeAndDomain(customCode, domainID)
         if err == nil && existingLink != nil {
             return nil, errors.New("این نام دلخواه قبلاً انتخاب شده است")
         }
@@ -67,6 +71,7 @@ func (s *linkService) CreateShortLink(userID uint, originalURL, customCode strin
         IsActive:    true,
         ExpiresAt:   expiresAt,
         ClickLimit:  clickLimit,
+        DomainID:    domainID, // اضافه شد
     }
 
     err := s.linkRepo.Create(link)
@@ -77,9 +82,22 @@ func (s *linkService) CreateShortLink(userID uint, originalURL, customCode strin
     return link, nil
 }
 
-func (s *linkService) ResolveShortLink(shortCode, ipAddress, userAgent, referrer string) (*models.Link, error) {
+// اضافه شدن host برای تشخیص دامنه
+func (s *linkService) ResolveShortLink(shortCode, host, ipAddress, userAgent, referrer string) (*models.Link, error) {
     ctx := context.Background()
-    cacheKey := "shortlink:" + shortCode
+    
+    var domainID *uint
+    
+    // اگر هاست درخواست‌دهنده، دامنه اصلی ما نبود، یعنی دامنه اختصاصی است
+    if host != "linkresan.ir" && host != "www.linkresan.ir" && host != "localhost:8080" && host != "127.0.0.1:8080" {
+        domain, err := s.domainRepo.FindByName(host)
+        if err == nil && domain != nil {
+            domainID = &domain.ID
+        }
+    }
+
+    // کلید کش باید شامل نام دامنه هم باشد تا تداخل پیش نیاید
+    cacheKey := "shortlink:" + host + ":" + shortCode
 
     val, err := s.redisClient.Get(ctx, cacheKey).Result()
     if err == nil {
@@ -94,17 +112,15 @@ func (s *linkService) ResolveShortLink(shortCode, ipAddress, userAgent, referrer
         }
     }
 
-    link, err := s.linkRepo.FindByShortCode(shortCode)
+    link, err := s.linkRepo.FindByShortCodeAndDomain(shortCode, domainID)
     if err != nil {
         return nil, err
     }
 
-    // بررسی تاریخ انقضا
     if link.ExpiresAt != nil && link.ExpiresAt.Before(time.Now()) {
         return nil, errors.New("این لینک منقضی شده است")
     }
 
-    // بررسی محدودیت کلیک
     if link.ClickLimit != nil && link.ClickCount >= int64(*link.ClickLimit) {
         return nil, errors.New("محدودیت کلیک این لینک به پایان رسیده است")
     }
@@ -129,7 +145,6 @@ func (s *linkService) DeleteLink(userID uint, linkID uint) error {
     return s.linkRepo.DeleteByIDAndUserID(linkID, userID)
 }
 
-// متد جدید برای گرفتن آمار
 func (s *linkService) GetAnalytics(userID uint) ([]repositories.DailyClickData, error) {
     return s.linkRepo.GetDailyClicks(userID)
 }

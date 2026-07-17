@@ -15,40 +15,40 @@ import (
 )
 
 func main() {
-    // ۱. بارگذاری تنظیمات (.env)
     cfg := config.LoadConfig()
 
-    // ۲. اتصال به دیتابیس‌ها (PostgreSQL و Redis)
     database.Connect(cfg)
     rdb := cache.ConnectRedis(cfg)
 
-    // ۳. راه‌اندازی سرور Fiber
     app := fiber.New(fiber.Config{
         AppName:      "LinkResan API v1.0",
         ServerHeader: "Fiber",
     })
 
-    // تنظیمات CORS برای ارتباط با فرانت‌اند Next.js
     app.Use(cors.New(cors.Config{
         AllowOrigins: "*",
         AllowHeaders: "Origin, Content-Type, Accept, Authorization",
         AllowMethods: "GET, POST, HEAD, PUT, DELETE, PATCH",
     }))
 
-    // --- تزریق وابستگی‌ها (Dependency Injection) ---
+    // --- Repositories ---
     linkRepo := repositories.NewLinkRepository(database.DB)
     userRepo := repositories.NewUserRepository(database.DB)
+    domainRepo := repositories.NewDomainRepository(database.DB) // اضافه شد
 
-    linkService := services.NewLinkService(linkRepo, rdb)
+    // --- Services ---
+    linkService := services.NewLinkService(linkRepo, domainRepo, rdb) // آپدیت شد
     authService := services.NewAuthService(userRepo)
+    domainService := services.NewDomainService(domainRepo) // اضافه شد
 
+    // --- Handlers ---
     linkHandler := handlers.NewLinkHandler(linkService)
     authHandler := handlers.NewAuthHandler(authService)
+    domainHandler := handlers.NewDomainHandler(domainService) // اضافه شد
 
-    // --- تعریف مسیرها (Routes) ---
+    // --- Routes ---
     api := app.Group("/api")
 
-    // روت تست سلامت سرور
     api.Get("/health", func(c *fiber.Ctx) error {
         return c.JSON(fiber.Map{
             "status":  "success",
@@ -56,20 +56,22 @@ func main() {
         })
     })
 
-    // روت‌های احراز هویت (باز برای همه)
     api.Post("/register", authHandler.Register)
     api.Post("/login", authHandler.Login)
 
-    // روت‌های محافظت شده (نیازمند توکن JWT)
+    // Protected Routes
     api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)
     api.Get("/links", middleware.Protected(), linkHandler.GetUserLinks)
-    api.Get("/links/analytics", middleware.Protected(), linkHandler.GetAnalytics) // روت آمار اضافه شد
+    api.Get("/links/analytics", middleware.Protected(), linkHandler.GetAnalytics)
     api.Delete("/links/:id", middleware.Protected(), linkHandler.DeleteLink)
 
-    // روت ریدایرکت (باز است برای همه کاربران اینترنت)
+    // Domain Routes (Protected)
+    api.Post("/domains", middleware.Protected(), domainHandler.CreateDomain)       // اضافه شد
+    api.Get("/domains", middleware.Protected(), domainHandler.GetUserDomains)      // اضافه شد
+    api.Delete("/domains/:id", middleware.Protected(), domainHandler.DeleteDomain) // اضافه شد
+
     app.Get("/:code", linkHandler.ResolveShortLink)
 
-    // ۴. شروع به گوش دادن به پورت
     log.Printf("Server starting on port %s...", cfg.Port)
     log.Fatal(app.Listen(":" + cfg.Port))
 }

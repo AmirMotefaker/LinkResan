@@ -29,6 +29,7 @@ type Link struct {
     ClickLimit  *int
     ClickCount  int64          `gorm:"default:0"`
     IsActive    bool           `gorm:"default:true"`
+    DomainID    *uint          `gorm:"index"` // اضافه شد: اگر نال باشد یعنی روی دامنه اصلی لینک رسان است
     CreatedAt   time.Time
     UpdatedAt   time.Time
     DeletedAt   gorm.DeletedAt `gorm:"index"`
@@ -38,7 +39,7 @@ type Click struct {
     ID         uint      `gorm:"primaryKey"`
     LinkID     uint      `gorm:"index;not null"`
     Link       Link      `gorm:"foreignKey:LinkID"`
-    IPAddress  string    `gorm:"type:text"` // تغییر از inet به text برای جلوگیری از ارور دیتابیس
+    IPAddress  string    `gorm:"type:text"`
     UserAgent  string    `gorm:"type:text"`
     Referrer   string    `gorm:"type:text"`
     Country    string    `gorm:"size:50"`
@@ -47,4 +48,16 @@ type Click struct {
     Browser    string    `gorm:"size:50"`
     IsUnique   bool      `gorm:"default:false"`
     CreatedAt  time.Time
+}
+
+// مدل جدید برای دامنه‌های اختصاصی
+type CustomDomain struct {
+    ID         uint           `gorm:"primaryKey"`
+    UserID     uint           `gorm:"index;not null"`
+    User       User           `gorm:"foreignKey:UserID"`
+    Domain     string         `gorm:"uniqueIndex;size:255;not null"` // مثلا: go.amirsite.ir
+    IsVerified bool           `gorm:"default:false"` // آیا DNS ها تنظیم شده اند؟
+    CreatedAt  time.Time
+    UpdatedAt  time.Time
+    DeletedAt  gorm.DeletedAt `gorm:"index"`
 }

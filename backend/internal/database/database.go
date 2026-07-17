@@ -12,7 +12,6 @@ import (
 var DB *gorm.DB
 
 func Connect(cfg *config.Config) {
-    // استفاده از DatabaseURL برای اتصال به دیتابیس ابری
     db, err := gorm.Open(postgres.Open(cfg.DatabaseURL), &gorm.Config{})
     if err != nil {
         log.Fatal("Failed to connect to database:", err)
@@ -20,7 +19,8 @@ func Connect(cfg *config.Config) {
 
     log.Println("Cloud Database connected successfully!")
 
-    err = db.AutoMigrate(&models.User{}, &models.Link{}, &models.Click{})
+    // مایگریشن (ساخت خودکار جداول در دیتابیس) - CustomDomain اضافه شد
+    err = db.AutoMigrate(&models.User{}, &models.Link{}, &models.Click{}, &models.CustomDomain{})
     if err != nil {
         log.Fatal("Failed to migrate database:", err)
     }

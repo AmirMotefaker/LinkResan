@@ -20,6 +20,7 @@ type CreateLinkRequest struct {
     CustomCode  string     `json:"custom_code"`
     ExpiresAt   *time.Time `json:"expires_at"`
     ClickLimit  *int       `json:"click_limit"`
+    DomainID    *uint      `json:"domain_id"` // اضافه شد
 }
 
 func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
@@ -34,15 +35,26 @@ func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
 
     userID := c.Locals("user_id").(float64)
 
-    link, err := h.linkService.CreateShortLink(uint(userID), req.OriginalURL, req.CustomCode, req.ExpiresAt, req.ClickLimit)
+    // تعیین URL پایه برای خروجی
+    baseURL := "https://linkresan.ir"
+    if req.DomainID != nil {
+        // در آینده فرانت‌اند دامنه را می‌فرستد و ما اینجا URL آن را پیدا می‌کنیم
+        // فعلا برای سادگی، اگر دامنه اختصاصی بود، baseURL را از هدر می‌گیریم
+        // اما در عمل کاربر دامنه را از داشبورد انتخاب می‌کند
+    }
+
+    link, err := h.linkService.CreateShortLink(uint(userID), req.OriginalURL, req.CustomCode, req.ExpiresAt, req.ClickLimit, req.DomainID)
     if err != nil {
         return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
     }
 
+    // اگر دامنه اختصاصی بود، لینک کوتاه با همان دامنه ساخته شود
+    // فعلا در این مرحله، فرانت‌اند این کار را انجام خواهد داد
     return c.Status(fiber.StatusCreated).JSON(fiber.Map{
         "original_url": link.OriginalURL,
         "short_code":   link.ShortCode,
-        "short_url":    "https://linkresan.ir/" + link.ShortCode,
+        "short_url":    baseURL + "/" + link.ShortCode,
+        "domain_id":    link.DomainID,
     })
 }
 
@@ -60,7 +72,6 @@ func (h *LinkHandler) GetUserLinks(c *fiber.Ctx) error {
     })
 }
 
-// هندلر جدید برای گرفتن آمار نمودار
 func (h *LinkHandler) GetAnalytics(c *fiber.Ctx) error {
     userID := c.Locals("user_id").(float64)
 
@@ -92,19 +103,21 @@ func (h *LinkHandler) DeleteLink(c *fiber.Ctx) error {
 
 func (h *LinkHandler) ResolveShortLink(c *fiber.Ctx) error {
     shortCode := c.Params("code")
+    
+    // گرفتن هاست (دامنه) درخواست‌دهنده
+    host := c.Hostname()
 
     ipAddress := c.IP()
     userAgent := c.Get("User-Agent")
     referrer := c.Get("Referer")
 
-    link, err := h.linkService.ResolveShortLink(shortCode, ipAddress, userAgent, referrer)
+    link, err := h.linkService.ResolveShortLink(shortCode, host, ipAddress, userAgent, referrer)
     if err != nil {
         return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
             "error": "Link not found, expired, or reached click limit",
         })
     }
 
-    // هدرهای ضد کش برای ثبت دقیق آمار
     c.Set("Cache-Control", "no-cache, no-store, must-revalidate")
     c.Set("Pragma", "no-cache")
     c.Set("Expires", "0")
