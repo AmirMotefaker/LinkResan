@@ -19,20 +19,21 @@ type User struct {
 }
 
 type Link struct {
-    ID          uint           `gorm:"primaryKey"`
-    UserID      *uint          `gorm:"index"`
-    User        User           `gorm:"foreignKey:UserID"`
-    OriginalURL string         `gorm:"type:text;not null"`
-    ShortCode   string         `gorm:"uniqueIndex;size:20;not null"`
-    IsCustom    bool           `gorm:"default:false"`
-    ExpiresAt   *time.Time
-    ClickLimit  *int
-    ClickCount  int64          `gorm:"default:0"`
-    IsActive    bool           `gorm:"default:true"`
-    DomainID    *uint          `gorm:"index"` // اضافه شد: اگر نال باشد یعنی روی دامنه اصلی لینک رسان است
-    CreatedAt   time.Time
-    UpdatedAt   time.Time
-    DeletedAt   gorm.DeletedAt `gorm:"index"`
+    ID           uint           `gorm:"primaryKey"`
+    UserID       *uint          `gorm:"index"`
+    User         User           `gorm:"foreignKey:UserID"`
+    OriginalURL  string         `gorm:"type:text;not null"`
+    ShortCode    string         `gorm:"uniqueIndex;size:20;not null"`
+    IsCustom     bool           `gorm:"default:false"`
+    ExpiresAt    *time.Time
+    ClickLimit   *int
+    ClickCount   int64          `gorm:"default:0"`
+    IsActive     bool           `gorm:"default:true"`
+    DomainID     *uint          `gorm:"index"`
+    PasswordHash *string        `gorm:"size:255"` // اضافه شد: اگر نال باشد یعنی رمز ندارد
+    CreatedAt    time.Time
+    UpdatedAt    time.Time
+    DeletedAt    gorm.DeletedAt `gorm:"index"`
 }
 
 type Click struct {
@@ -50,13 +51,12 @@ type Click struct {
     CreatedAt  time.Time
 }
 
-// مدل جدید برای دامنه‌های اختصاصی
 type CustomDomain struct {
     ID         uint           `gorm:"primaryKey"`
     UserID     uint           `gorm:"index;not null"`
     User       User           `gorm:"foreignKey:UserID"`
-    Domain     string         `gorm:"uniqueIndex;size:255;not null"` // مثلا: go.amirsite.ir
-    IsVerified bool           `gorm:"default:false"` // آیا DNS ها تنظیم شده اند؟
+    Domain     string         `gorm:"uniqueIndex;size:255;not null"`
+    IsVerified bool           `gorm:"default:false"`
     CreatedAt  time.Time
     UpdatedAt  time.Time
     DeletedAt  gorm.DeletedAt `gorm:"index"`

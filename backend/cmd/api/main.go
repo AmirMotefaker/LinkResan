@@ -34,26 +34,23 @@ func main() {
     // --- Repositories ---
     linkRepo := repositories.NewLinkRepository(database.DB)
     userRepo := repositories.NewUserRepository(database.DB)
-    domainRepo := repositories.NewDomainRepository(database.DB) // اضافه شد
+    domainRepo := repositories.NewDomainRepository(database.DB)
 
     // --- Services ---
-    linkService := services.NewLinkService(linkRepo, domainRepo, rdb) // آپدیت شد
+    linkService := services.NewLinkService(linkRepo, domainRepo, rdb)
     authService := services.NewAuthService(userRepo)
-    domainService := services.NewDomainService(domainRepo) // اضافه شد
+    domainService := services.NewDomainService(domainRepo)
 
     // --- Handlers ---
     linkHandler := handlers.NewLinkHandler(linkService)
     authHandler := handlers.NewAuthHandler(authService)
-    domainHandler := handlers.NewDomainHandler(domainService) // اضافه شد
+    domainHandler := handlers.NewDomainHandler(domainService)
 
     // --- Routes ---
     api := app.Group("/api")
 
     api.Get("/health", func(c *fiber.Ctx) error {
-        return c.JSON(fiber.Map{
-            "status":  "success",
-            "message": "LinkResan API is running perfectly!",
-        })
+        return c.JSON(fiber.Map{"status": "success", "message": "LinkResan API is running perfectly!"})
     })
 
     api.Post("/register", authHandler.Register)
@@ -66,11 +63,13 @@ func main() {
     api.Delete("/links/:id", middleware.Protected(), linkHandler.DeleteLink)
 
     // Domain Routes (Protected)
-    api.Post("/domains", middleware.Protected(), domainHandler.CreateDomain)       // اضافه شد
-    api.Get("/domains", middleware.Protected(), domainHandler.GetUserDomains)      // اضافه شد
-    api.Delete("/domains/:id", middleware.Protected(), domainHandler.DeleteDomain) // اضافه شد
+    api.Post("/domains", middleware.Protected(), domainHandler.CreateDomain)
+    api.Get("/domains", middleware.Protected(), domainHandler.GetUserDomains)
+    api.Delete("/domains/:id", middleware.Protected(), domainHandler.DeleteDomain)
 
-    app.Get("/:code", linkHandler.ResolveShortLink)
+    // Public Link Resolution Routes (برای فرانت‌اند)
+    api.Get("/links/info/:code", linkHandler.GetLinkInfo)         // اضافه شد
+    api.Post("/links/verify/:code", linkHandler.VerifyLinkPassword) // اضافه شد
 
     log.Printf("Server starting on port %s...", cfg.Port)
     log.Fatal(app.Listen(":" + cfg.Port))

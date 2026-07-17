@@ -34,8 +34,8 @@ export default function Home() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [expirationDate, setExpirationDate] = useState<any>(null);
   const [clickLimit, setClickLimit] = useState("");
+  const [password, setPassword] = useState(""); // اضافه شد
 
-  // متغیرهای دامنه اختصاصی
   const [domains, setDomains] = useState<any[]>([]);
   const [selectedDomain, setSelectedDomain] = useState<string>("linkresan.ir");
 
@@ -45,7 +45,6 @@ export default function Home() {
     const token = localStorage.getItem("token");
     if (token) {
       setIsLoggedIn(true);
-      // گرفتن لیست دامنه‌های کاربر
       fetch(`${API_URL}/domains`, { headers: { Authorization: `Bearer ${token}` } })
         .then(res => res.json())
         .then(data => {
@@ -74,10 +73,10 @@ export default function Home() {
     try {
       const bodyData: any = { 
         original_url: url,
-        custom_code: customCode 
+        custom_code: customCode,
+        password: password // اضافه شد
       };
 
-      // اگر کاربر دامنه اختصاصی انتخاب کرده بود، ID آن را بفرست
       const selectedDomainObj = domains.find(d => d.Domain === selectedDomain);
       if (selectedDomainObj) {
         bodyData.domain_id = selectedDomainObj.ID;
@@ -105,7 +104,6 @@ export default function Home() {
         throw new Error(data.error || "خطا در ساخت لینک");
       }
 
-      // ساخت لینک نهایی برای نمایش به کاربر
       const finalShortUrl = `https://${selectedDomain}/${data.short_code}`;
       setShortUrl(finalShortUrl);
       
@@ -113,6 +111,7 @@ export default function Home() {
       setShowCustomField(false);
       setExpirationDate(null);
       setClickLimit("");
+      setPassword(""); // اضافه شد
       setShowAdvanced(false);
     } catch (error: any) {
       alert(error.message);
@@ -170,7 +169,6 @@ export default function Home() {
 
         <form onSubmit={handleShorten} className="w-full flex flex-col items-center">
           
-          {/* انتخابگر دامنه (اگر کاربر دامنه اختصاصی داشت) */}
           {isLoggedIn && domains.length > 0 && (
             <div className="w-full mb-2 flex justify-center">
               <select 
@@ -240,6 +238,17 @@ export default function Home() {
                   placeholder="مثلا: ۱۰۰"
                   value={clickLimit}
                   onChange={(e) => setClickLimit(toFa(e.target.value))}
+                  className="w-full h-8 bg-transparent outline-none text-sm placeholder:text-gray-400"
+                />
+              </div>
+              {/* فیلد رمز عبور اضافه شد */}
+              <div className="flex flex-col items-start gap-1 bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-2 sm:col-span-2">
+                <label className="text-xs text-gray-500">رمز عبور لینک (اختیاری)</label>
+                <input
+                  type="text"
+                  placeholder="برای حفاظت از لینک رمز بگذارید"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full h-8 bg-transparent outline-none text-sm placeholder:text-gray-400"
                 />
               </div>

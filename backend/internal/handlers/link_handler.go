@@ -5,6 +5,7 @@ import (
 
     "github.com/AmirMotefaker/LinkResan/backend/internal/services"
     "github.com/gofiber/fiber/v2"
+    "golang.org/x/crypto/bcrypt"
 )
 
 type LinkHandler struct {
@@ -20,7 +21,8 @@ type CreateLinkRequest struct {
     CustomCode  string     `json:"custom_code"`
     ExpiresAt   *time.Time `json:"expires_at"`
     ClickLimit  *int       `json:"click_limit"`
-    DomainID    *uint      `json:"domain_id"` // اضافه شد
+    DomainID    *uint      `json:"domain_id"`
+    Password    string     `json:"password"` // اضافه شد
 }
 
 func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
@@ -34,22 +36,13 @@ func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
     }
 
     userID := c.Locals("user_id").(float64)
-
-    // تعیین URL پایه برای خروجی
     baseURL := "https://linkresan.ir"
-    if req.DomainID != nil {
-        // در آینده فرانت‌اند دامنه را می‌فرستد و ما اینجا URL آن را پیدا می‌کنیم
-        // فعلا برای سادگی، اگر دامنه اختصاصی بود، baseURL را از هدر می‌گیریم
-        // اما در عمل کاربر دامنه را از داشبورد انتخاب می‌کند
-    }
 
-    link, err := h.linkService.CreateShortLink(uint(userID), req.OriginalURL, req.CustomCode, req.ExpiresAt, req.ClickLimit, req.DomainID)
+    link, err := h.linkService.CreateShortLink(uint(userID), req.OriginalURL, req.CustomCode, req.Password, req.ExpiresAt, req.ClickLimit, req.DomainID)
     if err != nil {
         return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
     }
 
-    // اگر دامنه اختصاصی بود، لینک کوتاه با همان دامنه ساخته شود
-    // فعلا در این مرحله، فرانت‌اند این کار را انجام خواهد داد
     return c.Status(fiber.StatusCreated).JSON(fiber.Map{
         "original_url": link.OriginalURL,
         "short_code":   link.ShortCode,
@@ -60,29 +53,20 @@ func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
 
 func (h *LinkHandler) GetUserLinks(c *fiber.Ctx) error {
     userID := c.Locals("user_id").(float64)
-
     links, err := h.linkService.GetUserLinks(uint(userID))
     if err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch links"})
     }
-
-    return c.Status(fiber.StatusOK).JSON(fiber.Map{
-        "links": links,
-        "count": len(links),
-    })
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"links": links, "count": len(links)})
 }
 
 func (h *LinkHandler) GetAnalytics(c *fiber.Ctx) error {
     userID := c.Locals("user_id").(float64)
-
     data, err := h.linkService.GetAnalytics(uint(userID))
     if err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch analytics"})
     }
-
-    return c.Status(fiber.StatusOK).JSON(fiber.Map{
-        "analytics": data,
-    })
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"analytics": data})
 }
 
 func (h *LinkHandler) DeleteLink(c *fiber.Ctx) error {
@@ -90,37 +74,64 @@ func (h *LinkHandler) DeleteLink(c *fiber.Ctx) error {
     if err != nil {
         return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid link ID"})
     }
-
     userID := c.Locals("user_id").(float64)
-
     err = h.linkService.DeleteLink(uint(userID), uint(linkID))
     if err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete link"})
     }
-
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Link deleted successfully"})
 }
 
-func (h *LinkHandler) ResolveShortLink(c *fiber.Ctx) error {
+// هندلر جدید: بررسی اطلاعات لینک (آیا رمز دارد؟)
+func (h *LinkHandler) GetLinkInfo(c *fiber.Ctx) error {
     shortCode := c.Params("code")
-    
-    // گرفتن هاست (دامنه) درخواست‌دهنده
     host := c.Hostname()
 
-    ipAddress := c.IP()
-    userAgent := c.Get("User-Agent")
-    referrer := c.Get("Referer")
-
-    link, err := h.linkService.ResolveShortLink(shortCode, host, ipAddress, userAgent, referrer)
+    link, err := h.linkService.GetLinkByCode(shortCode, host)
     if err != nil {
-        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-            "error": "Link not found, expired, or reached click limit",
-        })
+        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Link not found or expired"})
     }
 
-    c.Set("Cache-Control", "no-cache, no-store, must-revalidate")
-    c.Set("Pragma", "no-cache")
-    c.Set("Expires", "0")
+    // ثبت آمار کلیک به صورت ناهمگام
+    go h.linkService.TrackClick(link.ID, c.IP(), c.Get("User-Agent"), c.Get("Referer"))
 
-    return c.Redirect(link.OriginalURL, fiber.StatusFound)
+    // اگر لینک رمز داشت
+    if link.PasswordHash != nil {
+        return c.Status(fiber.StatusOK).JSON(fiber.Map{"requires_password": true})
+    }
+
+    // اگر رمز نداشت، لینک اصلی را بفرست
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{
+        "requires_password": false,
+        "original_url":      link.OriginalURL,
+    })
+}
+
+// هندلر جدید: بررسی رمز عبور
+func (h *LinkHandler) VerifyLinkPassword(c *fiber.Ctx) error {
+    shortCode := c.Params("code")
+    host := c.Hostname()
+
+    var req struct {
+        Password string `json:"password"`
+    }
+    if err := c.BodyParser(&req); err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
+    }
+
+    link, err := h.linkService.GetLinkByCode(shortCode, host)
+    if err != nil {
+        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Link not found"})
+    }
+
+    if link.PasswordHash == nil {
+        return c.Status(fiber.StatusOK).JSON(fiber.Map{"original_url": link.OriginalURL})
+    }
+
+    // مقایسه رمز وارد شده با هش دیتابیس
+    if bcrypt.CompareHashAndPassword([]byte(*link.PasswordHash), []byte(req.Password)) != nil {
+        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "رمز عبور اشتباه است"})
+    }
+
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"original_url": link.OriginalURL})
 }
