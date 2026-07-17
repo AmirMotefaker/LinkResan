@@ -18,10 +18,10 @@ type BioService interface {
 }
 
 type bioService struct {
-    bioRepo BioRepository
+    bioRepo repositories.BioRepository // اصلاح شد: اضافه شدن repositories.
 }
 
-func NewBioService(bioRepo BioRepository) BioService {
+func NewBioService(bioRepo repositories.BioRepository) BioService { // اصلاح شد: اضافه شدن repositories.
     return &bioService{bioRepo: bioRepo}
 }
 
@@ -98,7 +98,6 @@ func (s *bioService) AddBioLink(userID uint, title, url string) (*models.BioLink
 }
 
 func (s *bioService) DeleteBioLink(userID uint, linkID uint) error {
-    // در اینجا می‌توانیم چک کنیم که آیا این لینک متعلق به کاربر است یا خیر (برای سادگی فعلاً حذف می‌کنیم)
     return s.bioRepo.DeleteLink(linkID)
 }
 
