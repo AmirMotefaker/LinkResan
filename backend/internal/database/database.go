@@ -19,8 +19,8 @@ func Connect(cfg *config.Config) {
 
     log.Println("Cloud Database connected successfully!")
 
-    // مایگریشن (ساخت خودکار جداول در دیتابیس) - CustomDomain اضافه شد
-    err = db.AutoMigrate(&models.User{}, &models.Link{}, &models.Click{}, &models.CustomDomain{})
+    // اضافه شدن BioPage و BioLink
+    err = db.AutoMigrate(&models.User{}, &models.Link{}, &models.Click{}, &models.CustomDomain{}, &models.BioPage{}, &models.BioLink{})
     if err != nil {
         log.Fatal("Failed to migrate database:", err)
     }

@@ -30,7 +30,7 @@ type Link struct {
     ClickCount   int64          `gorm:"default:0"`
     IsActive     bool           `gorm:"default:true"`
     DomainID     *uint          `gorm:"index"`
-    PasswordHash *string        `gorm:"size:255"` // اضافه شد: اگر نال باشد یعنی رمز ندارد
+    PasswordHash *string        `gorm:"size:255"`
     CreatedAt    time.Time
     UpdatedAt    time.Time
     DeletedAt    gorm.DeletedAt `gorm:"index"`
@@ -60,4 +60,28 @@ type CustomDomain struct {
     CreatedAt  time.Time
     UpdatedAt  time.Time
     DeletedAt  gorm.DeletedAt `gorm:"index"`
+}
+
+// مدل‌های جدید برای صفحه بیو (Link-in-bio)
+type BioPage struct {
+    ID        uint           `gorm:"primaryKey"`
+    UserID    uint           `gorm:"uniqueIndex;not null"`
+    User      User           `gorm:"foreignKey:UserID"`
+    Slug      string         `gorm:"uniqueIndex;size:50;not null"` // آدرس صفحه: linkresan.ir/b/amir
+    Title     string         `gorm:"size:100"`                     // نام کاربر یا برند
+    BioText   string         `gorm:"type:text"`                    // توضیحات کوتاه
+    Links     []BioLink      `gorm:"foreignKey:BioPageID"`         // لیست لینک‌ها
+    CreatedAt time.Time
+    UpdatedAt time.Time
+    DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+
+type BioLink struct {
+    ID        uint      `gorm:"primaryKey"`
+    BioPageID uint      `gorm:"index;not null"`
+    BioPage   BioPage   `gorm:"foreignKey:BioPageID"`
+    Title     string    `gorm:"size:100;not null"` // عنوان دکمه (مثلا: اینستاگرام من)
+    URL       string    `gorm:"type:text;not null"`
+    Clicks    int       `gorm:"default:0"`
+    CreatedAt time.Time
 }

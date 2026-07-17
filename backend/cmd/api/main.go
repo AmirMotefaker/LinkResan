@@ -35,16 +35,19 @@ func main() {
     linkRepo := repositories.NewLinkRepository(database.DB)
     userRepo := repositories.NewUserRepository(database.DB)
     domainRepo := repositories.NewDomainRepository(database.DB)
+    bioRepo := repositories.NewBioRepository(database.DB) // اضافه شد
 
     // --- Services ---
     linkService := services.NewLinkService(linkRepo, domainRepo, rdb)
     authService := services.NewAuthService(userRepo)
     domainService := services.NewDomainService(domainRepo)
+    bioService := services.NewBioService(bioRepo) // اضافه شد
 
     // --- Handlers ---
     linkHandler := handlers.NewLinkHandler(linkService)
     authHandler := handlers.NewAuthHandler(authService)
     domainHandler := handlers.NewDomainHandler(domainService)
+    bioHandler := handlers.NewBioHandler(bioService) // اضافه شد
 
     // --- Routes ---
     api := app.Group("/api")
@@ -56,21 +59,31 @@ func main() {
     api.Post("/register", authHandler.Register)
     api.Post("/login", authHandler.Login)
 
-    // Protected Routes
+    // Protected Link Routes
     api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)
     api.Get("/links", middleware.Protected(), linkHandler.GetUserLinks)
     api.Get("/links/analytics", middleware.Protected(), linkHandler.GetAnalytics)
-    api.Get("/links/stats", middleware.Protected(), linkHandler.GetClickStats) // اضافه شد
+    api.Get("/links/stats", middleware.Protected(), linkHandler.GetClickStats)
     api.Delete("/links/:id", middleware.Protected(), linkHandler.DeleteLink)
 
-    // Domain Routes (Protected)
+    // Protected Domain Routes
     api.Post("/domains", middleware.Protected(), domainHandler.CreateDomain)
     api.Get("/domains", middleware.Protected(), domainHandler.GetUserDomains)
     api.Delete("/domains/:id", middleware.Protected(), domainHandler.DeleteDomain)
 
+    // Protected Bio Routes (برای داشبورد)
+    api.Get("/bio", middleware.Protected(), bioHandler.GetMyBio)
+    api.Put("/bio", middleware.Protected(), bioHandler.UpdateBio)
+    api.Post("/bio/links", middleware.Protected(), bioHandler.AddBioLink)
+    api.Delete("/bio/links/:id", middleware.Protected(), bioHandler.DeleteBioLink)
+
     // Public Link Resolution Routes
     api.Get("/links/info/:code", linkHandler.GetLinkInfo)
     api.Post("/links/verify/:code", linkHandler.VerifyLinkPassword)
+
+    // Public Bio Routes (برای کاربران اینترنت)
+    api.Get("/bio/:slug", bioHandler.GetPublicBio)
+    api.Post("/bio/links/track/:id", bioHandler.TrackBioLink)
 
     log.Printf("Server starting on port %s...", cfg.Port)
     log.Fatal(app.Listen(":" + cfg.Port))

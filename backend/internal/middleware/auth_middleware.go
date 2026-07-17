@@ -16,7 +16,6 @@ func Protected() fiber.Handler {
             return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing authorization header"})
         }
 
-        // توکن باید به صورت "Bearer <token>" باشد
         tokenString := strings.Split(authHeader, " ")
         if len(tokenString) != 2 || tokenString[0] != "Bearer" {
             return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid authorization format"})
@@ -33,10 +32,10 @@ func Protected() fiber.Handler {
             return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid or expired token"})
         }
 
-        // استخراج user_id از توکن و ذخیره آن در Context
         claims, ok := token.Claims.(jwt.MapClaims)
         if ok {
             c.Locals("user_id", claims["user_id"])
+            c.Locals("email", claims["email"]) // اضافه شد
         }
 
         return c.Next()
