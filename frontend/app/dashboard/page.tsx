@@ -145,6 +145,10 @@ export default function Dashboard() {
           <span className="text-lg sm:text-xl font-bold tracking-tight">داشبورد</span>
         </div>
         <div className="flex gap-2 sm:gap-4 items-center">
+          {/* دکمه صفحه بیو اضافه شد */}
+          <button onClick={() => router.push("/dashboard/bio")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
+            صفحه بیو
+          </button>
           <button onClick={() => router.push("/")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">ساخت لینک</button>
           <button onClick={handleLogout} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors flex items-center gap-2 cursor-pointer">
             <LogOut className="w-4 h-4" /> خروج
