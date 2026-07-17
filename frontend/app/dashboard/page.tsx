@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Chrome, Smartphone, Monitor } from "lucide-react";
+import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// تابع تبدیل اعداد انگلیسی به فارسی
 const toFa = (num: any) => {
   if (num === null || num === undefined) return "";
   return num.toString().replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
@@ -38,20 +39,20 @@ export default function Dashboard() {
     Promise.all([
       fetch(`${API_URL}/links`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()),
       fetch(`${API_URL}/links/analytics`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()),
-      fetch(`${API_URL}/links/stats`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()), // اضافه شد
+      fetch(`${API_URL}/links/stats`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()),
       fetch(`${API_URL}/domains`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json())
     ])
       .then(([linksData, analyticsData, statsData, domainsData]) => {
         if (linksData.links) setLinks(linksData.links);
         if (analyticsData.analytics) setAnalytics(analyticsData.analytics);
-        if (statsData.stats) setStats(statsData.stats); // اضافه شد
+        if (statsData.stats) setStats(statsData.stats);
         if (domainsData.domains) setDomains(domainsData.domains);
         setLoading(false);
       })
       .catch(() => {
         setLoading(false);
       });
-  }, []);
+  }, [router]);
 
   const handleCopy = (url: string, id: number) => {
     navigator.clipboard.writeText(url);
@@ -153,6 +154,7 @@ export default function Dashboard() {
 
       <section className="w-full max-w-6xl mt-8 mb-12">
         
+        {/* کارت مدیریت دامنه‌های اختصاصی */}
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm mb-8">
           <div className="flex items-center gap-2 mb-6">
             <Globe className="w-5 h-5 text-indigo-600" />
@@ -202,7 +204,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* کارت نمودار و آمار کلی */}
+        {/* کارت‌های نمودار و آمار */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-2 bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
@@ -247,31 +249,33 @@ export default function Dashboard() {
                 <div>
                   <h4 className="text-sm font-medium text-gray-500 mb-3">سیستم‌عامل‌ها</h4>
                   <div className="space-y-2">
-                    {stats.devices.slice(0, 3).map((device: any, i: number) => (
-                      <div key={i} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <Monitor className="w-4 h-4 text-gray-400" />
-                          <span>{device.name}</span>
+                    {stats.devices && stats.devices.length > 0 ? (
+                      stats.devices.slice(0, 3).map((device: any, i: number) => (
+                        <div key={i} className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2">
+                            <Monitor className="w-4 h-4 text-gray-400" />
+                            <span>{device.name}</span>
+                          </div>
+                          <span className="font-bold text-gray-700">{toFa(device.count)}</span>
                         </div>
-                        <span className="font-bold text-gray-700">{toFa(device.count)}</span>
-                      </div>
-                    ))}
-                    {stats.devices.length === 0 && <p className="text-xs text-gray-400">داده‌ای موجود نیست</p>}
+                      ))
+                    ) : <p className="text-xs text-gray-400">داده‌ای موجود نیست</p>}
                   </div>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium text-gray-500 mb-3">مرورگرها</h4>
                   <div className="space-y-2">
-                    {stats.browsers.slice(0, 3).map((browser: any, i: number) => (
-                      <div key={i} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <Chrome className="w-4 h-4 text-gray-400" />
-                          <span>{browser.name}</span>
+                    {stats.browsers && stats.browsers.length > 0 ? (
+                      stats.browsers.slice(0, 3).map((browser: any, i: number) => (
+                        <div key={i} className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2">
+                            <Globe className="w-4 h-4 text-gray-400" />
+                            <span>{browser.name}</span>
+                          </div>
+                          <span className="font-bold text-gray-700">{toFa(browser.count)}</span>
                         </div>
-                        <span className="font-bold text-gray-700">{toFa(browser.count)}</span>
-                      </div>
-                    ))}
-                    {stats.browsers.length === 0 && <p className="text-xs text-gray-400">داده‌ای موجود نیست</p>}
+                      ))
+                    ) : <p className="text-xs text-gray-400">داده‌ای موجود نیست</p>}
                   </div>
                 </div>
               </div>
