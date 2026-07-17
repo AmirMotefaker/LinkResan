@@ -10,7 +10,6 @@ import TimePicker from "react-multi-date-picker/plugins/time_picker";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// تابع تبدیل اعداد انگلیسی به فارسی
 const toFa = (num: any) => {
   if (num === null || num === undefined) return "";
   return num.toString().replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
@@ -121,10 +120,9 @@ export default function Home() {
   ];
 
   return (
-    // تغییر از h-screen به min-h-screen برای اجازه اسکرول در موبایل
+    // استفاده از min-h-screen و flex-col برای مدیریت فضا
     <main className="min-h-screen flex flex-col items-center bg-white text-gray-900 px-4">
       
-      {/* هدر مینیمال (فاصله‌ها و سایز فونت برای موبایل تنظیم شد) */}
       <header className="w-full max-w-6xl flex justify-between items-center py-3 sm:py-4 flex-shrink-0">
         <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
           <Link2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" />
@@ -153,8 +151,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* بخش اصلی و فرم (با حذف flex-grow مشکلات بریدگی در موبایل حل شد) */}
-      <section className="w-full max-w-2xl flex flex-col items-center justify-center text-center mt-10 sm:mt-20 md:mt-24">
+      {/* بخش اصلی: استفاده از flex-grow برای میل کردن به وسط و هل دادن بقیه به پایین */}
+      <section className="flex-grow w-full max-w-2xl flex flex-col items-center justify-center text-center mt-10 sm:mt-0">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 sm:mb-4">
           کوتاه‌کننده لینک حرفه‌ای
         </h1>
@@ -203,7 +201,6 @@ export default function Home() {
           )}
 
           {showAdvanced && (
-            // در موبایل زیر هم ست می‌شوند تا فشردگی ایجاد نکنند
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <div className="flex flex-col items-start gap-1 bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-2">
                 <label className="text-xs text-gray-500 mb-1">تاریخ و ساعت انقضا (شمسی)</label>
@@ -254,8 +251,8 @@ export default function Home() {
         )}
       </section>
 
-      {/* بخش امکانات (بهینه شده برای موبایل) */}
-      <section className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 text-center mt-16 sm:mt-24 mb-6 flex-shrink-0">
+      {/* بخش امکانات: فاصله زیادتر با فوتر (mb-12) */}
+      <section className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 text-center mt-16 sm:mt-24 mb-10 sm:mb-12 flex-shrink-0">
         {features.map((feature, index) => (
           <div key={index} className="flex flex-col items-center p-2">
             <div className="bg-indigo-50 p-3 sm:p-4 rounded-2xl mb-3 border border-indigo-100">
@@ -267,7 +264,8 @@ export default function Home() {
         ))}
       </section>
 
-      <footer className="pb-6 text-gray-500 text-xs sm:text-sm text-center flex-shrink-0">
+      {/* فوتر: سایز فونت مخصوص موبایل (text-[10px]) و جلوگیری از شکست خط (whitespace-nowrap) */}
+      <footer className="pb-6 text-[10px] sm:text-xs text-gray-500 text-center flex-shrink-0 whitespace-nowrap">
         ساخته شده با ❤️ برای توسعه‌دهندگان ایرانی توسط{" "}
         <a href="https://amirmotefaker.ir/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-500 hover:text-red-600 transition-colors">
           امیر متفکر
