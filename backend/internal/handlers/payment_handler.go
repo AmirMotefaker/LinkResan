@@ -17,10 +17,21 @@ func NewPaymentHandler(paymentService services.PaymentService, userService servi
 // مسیر شروع پرداخت (فرانت‌اند اینجا را صدا می‌زند)
 func (h *PaymentHandler) RequestPayment(c *fiber.Ctx) error {
     userID := c.Locals("user_id").(float64)
-    amount := 100000 // مبلغ پلن پرو: ۱۰۰,۰۰۰ تومان (در صورت نیاز تغییر دهید)
-    description := "ارتقا به پلن حرفه‌ای لینک رسان (یک ماهه)"
 
-    payURL, err := h.paymentService.CreatePayment(uint(userID), amount, description)
+    var req struct {
+        Amount   int    `json:"amount"`
+        PlanName string `json:"plan_name"`
+    }
+    
+    // اگر فرانت‌اند مبلغی نفرستاد، پیش‌فرض پلن پرو ماهانه را قرار بده
+    if err := c.BodyParser(&req); err != nil || req.Amount == 0 {
+        req.Amount = 149000
+        req.PlanName = "حرفه‌ای"
+    }
+
+    description := "ارتقا به پلن " + req.PlanName + " لینک رسان"
+
+    payURL, err := h.paymentService.CreatePayment(uint(userID), req.Amount, description)
     if err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create payment"})
     }
