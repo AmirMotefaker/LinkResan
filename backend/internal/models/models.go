@@ -12,10 +12,23 @@ type User struct {
     PhoneNumber  string         `gorm:"uniqueIndex;size:15"`
     PasswordHash string         `gorm:"size:255;not null"`
     IsActive     bool           `gorm:"default:true"`
-    IsPremium    bool           `gorm:"default:false"`
+    IsPremium    bool           `gorm:"default:false"` // کاربرانی که پلن Pro را خریده‌اند
     CreatedAt    time.Time
     UpdatedAt    time.Time
     DeletedAt    gorm.DeletedAt `gorm:"index"`
+}
+
+// مدل جدید برای تراکنش‌ها
+type Transaction struct {
+    ID          uint      `gorm:"primaryKey"`
+    UserID      uint      `gorm:"index;not null"`
+    User        User      `gorm:"foreignKey:UserID"`
+    Authority   string    `gorm:"uniqueIndex;size:255"`
+    Amount      int       `gorm:"not null"` // به تومان
+    Status      string    `gorm:"size:50;default:'pending'"` // pending, paid, failed
+    Description string    `gorm:"size:255"`
+    CreatedAt   time.Time
+    UpdatedAt   time.Time
 }
 
 type Link struct {
@@ -62,15 +75,14 @@ type CustomDomain struct {
     DeletedAt  gorm.DeletedAt `gorm:"index"`
 }
 
-// مدل‌های جدید برای صفحه بیو (Link-in-bio)
 type BioPage struct {
     ID        uint           `gorm:"primaryKey"`
     UserID    uint           `gorm:"uniqueIndex;not null"`
     User      User           `gorm:"foreignKey:UserID"`
-    Slug      string         `gorm:"uniqueIndex;size:50;not null"` // آدرس صفحه: linkresan.ir/b/amir
-    Title     string         `gorm:"size:100"`                     // نام کاربر یا برند
-    BioText   string         `gorm:"type:text"`                    // توضیحات کوتاه
-    Links     []BioLink      `gorm:"foreignKey:BioPageID"`         // لیست لینک‌ها
+    Slug      string         `gorm:"uniqueIndex;size:50;not null"`
+    Title     string         `gorm:"size:100"`
+    BioText   string         `gorm:"type:text"`
+    Links     []BioLink      `gorm:"foreignKey:BioPageID"`
     CreatedAt time.Time
     UpdatedAt time.Time
     DeletedAt gorm.DeletedAt `gorm:"index"`
@@ -80,7 +92,7 @@ type BioLink struct {
     ID        uint      `gorm:"primaryKey"`
     BioPageID uint      `gorm:"index;not null"`
     BioPage   BioPage   `gorm:"foreignKey:BioPageID"`
-    Title     string    `gorm:"size:100;not null"` // عنوان دکمه (مثلا: اینستاگرام من)
+    Title     string    `gorm:"size:100;not null"`
     URL       string    `gorm:"type:text;not null"`
     Clicks    int       `gorm:"default:0"`
     CreatedAt time.Time

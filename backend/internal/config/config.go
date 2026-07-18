@@ -8,10 +8,12 @@ import (
 )
 
 type Config struct {
-    DatabaseURL  string // آدرس کامل پستگرس ابری
-    Port         string // پورتی که هاست ابری به ما میدهد
-    RedisAddr    string
-    RedisPassword string
+    DatabaseURL        string
+    Port               string
+    RedisAddr          string
+    RedisPassword      string
+    ZarinpalMerchantID string
+    ZarinpalCallbackURL string
 }
 
 func LoadConfig() *Config {
@@ -21,10 +23,12 @@ func LoadConfig() *Config {
     }
 
     return &Config{
-        DatabaseURL:  getEnv("DATABASE_URL", "postgres://postgres:your_password@localhost:5432/linkresan_db?sslmode=disable"),
-        Port:         getEnv("PORT", "8080"), // هاست‌های ابری معمولا متغیر PORT را میدهند
-        RedisAddr:    getEnv("REDIS_ADDR", "localhost:6379"),
-        RedisPassword: getEnv("REDIS_PASSWORD", ""),
+        DatabaseURL:        getEnv("DATABASE_URL", "postgres://postgres:your_password@localhost:5432/linkresan_db?sslmode=disable"),
+        Port:               getEnv("PORT", "8080"),
+        RedisAddr:          getEnv("REDIS_ADDR", "localhost:6379"),
+        RedisPassword:      getEnv("REDIS_PASSWORD", ""),
+        ZarinpalMerchantID: getEnv("ZARINPAL_MERCHANT_ID", ""),
+        ZarinpalCallbackURL: getEnv("ZARINPAL_CALLBACK_URL", "https://linkresan.ir/api/payment/verify"),
     }
 }
 

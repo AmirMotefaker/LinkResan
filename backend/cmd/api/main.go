@@ -35,19 +35,22 @@ func main() {
     linkRepo := repositories.NewLinkRepository(database.DB)
     userRepo := repositories.NewUserRepository(database.DB)
     domainRepo := repositories.NewDomainRepository(database.DB)
-    bioRepo := repositories.NewBioRepository(database.DB) // اضافه شد
+    bioRepo := repositories.NewBioRepository(database.DB)
+    paymentRepo := repositories.NewPaymentRepository(database.DB) // اضافه شد
 
     // --- Services ---
     linkService := services.NewLinkService(linkRepo, domainRepo, rdb)
     authService := services.NewAuthService(userRepo)
     domainService := services.NewDomainService(domainRepo)
-    bioService := services.NewBioService(bioRepo) // اضافه شد
+    bioService := services.NewBioService(bioRepo)
+    paymentService := services.NewPaymentService(paymentRepo, cfg) // اضافه شد
 
     // --- Handlers ---
     linkHandler := handlers.NewLinkHandler(linkService)
     authHandler := handlers.NewAuthHandler(authService)
     domainHandler := handlers.NewDomainHandler(domainService)
-    bioHandler := handlers.NewBioHandler(bioService) // اضافه شد
+    bioHandler := handlers.NewBioHandler(bioService)
+    paymentHandler := handlers.NewPaymentHandler(paymentService, authService) // اضافه شد
 
     // --- Routes ---
     api := app.Group("/api")
@@ -56,10 +59,13 @@ func main() {
         return c.JSON(fiber.Map{"status": "success", "message": "LinkResan API is running perfectly!"})
     })
 
-    // روت‌های احراز هویت (باز برای همه)
     api.Post("/register", authHandler.Register)
     api.Post("/login", authHandler.Login)
-    api.Post("/google-login", authHandler.GoogleLogin) // اضافه شد
+    api.Post("/google-login", authHandler.GoogleLogin)
+
+    // Payment Routes
+    api.Post("/payment/request", middleware.Protected(), paymentHandler.RequestPayment)
+    api.Get("/payment/verify", paymentHandler.VerifyPayment)
 
     // Protected Link Routes
     api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)
@@ -73,17 +79,13 @@ func main() {
     api.Get("/domains", middleware.Protected(), domainHandler.GetUserDomains)
     api.Delete("/domains/:id", middleware.Protected(), domainHandler.DeleteDomain)
 
-    // Protected Bio Routes (برای داشبورد)
+    // Protected Bio Routes
     api.Get("/bio", middleware.Protected(), bioHandler.GetMyBio)
     api.Put("/bio", middleware.Protected(), bioHandler.UpdateBio)
     api.Post("/bio/links", middleware.Protected(), bioHandler.AddBioLink)
     api.Delete("/bio/links/:id", middleware.Protected(), bioHandler.DeleteBioLink)
 
-    // Public Link Resolution Routes
-    api.Get("/links/info/:code", linkHandler.GetLinkInfo)
-    api.Post("/links/verify/:code", linkHandler.VerifyLinkPassword)
-
-    // Public Bio Routes (برای کاربران اینترنت)
+    // Public Bio Routes
     api.Get("/bio/:slug", bioHandler.GetPublicBio)
     api.Post("/bio/links/track/:id", bioHandler.TrackBioLink)
 
