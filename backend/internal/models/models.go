@@ -9,10 +9,10 @@ import (
 type User struct {
     ID           uint           `gorm:"primaryKey"`
     Email        string         `gorm:"uniqueIndex;size:255"`
-    PhoneNumber  string         `gorm:"uniqueIndex;size:15"`
+    PhoneNumber  *string        `gorm:"uniqueIndex;size:15"` // تغییر از string به *string
     PasswordHash string         `gorm:"size:255;not null"`
     IsActive     bool           `gorm:"default:true"`
-    IsPremium    bool           `gorm:"default:false"` // کاربرانی که پلن Pro را خریده‌اند
+    IsPremium    bool           `gorm:"default:false"`
     CreatedAt    time.Time
     UpdatedAt    time.Time
     DeletedAt    gorm.DeletedAt `gorm:"index"`
