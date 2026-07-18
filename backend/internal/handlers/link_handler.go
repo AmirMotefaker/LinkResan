@@ -1,7 +1,6 @@
 package handlers
 
 import (
-    "net/url"
     "strings"
     "time"
 
@@ -93,51 +92,6 @@ func (h *LinkHandler) DeleteLink(c *fiber.Ctx) error {
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Link deleted successfully"})
 }
 
-// تابع هوشمند تشخیص دیپ‌لینک (فقط برای پروفایل‌ها)
-func getSocialDeepLink(originalURL string) string {
-    u, err := url.Parse(originalURL)
-    if err != nil {
-        return ""
-    }
-    host := strings.ReplaceAll(u.Hostname(), "www.", "")
-    pathParts := strings.Split(strings.Trim(u.Path, "/"), "/")
-
-    // تابع کمکی برای بررسی اینکه آیا مسیر شبیه یک نام کاربری است یا خیر
-    isUsername := func(s string) bool {
-        return s != "" && !strings.Contains(s, ".") && len(s) < 30
-    }
-
-    switch {
-    case strings.Contains(host, "instagram.com"):
-        // فقط اگر لینک مستقیم پروفایل باشد (مثلا instagram.com/username)
-        if len(pathParts) == 1 && isUsername(pathParts[0]) {
-            return "instagram://user?username=" + pathParts[0]
-        }
-        // اگر پست یا ریلز باشد، خالی برمی‌گردد تا موبایل از Universal Link استفاده کند
-
-    case strings.Contains(host, "t.me"):
-        if len(pathParts) == 1 && isUsername(pathParts[0]) {
-            return "tg://resolve?domain=" + pathParts[0]
-        }
-
-    case strings.Contains(host, "twitter.com") || strings.Contains(host, "x.com"):
-        // اگر لینک پروفایل باشد
-        if len(pathParts) == 1 && isUsername(pathParts[0]) {
-            return "twitter://user?screen_name=" + pathParts[0]
-        }
-        // اگر لینک یک توییت باشد (مثلا twitter.com/user/status/123)
-        if len(pathParts) == 3 && pathParts[1] == "status" {
-            return "twitter://status?id=" + pathParts[2]
-        }
-
-    case strings.Contains(host, "wa.me"):
-        if len(pathParts) == 1 && len(pathParts[0]) > 5 {
-            return "whatsapp://send?phone=" + pathParts[0]
-        }
-    }
-    return ""
-}
-
 func (h *LinkHandler) GetLinkInfo(c *fiber.Ctx) error {
     shortCode := c.Params("code")
     host := c.Hostname()
@@ -153,20 +107,7 @@ func (h *LinkHandler) GetLinkInfo(c *fiber.Ctx) error {
         return c.Status(fiber.StatusOK).JSON(fiber.Map{"requires_password": true})
     }
 
-    userAgent := strings.ToLower(c.Get("User-Agent"))
-    isMobile := strings.Contains(userAgent, "mobile") || strings.Contains(userAgent, "android") || strings.Contains(userAgent, "iphone")
-
-    if isMobile {
-        deepLink := getSocialDeepLink(link.OriginalURL)
-        if deepLink != "" {
-            return c.Status(fiber.StatusOK).JSON(fiber.Map{
-                "requires_password": false,
-                "original_url":      link.OriginalURL,
-                "deep_link_url":     deepLink,
-            })
-        }
-    }
-
+    // بازگرداندن لینک اصلی. موبایل خودش (Universal Links) اپلیکیشن را باز می‌کند
     return c.Status(fiber.StatusOK).JSON(fiber.Map{
         "requires_password": false,
         "original_url":      link.OriginalURL,
@@ -190,33 +131,13 @@ func (h *LinkHandler) VerifyLinkPassword(c *fiber.Ctx) error {
     }
 
     if link.PasswordHash == nil {
-        // بررسی دیپ‌لینک برای لینک‌های بدون رمز
-        userAgent := strings.ToLower(c.Get("User-Agent"))
-        isMobile := strings.Contains(userAgent, "mobile") || strings.Contains(userAgent, "android") || strings.Contains(userAgent, "iphone")
-        resp := fiber.Map{"original_url": link.OriginalURL}
-        if isMobile {
-            deepLink := getSocialDeepLink(link.OriginalURL)
-            if deepLink != "" {
-                resp["deep_link_url"] = deepLink
-            }
-        }
-        return c.Status(fiber.StatusOK).JSON(resp)
+        return c.Status(fiber.StatusOK).JSON(fiber.Map{"original_url": link.OriginalURL})
     }
 
     if bcrypt.CompareHashAndPassword([]byte(*link.PasswordHash), []byte(req.Password)) != nil {
         return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "رمز عبور اشتباه است"})
     }
 
-    userAgent := strings.ToLower(c.Get("User-Agent"))
-    isMobile := strings.Contains(userAgent, "mobile") || strings.Contains(userAgent, "android") || strings.Contains(userAgent, "iphone")
-
-    resp := fiber.Map{"original_url": link.OriginalURL}
-    if isMobile {
-        deepLink := getSocialDeepLink(link.OriginalURL)
-        if deepLink != "" {
-            resp["deep_link_url"] = deepLink
-        }
-    }
-
-    return c.Status(fiber.StatusOK).JSON(resp)
+    _ = strings.ToLower // فقط برای جلوگیری از ارور ایمپورت نشده
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"original_url": link.OriginalURL})
 }

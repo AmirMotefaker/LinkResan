@@ -17,18 +17,9 @@ export default function ShortLinkRedirect() {
   const [error, setError] = useState("");
 
   const handleRedirect = (data: any) => {
-    if (data.deep_link_url) {
-      // تلاش برای باز کردن اپلیکیشن
-      window.location.href = data.deep_link_url;
-      
-      // اگر اپلیکیشن نصب نبود، بعد از ۱.۵ ثانیه لینک وب را باز کن
-      setTimeout(() => {
-        if (data.original_url) {
-          window.location.href = data.original_url;
-        }
-      }, 1500);
-    } else if (data.original_url) {
-      window.location.href = data.original_url;
+    if (data.original_url) {
+      // استفاده از replace برای جلوگیری از بازگشت به صفحه لودینگ
+      window.location.replace(data.original_url);
     } else {
       router.push("/");
     }
