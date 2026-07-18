@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor, Crown } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
@@ -26,24 +26,20 @@ export default function Dashboard() {
   const [newDomain, setNewDomain] = useState("");
   const [domainLoading, setDomainLoading] = useState(false);
 
-  // متغیرهای پیام پرداخت
   const [paymentMsg, setPaymentMsg] = useState("");
   
-  const [newLink, setNewLink] = useState("");
-
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
-    // بررسی وضعیت بازگشت از بانک
-    const paymentStatus = searchParams.get('payment');
+    // بررسی وضعیت بازگشت از بانک با استفاده از window.location
+    const queryParams = new URLSearchParams(window.location.search);
+    const paymentStatus = queryParams.get('payment');
     if (paymentStatus === 'success') {
       setPaymentMsg("پرداخت با موفقیت انجام شد! اکانت شما به پلن Pro ارتقا یافت.");
-      // پاک کردن پارامتر URL
-      router.replace('/dashboard');
+      window.history.replaceState({}, '', '/dashboard');
     } else if (paymentStatus === 'failed') {
       setPaymentMsg("پرداخت ناموفق بود یا لغو شد. لطفاً دوباره تلاش کنید.");
-      router.replace('/dashboard');
+      window.history.replaceState({}, '', '/dashboard');
     }
 
     const token = localStorage.getItem("token");
@@ -68,7 +64,7 @@ export default function Dashboard() {
       .catch(() => {
         setLoading(false);
       });
-  }, [router, searchParams]);
+  }, [router]);
 
   const handleCopy = (url: string, id: number) => {
     navigator.clipboard.writeText(url);
@@ -164,7 +160,6 @@ export default function Dashboard() {
           <button onClick={() => router.push("/dashboard/bio")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">صفحه بیو</button>
           <button onClick={() => router.push("/")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">ساخت لینک</button>
           
-          {/* دکمه ارتقا به پلن پرو */}
           <button onClick={() => router.push("/dashboard/upgrade")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium bg-indigo-100 text-indigo-600 hover:bg-indigo-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
             <Crown className="w-4 h-4" />
             ارتقا به Pro
@@ -178,7 +173,6 @@ export default function Dashboard() {
 
       <section className="w-full max-w-6xl mt-8 mb-12">
         
-        {/* پیام وضعیت پرداخت */}
         {paymentMsg && (
           <div className={`mb-8 p-4 rounded-xl text-sm ${paymentMsg.includes('موفق') ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
             {paymentMsg}
