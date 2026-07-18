@@ -36,7 +36,6 @@ export default function Home() {
   const [clickLimit, setClickLimit] = useState("");
   const [password, setPassword] = useState("");
 
-  // متغیرهای UTM
   const [utmSource, setUtmSource] = useState("");
   const [utmMedium, setUtmMedium] = useState("");
   const [utmCampaign, setUtmCampaign] = useState("");
@@ -76,7 +75,6 @@ export default function Home() {
     const token = localStorage.getItem("token");
 
     try {
-      // ساخت لینک نهایی با UTM
       let finalUrl = url;
       if (utmSource || utmMedium || utmCampaign) {
         try {
@@ -85,9 +83,7 @@ export default function Home() {
           if (utmMedium) u.searchParams.set("utm_medium", utmMedium);
           if (utmCampaign) u.searchParams.set("utm_campaign", utmCampaign);
           finalUrl = u.toString();
-        } catch {
-          // اگر لینک معتبر نبود، همینطور بفرست
-        }
+        } catch {}
       }
 
       const bodyData: any = { 
@@ -178,6 +174,10 @@ export default function Home() {
             </>
           ) : (
             <>
+              {/* دکمه پلن‌ها اضافه شد */}
+              <button onClick={() => router.push("/pricing")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
+                پلن‌ها
+              </button>
               <button onClick={() => router.push("/login")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">ورود</button>
               <button onClick={() => router.push("/login")} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors cursor-pointer">ثبت‌نام</button>
             </>
@@ -274,7 +274,6 @@ export default function Home() {
                 />
               </div>
 
-              {/* ابزار سازنده UTM اضافه شد */}
               <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl px-4 py-2 sm:col-span-2 mt-2">
                 <label className="text-xs text-gray-500 mb-2 block">سازنده تگ UTM (برای ردیابی کمپین‌ها)</label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
