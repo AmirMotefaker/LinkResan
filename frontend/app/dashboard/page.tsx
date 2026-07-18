@@ -160,7 +160,7 @@ export default function Dashboard() {
           <button onClick={() => router.push("/dashboard/bio")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">صفحه بیو</button>
           <button onClick={() => router.push("/")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">ساخت لینک</button>
           
-          <button onClick={() => router.push("/dashboard/upgrade")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium bg-indigo-100 text-indigo-600 hover:bg-indigo-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
+          <button onClick={() => router.push("/pricing/pro")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium bg-indigo-100 text-indigo-600 hover:bg-indigo-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
             <Crown className="w-4 h-4" />
             ارتقا به Pro
           </button>
