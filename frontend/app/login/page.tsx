@@ -6,7 +6,7 @@ import { Link2, Loader2 } from "lucide-react";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE"; // کلاینت آیدی شما اینجا
+const GOOGLE_CLIENT_ID = "653070447275-4jn6a7fjmmocc832bdq2ljo741la970b.apps.googleusercontent.com"; // کلاینت آیدی شما اینجا
 
 function LoginContent() {
   const [email, setEmail] = useState("");
