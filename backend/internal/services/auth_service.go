@@ -1,16 +1,19 @@
 package services
 
 import (
+    "bytes"
     "encoding/json"
     "errors"
     "io"
     "net/http"
     "time"
 
+    "github.com/AmirMotefaker/LinkResan/backend/internal/config"
     "github.com/AmirMotefaker/LinkResan/backend/internal/models"
     "github.com/AmirMotefaker/LinkResan/backend/internal/repositories"
     "golang.org/x/crypto/bcrypt"
     "github.com/golang-jwt/jwt/v5"
+    "github.com/google/uuid"
 )
 
 var jwtKey = []byte("linkresan_super_secret_key_2024")
@@ -19,15 +22,18 @@ type AuthService interface {
     Register(email, password string) (*models.User, error)
     Login(email, password string) (string, *models.User, error)
     GoogleLogin(credential string) (string, *models.User, error)
-    GetUserByID(userID uint) (*models.User, error) // اضافه شد
+    GetUserByID(userID uint) (*models.User, error)
+    RequestPasswordReset(email string) error
+    ResetPassword(token, newPassword string) error
 }
 
 type authService struct {
     userRepo repositories.UserRepository
+    cfg      *config.Config
 }
 
-func NewAuthService(userRepo repositories.UserRepository) AuthService {
-    return &authService{userRepo: userRepo}
+func NewAuthService(userRepo repositories.UserRepository, cfg *config.Config) AuthService {
+    return &authService{userRepo: userRepo, cfg: cfg}
 }
 
 func (s *authService) Register(email, password string) (*models.User, error) {
@@ -55,7 +61,6 @@ func (s *authService) Register(email, password string) (*models.User, error) {
     return user, nil
 }
 
-// تغییر کرد: حالا یوزر را هم برمی‌گرداند تا فرانت‌اند بدونه Pro است یا خیر
 func (s *authService) Login(email, password string) (string, *models.User, error) {
     user, err := s.userRepo.FindByEmail(email)
     if err != nil {
@@ -124,7 +129,75 @@ func (s *authService) GoogleLogin(credential string) (string, *models.User, erro
     return tokenString, user, nil
 }
 
-// اضافه شد
 func (s *authService) GetUserByID(userID uint) (*models.User, error) {
     return s.userRepo.FindByID(userID)
+}
+
+func (s *authService) RequestPasswordReset(email string) error {
+    user, err := s.userRepo.FindByEmail(email)
+    if err != nil || user.Email == "" {
+        return nil
+    }
+
+    tokenStr := uuid.New().String()
+    resetToken := &models.PasswordReset{
+        Email:     email,
+        Token:     tokenStr,
+        ExpiresAt: time.Now().Add(1 * time.Hour),
+    }
+
+    err = s.userRepo.CreatePasswordResetToken(resetToken)
+    if err != nil {
+        return err
+    }
+
+    resetLink := s.cfg.AppURL + "/reset-password?token=" + tokenStr
+    emailBody := `<html><body dir="rtl"><h2>بازنشانی رمز عبور لینک رسان</h2><p>برای تغییر رمز عبور خود روی لینک زیر کلیک کنید:</p><a href="` + resetLink + `" style="display:inline-block;padding:10px 20px;background-color:#6366f1;color:white;text-decoration:none;border-radius:8px;">بازنشانی رمز عبور</a><p>اگر شما این درخواست را نداده‌اید، این ایمیل را نادیده بگیرید.</p></body></html>`
+
+    payload := map[string]interface{}{
+        "from":    "LinkResan <onboarding@resend.dev>",
+        "to":      []string{email},
+        "subject": "بازنشانی رمز عبور لینک رسان",
+        "html":    emailBody,
+    }
+    jsonData, _ := json.Marshal(payload)
+
+    req, _ := http.NewRequest("POST", "https://api.resend.com/emails", bytes.NewBuffer(jsonData))
+    req.Header.Set("Authorization", "Bearer "+s.cfg.ResendAPIKey)
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil || resp.StatusCode != http.StatusOK {
+        return errors.New("failed to send email")
+    }
+    defer resp.Body.Close()
+    io.Copy(io.Discard, resp.Body)
+
+    return nil
+}
+
+func (s *authService) ResetPassword(token, newPassword string) error {
+    resetToken, err := s.userRepo.FindValidToken(token)
+    if err != nil {
+        return errors.New("invalid or expired token")
+    }
+
+    user, err := s.userRepo.FindByEmail(resetToken.Email)
+    if err != nil {
+        return errors.New("user not found")
+    }
+
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+    if err != nil {
+        return err
+    }
+
+    err = s.userRepo.UpdateUserPassword(user.ID, string(hashedPassword))
+    if err != nil {
+        return err
+    }
+
+    s.userRepo.MarkTokenAsUsed(resetToken)
+    return nil
 }

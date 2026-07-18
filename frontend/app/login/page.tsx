@@ -6,7 +6,7 @@ import { Link2, Loader2 } from "lucide-react";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE"; // کلاینت آیدی گوگل شما اینجا
+const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE"; // کلاینت آیدی شما
 
 function LoginContent() {
   const [email, setEmail] = useState("");
@@ -63,7 +63,7 @@ function LoginContent() {
         localStorage.setItem("is_premium", data.is_premium ? "true" : "false");
         router.push("/onboarding");
       } else {
-        setError(data.error || "ورود با گوگل ناموفق بود");
+        setError("ورود با گوگل ناموفق بود");
       }
     } catch {
       setError("ارتباط با سرور برقرار نشد");
@@ -114,7 +114,13 @@ function LoginContent() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">رمز عبور</label>
+            {/* بخش رمز عبور با دکمه فراموشی رمز */}
+            <div className="flex justify-between items-center">
+              <label className="block text-sm font-medium text-gray-700 mb-1">رمز عبور</label>
+              <button type="button" onClick={() => router.push("/forgot-password")} className="text-xs text-indigo-600 hover:underline mb-1 cursor-pointer">
+                فراموشی رمز؟
+              </button>
+            </div>
             <input
               type="password"
               value={password}

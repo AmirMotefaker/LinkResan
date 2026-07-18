@@ -36,19 +36,19 @@ func main() {
     userRepo := repositories.NewUserRepository(database.DB)
     domainRepo := repositories.NewDomainRepository(database.DB)
     bioRepo := repositories.NewBioRepository(database.DB)
-    paymentRepo := repositories.NewPaymentRepository(database.DB) // اضافه شد
+    paymentRepo := repositories.NewPaymentRepository(database.DB)
 
     // --- Services ---
     linkService := services.NewLinkService(linkRepo, domainRepo, rdb)
-    authService := services.NewAuthService(userRepo)
+    authService := services.NewAuthService(userRepo, cfg) // آپدیت شد: افزودن cfg
     domainService := services.NewDomainService(domainRepo)
     bioService := services.NewBioService(bioRepo)
-    paymentService := services.NewPaymentService(paymentRepo, cfg) // اضافه شد
+    paymentService := services.NewPaymentService(paymentRepo, cfg)
 
     // --- Handlers ---
-    linkHandler := handlers.NewLinkHandler(linkService, authService) // آپدیت شد
+    linkHandler := handlers.NewLinkHandler(linkService, authService)
     authHandler := handlers.NewAuthHandler(authService)
-    domainHandler := handlers.NewDomainHandler(domainService, authService) // آپدیت شد
+    domainHandler := handlers.NewDomainHandler(domainService, authService)
     bioHandler := handlers.NewBioHandler(bioService)
     paymentHandler := handlers.NewPaymentHandler(paymentService, authService)
 
@@ -59,9 +59,12 @@ func main() {
         return c.JSON(fiber.Map{"status": "success", "message": "LinkResan API is running perfectly!"})
     })
 
+    // Auth & Password Reset Routes
     api.Post("/register", authHandler.Register)
     api.Post("/login", authHandler.Login)
     api.Post("/google-login", authHandler.GoogleLogin)
+    api.Post("/forgot-password", authHandler.ForgotPassword)
+    api.Post("/reset-password", authHandler.ResetPassword)
 
     // Payment Routes
     api.Post("/payment/request", middleware.Protected(), paymentHandler.RequestPayment)
@@ -88,6 +91,10 @@ func main() {
     // Public Bio Routes
     api.Get("/bio/:slug", bioHandler.GetPublicBio)
     api.Post("/bio/links/track/:id", bioHandler.TrackBioLink)
+
+    // Public Link Resolution Routes
+    api.Get("/links/info/:code", linkHandler.GetLinkInfo)
+    api.Post("/links/verify/:code", linkHandler.VerifyLinkPassword)
 
     log.Printf("Server starting on port %s...", cfg.Port)
     log.Fatal(app.Listen(":" + cfg.Port))

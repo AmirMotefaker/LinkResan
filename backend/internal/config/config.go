@@ -14,6 +14,8 @@ type Config struct {
     RedisPassword      string
     ZarinpalMerchantID string
     ZarinpalCallbackURL string
+    ResendAPIKey       string
+    AppURL             string // آدرس سایت برای لینک بازنشانی
 }
 
 func LoadConfig() *Config {
@@ -29,6 +31,8 @@ func LoadConfig() *Config {
         RedisPassword:      getEnv("REDIS_PASSWORD", ""),
         ZarinpalMerchantID: getEnv("ZARINPAL_MERCHANT_ID", ""),
         ZarinpalCallbackURL: getEnv("ZARINPAL_CALLBACK_URL", "https://linkresan.ir/api/payment/verify"),
+        ResendAPIKey:       getEnv("RESEND_API_KEY", ""),
+        AppURL:             getEnv("APP_URL", "https://linkresan.ir"),
     }
 }
 

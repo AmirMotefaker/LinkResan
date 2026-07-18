@@ -56,7 +56,6 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
         return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
     }
 
-    // اضافه شدن is_premium
     return c.Status(fiber.StatusOK).JSON(fiber.Map{
         "message":   "Login successful",
         "token":     token,
@@ -79,10 +78,44 @@ func (h *AuthHandler) GoogleLogin(c *fiber.Ctx) error {
         return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
     }
 
-    // اضافه شدن is_premium
     return c.Status(fiber.StatusOK).JSON(fiber.Map{
         "message":   "Login successful",
         "token":     token,
         "is_premium": user.IsPremium,
     })
+}
+
+// هندلر درخواست بازنشانی رمز
+func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
+    var req struct {
+        Email string `json:"email"`
+    }
+    if err := c.BodyParser(&req); err != nil || req.Email == "" {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "ایمیل الزامی است"})
+    }
+
+    err := h.authService.RequestPasswordReset(req.Email)
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "خطا در ارسال ایمیل"})
+    }
+
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "اگر ایمیل معتبر باشد، لینک بازنشانی برای شما ارسال شد."})
+}
+
+// هندلر تغییر رمز با توکن
+func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
+    var req struct {
+        Token    string `json:"token"`
+        Password string `json:"password"`
+    }
+    if err := c.BodyParser(&req); err != nil || req.Token == "" || req.Password == "" {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "توکن و رمز عبور الزامی است"})
+    }
+
+    err := h.authService.ResetPassword(req.Token, req.Password)
+    if err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "رمز عبور با موفقیت تغییر کرد."})
 }

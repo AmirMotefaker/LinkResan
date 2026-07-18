@@ -9,13 +9,23 @@ import (
 type User struct {
     ID           uint           `gorm:"primaryKey"`
     Email        string         `gorm:"uniqueIndex;size:255"`
-    PhoneNumber  *string        `gorm:"uniqueIndex;size:15"` // تغییر از string به *string
+    PhoneNumber  *string        `gorm:"uniqueIndex;size:15"`
     PasswordHash string         `gorm:"size:255;not null"`
     IsActive     bool           `gorm:"default:true"`
     IsPremium    bool           `gorm:"default:false"`
     CreatedAt    time.Time
     UpdatedAt    time.Time
     DeletedAt    gorm.DeletedAt `gorm:"index"`
+}
+
+// مدل جدید برای توکن‌های فراموشی رمز
+type PasswordReset struct {
+    ID        uint      `gorm:"primaryKey"`
+    Email     string    `gorm:"index;size:255;not null"`
+    Token     string    `gorm:"uniqueIndex;size:255;not null"`
+    ExpiresAt time.Time `gorm:"not null"`
+    IsUsed    bool      `gorm:"default:false"`
+    CreatedAt time.Time
 }
 
 // مدل جدید برای تراکنش‌ها
