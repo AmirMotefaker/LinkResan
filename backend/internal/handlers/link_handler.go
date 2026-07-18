@@ -1,6 +1,8 @@
 package handlers
 
 import (
+    "net/url"
+    "strings"
     "time"
 
     "github.com/AmirMotefaker/LinkResan/backend/internal/services"
@@ -69,7 +71,6 @@ func (h *LinkHandler) GetAnalytics(c *fiber.Ctx) error {
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"analytics": data})
 }
 
-// هندلر جدید: آمار مرورگر و سیستم‌عامل
 func (h *LinkHandler) GetClickStats(c *fiber.Ctx) error {
     userID := c.Locals("user_id").(float64)
     stats, err := h.linkService.GetClickStats(uint(userID))
@@ -92,6 +93,37 @@ func (h *LinkHandler) DeleteLink(c *fiber.Ctx) error {
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Link deleted successfully"})
 }
 
+// تابع تشخیص موبایل و تولید دیپ‌لینک
+func getSocialDeepLink(originalURL string) string {
+    u, err := url.Parse(originalURL)
+    if err != nil {
+        return ""
+    }
+    host := strings.ReplaceAll(u.Hostname(), "www.", "")
+    pathParts := strings.Split(strings.Trim(u.Path, "/"), "/")
+
+    switch {
+    case strings.Contains(host, "instagram.com"):
+        if len(pathParts) > 0 && pathParts[0] != "" {
+            return "instagram://user?username=" + pathParts[0]
+        }
+        return "instagram://app"
+    case strings.Contains(host, "t.me"):
+        if len(pathParts) > 0 && pathParts[0] != "" {
+            return "tg://resolve?domain=" + pathParts[0]
+        }
+    case strings.Contains(host, "twitter.com") || strings.Contains(host, "x.com"):
+        if len(pathParts) > 0 && pathParts[0] != "" {
+            return "twitter://user?screen_name=" + pathParts[0]
+        }
+    case strings.Contains(host, "wa.me"):
+        if len(pathParts) > 0 && pathParts[0] != "" {
+            return "whatsapp://send?phone=" + pathParts[0]
+        }
+    }
+    return ""
+}
+
 func (h *LinkHandler) GetLinkInfo(c *fiber.Ctx) error {
     shortCode := c.Params("code")
     host := c.Hostname()
@@ -105,6 +137,21 @@ func (h *LinkHandler) GetLinkInfo(c *fiber.Ctx) error {
 
     if link.PasswordHash != nil {
         return c.Status(fiber.StatusOK).JSON(fiber.Map{"requires_password": true})
+    }
+
+    // منطق دیپ‌لینکینگ
+    userAgent := strings.ToLower(c.Get("User-Agent"))
+    isMobile := strings.Contains(userAgent, "mobile") || strings.Contains(userAgent, "android") || strings.Contains(userAgent, "iphone")
+
+    if isMobile {
+        deepLink := getSocialDeepLink(link.OriginalURL)
+        if deepLink != "" {
+            return c.Status(fiber.StatusOK).JSON(fiber.Map{
+                "requires_password": false,
+                "original_url":      link.OriginalURL,
+                "deep_link_url":     deepLink,
+            })
+        }
     }
 
     return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -137,5 +184,17 @@ func (h *LinkHandler) VerifyLinkPassword(c *fiber.Ctx) error {
         return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "رمز عبور اشتباه است"})
     }
 
-    return c.Status(fiber.StatusOK).JSON(fiber.Map{"original_url": link.OriginalURL})
+    // بررسی دیپ‌لینک بعد از وارد کردن رمز صحیح
+    userAgent := strings.ToLower(c.Get("User-Agent"))
+    isMobile := strings.Contains(userAgent, "mobile") || strings.Contains(userAgent, "android") || strings.Contains(userAgent, "iphone")
+
+    resp := fiber.Map{"original_url": link.OriginalURL}
+    if isMobile {
+        deepLink := getSocialDeepLink(link.OriginalURL)
+        if deepLink != "" {
+            resp["deep_link_url"] = deepLink
+        }
+    }
+
+    return c.Status(fiber.StatusOK).JSON(resp)
 }
