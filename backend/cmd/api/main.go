@@ -56,8 +56,10 @@ func main() {
         return c.JSON(fiber.Map{"status": "success", "message": "LinkResan API is running perfectly!"})
     })
 
+    // روت‌های احراز هویت (باز برای همه)
     api.Post("/register", authHandler.Register)
     api.Post("/login", authHandler.Login)
+    api.Post("/google-login", authHandler.GoogleLogin) // اضافه شد
 
     // Protected Link Routes
     api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)

@@ -61,3 +61,26 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
         "token":   token,
     })
 }
+
+// هندلر جدید برای ورود با گوگل
+type GoogleLoginRequest struct {
+    Credential string `json:"credential"`
+}
+
+func (h *AuthHandler) GoogleLogin(c *fiber.Ctx) error {
+    var req GoogleLoginRequest
+    if err := c.BodyParser(&req); err != nil || req.Credential == "" {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
+    }
+
+    token, user, err := h.authService.GoogleLogin(req.Credential)
+    if err != nil {
+        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{
+        "message": "Login successful",
+        "token":   token,
+        "email":   user.Email,
+    })
+}
