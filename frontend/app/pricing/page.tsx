@@ -6,6 +6,11 @@ import { Link2, Check, X, Zap, Shield, BarChart2, Globe, Crown, Building2, Arrow
 
 const toFa = (num: any) => num.toString().replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
 
+export const metadata = {
+  title: "پلن‌ها و قیمت‌ها",
+  description: "پلن‌های کوتاه‌کننده لینک لینک رسان. از پلن رایگان شروع کنید و با پلن حرفه‌ای از دامنه اختصاصی و امکانات پیشرفته لذت ببرید.",
+};
+
 export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState("monthly");
   const [isLoggedIn, setIsLoggedIn] = useState(false);

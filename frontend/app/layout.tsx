@@ -9,8 +9,27 @@ const vazirmatn = Vazirmatn({
 });
 
 export const metadata: Metadata = {
-  title: "لینک رسان | کوتاه‌کننده حرفه‌ای لینک",
-  description: "سرویس کوتاه‌کننده لینک حرفه‌ای، رایگان و متن‌باز برای کاربران ایرانی",
+  metadataBase: new URL("https://linkresan.ir"),
+  title: {
+    default: "لینک رسان | کوتاه‌کننده لینک حرفه‌ای رایگان",
+    template: "%s | لینک رسان",
+  },
+  description: "سرویس کوتاه‌کننده لینک حرفه‌ای، رایگان و متن‌باز برای کاربران ایرانی. ساخت لینک کوتاه، QR Code، صفحه بیو و آمار دقیق کلیک‌ها.",
+  keywords: ["کوتاه کننده لینک", "لینک رسان", "short link", "url shortener", "کوتاه کردن لینک", "qr code", "linkresan"],
+  authors: [{ name: "امیر متفکر" }],
+  openGraph: {
+    title: "لینک رسان | کوتاه‌کننده لینک حرفه‌ای",
+    description: "کوتاه‌سازی لینک، QR Code، صفحه بیو و آمار دقیق کلیک‌ها برای کاربران ایرانی.",
+    url: "https://linkresan.ir",
+    siteName: "لینک رسان",
+    locale: "fa_IR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "لینک رسان | کوتاه‌کننده لینک حرفه‌ای",
+    description: "کوتاه‌سازی لینک، QR Code، صفحه بیو و آمار دقیق کلیک‌ها برای کاربران ایرانی.",
+  },
 };
 
 export default function RootLayout({

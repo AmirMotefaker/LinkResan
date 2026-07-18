@@ -10,6 +10,11 @@ import TimePicker from "react-multi-date-picker/plugins/time_picker";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+export const metadata = {
+  title: "کوتاه‌کننده لینک حرفه‌ای رایگان با QR Code و آمار",
+  description: "لینک‌های طولانی خود را به لینک‌های کوتاه، امن و قابل اندازه‌گیری تبدیل کنید. دارای QR Code، تاریخ انقضا، رمز عبور و صفحه بیو.",
+};
+
 const toFa = (num: any) => {
   if (num === null || num === undefined) return "";
   return num.toString().replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
