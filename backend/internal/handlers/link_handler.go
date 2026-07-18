@@ -93,7 +93,7 @@ func (h *LinkHandler) DeleteLink(c *fiber.Ctx) error {
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Link deleted successfully"})
 }
 
-// تابع تشخیص موبایل و تولید دیپ‌لینک
+// تابع هوشمند تشخیص دیپ‌لینک (فقط برای پروفایل‌ها)
 func getSocialDeepLink(originalURL string) string {
     u, err := url.Parse(originalURL)
     if err != nil {
@@ -102,22 +102,36 @@ func getSocialDeepLink(originalURL string) string {
     host := strings.ReplaceAll(u.Hostname(), "www.", "")
     pathParts := strings.Split(strings.Trim(u.Path, "/"), "/")
 
+    // تابع کمکی برای بررسی اینکه آیا مسیر شبیه یک نام کاربری است یا خیر
+    isUsername := func(s string) bool {
+        return s != "" && !strings.Contains(s, ".") && len(s) < 30
+    }
+
     switch {
     case strings.Contains(host, "instagram.com"):
-        if len(pathParts) > 0 && pathParts[0] != "" {
+        // فقط اگر لینک مستقیم پروفایل باشد (مثلا instagram.com/username)
+        if len(pathParts) == 1 && isUsername(pathParts[0]) {
             return "instagram://user?username=" + pathParts[0]
         }
-        return "instagram://app"
+        // اگر پست یا ریلز باشد، خالی برمی‌گردد تا موبایل از Universal Link استفاده کند
+
     case strings.Contains(host, "t.me"):
-        if len(pathParts) > 0 && pathParts[0] != "" {
+        if len(pathParts) == 1 && isUsername(pathParts[0]) {
             return "tg://resolve?domain=" + pathParts[0]
         }
+
     case strings.Contains(host, "twitter.com") || strings.Contains(host, "x.com"):
-        if len(pathParts) > 0 && pathParts[0] != "" {
+        // اگر لینک پروفایل باشد
+        if len(pathParts) == 1 && isUsername(pathParts[0]) {
             return "twitter://user?screen_name=" + pathParts[0]
         }
+        // اگر لینک یک توییت باشد (مثلا twitter.com/user/status/123)
+        if len(pathParts) == 3 && pathParts[1] == "status" {
+            return "twitter://status?id=" + pathParts[2]
+        }
+
     case strings.Contains(host, "wa.me"):
-        if len(pathParts) > 0 && pathParts[0] != "" {
+        if len(pathParts) == 1 && len(pathParts[0]) > 5 {
             return "whatsapp://send?phone=" + pathParts[0]
         }
     }
@@ -139,7 +153,6 @@ func (h *LinkHandler) GetLinkInfo(c *fiber.Ctx) error {
         return c.Status(fiber.StatusOK).JSON(fiber.Map{"requires_password": true})
     }
 
-    // منطق دیپ‌لینکینگ
     userAgent := strings.ToLower(c.Get("User-Agent"))
     isMobile := strings.Contains(userAgent, "mobile") || strings.Contains(userAgent, "android") || strings.Contains(userAgent, "iphone")
 
@@ -177,14 +190,23 @@ func (h *LinkHandler) VerifyLinkPassword(c *fiber.Ctx) error {
     }
 
     if link.PasswordHash == nil {
-        return c.Status(fiber.StatusOK).JSON(fiber.Map{"original_url": link.OriginalURL})
+        // بررسی دیپ‌لینک برای لینک‌های بدون رمز
+        userAgent := strings.ToLower(c.Get("User-Agent"))
+        isMobile := strings.Contains(userAgent, "mobile") || strings.Contains(userAgent, "android") || strings.Contains(userAgent, "iphone")
+        resp := fiber.Map{"original_url": link.OriginalURL}
+        if isMobile {
+            deepLink := getSocialDeepLink(link.OriginalURL)
+            if deepLink != "" {
+                resp["deep_link_url"] = deepLink
+            }
+        }
+        return c.Status(fiber.StatusOK).JSON(resp)
     }
 
     if bcrypt.CompareHashAndPassword([]byte(*link.PasswordHash), []byte(req.Password)) != nil {
         return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "رمز عبور اشتباه است"})
     }
 
-    // بررسی دیپ‌لینک بعد از وارد کردن رمز صحیح
     userAgent := strings.ToLower(c.Get("User-Agent"))
     isMobile := strings.Contains(userAgent, "mobile") || strings.Contains(userAgent, "android") || strings.Contains(userAgent, "iphone")
 
