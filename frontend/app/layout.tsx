@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Vazirmatn } from "next/font/google";
 import "./globals.css";
+import ServiceWorkerRegister from "./sw-register";
 
 const vazirmatn = Vazirmatn({
   subsets: ["arabic", "latin"],
@@ -17,6 +18,12 @@ export const metadata: Metadata = {
   description: "سرویس کوتاه‌کننده لینک حرفه‌ای، رایگان و متن‌باز برای کاربران ایرانی. ساخت لینک کوتاه، QR Code، صفحه بیو و آمار دقیق کلیک‌ها.",
   keywords: ["کوتاه کننده لینک", "لینک رسان", "short link", "url shortener", "کوتاه کردن لینک", "qr code", "linkresan"],
   authors: [{ name: "امیر متفکر" }],
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    title: "لینک رسان",
+    statusBarStyle: "default",
+    capable: true,
+  },
   openGraph: {
     title: "لینک رسان | کوتاه‌کننده لینک حرفه‌ای",
     description: "کوتاه‌سازی لینک، QR Code، صفحه بیو و آمار دقیق کلیک‌ها برای کاربران ایرانی.",
@@ -32,6 +39,13 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#2563eb",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,7 +53,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl" className={vazirmatn.variable}>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        {children}
+        <ServiceWorkerRegister />
+      </body>
     </html>
   );
 }
