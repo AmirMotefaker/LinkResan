@@ -22,12 +22,13 @@ type CachedLink struct {
 
 type LinkService interface {
     CreateShortLink(userID uint, originalURL, customCode, password string, expiresAt *time.Time, clickLimit *int, domainID *uint) (*models.Link, error)
+    BulkCreateShortLinks(userID uint, urls []string) ([]models.Link, error) // اضافه شد
     GetLinkByCode(shortCode, host string) (*models.Link, error)
     TrackClick(linkID uint, ipAddress, userAgent, referrer string)
     GetUserLinks(userID uint) ([]models.Link, error)
     DeleteLink(userID uint, linkID uint) error
     GetAnalytics(userID uint) ([]repositories.DailyClickData, error)
-    GetClickStats(userID uint) (map[string][]repositories.NameCount, error) // اضافه شد
+    GetClickStats(userID uint) (map[string][]repositories.NameCount, error)
 }
 
 type linkService struct {
@@ -93,6 +94,40 @@ func (s *linkService) CreateShortLink(userID uint, originalURL, customCode, pass
     return link, nil
 }
 
+// متد جدید برای ساخت انبوه لینک‌ها
+func (s *linkService) BulkCreateShortLinks(userID uint, urls []string) ([]models.Link, error) {
+    var createdLinks []models.Link
+
+    for _, u := range urls {
+        if u == "" {
+            continue
+        }
+        // اضافه کردن https:// اگر کاربر فراموش کرده بود
+        if !strings.HasPrefix(u, "http://") && !strings.HasPrefix(u, "https://") {
+            u = "https://" + u
+        }
+
+        shortCode := generateShortCode()
+        link := &models.Link{
+            UserID:      &userID,
+            OriginalURL: u,
+            ShortCode:   shortCode,
+            IsActive:    true,
+        }
+
+        err := s.linkRepo.Create(link)
+        if err == nil {
+            createdLinks = append(createdLinks, *link)
+        }
+    }
+
+    if len(createdLinks) == 0 {
+        return nil, errors.New("هیچ لینکی ساخته نشد")
+    }
+
+    return createdLinks, nil
+}
+
 func (s *linkService) GetLinkByCode(shortCode, host string) (*models.Link, error) {
     ctx := context.Background()
     var domainID *uint
@@ -134,7 +169,36 @@ func (s *linkService) GetLinkByCode(shortCode, host string) (*models.Link, error
     return link, nil
 }
 
-// تابع تشخیص مرورگر و سیستم‌عامل
+func (s *linkService) TrackClick(linkID uint, ipAddress, userAgent, referrer string) {
+    browser, device := parseUserAgent(userAgent)
+    click := &models.Click{
+        LinkID:     linkID,
+        IPAddress:  ipAddress,
+        UserAgent:  userAgent,
+        Referrer:   referrer,
+        Browser:    browser,
+        DeviceType: device,
+    }
+    _ = s.linkRepo.CreateClick(click)
+    _ = s.linkRepo.IncrementClickCount(linkID)
+}
+
+func (s *linkService) GetUserLinks(userID uint) ([]models.Link, error) {
+    return s.linkRepo.FindByUserID(userID)
+}
+
+func (s *linkService) DeleteLink(userID uint, linkID uint) error {
+    return s.linkRepo.DeleteByIDAndUserID(linkID, userID)
+}
+
+func (s *linkService) GetAnalytics(userID uint) ([]repositories.DailyClickData, error) {
+    return s.linkRepo.GetDailyClicks(userID)
+}
+
+func (s *linkService) GetClickStats(userID uint) (map[string][]repositories.NameCount, error) {
+    return s.linkRepo.GetClickStats(userID)
+}
+
 func parseUserAgent(ua string) (browser, device string) {
     uaLower := strings.ToLower(ua)
 
@@ -164,36 +228,4 @@ func parseUserAgent(ua string) (browser, device string) {
         device = "Other"
     }
     return
-}
-
-func (s *linkService) TrackClick(linkID uint, ipAddress, userAgent, referrer string) {
-    browser, device := parseUserAgent(userAgent)
-
-    click := &models.Click{
-        LinkID:     linkID,
-        IPAddress:  ipAddress,
-        UserAgent:  userAgent,
-        Referrer:   referrer,
-        Browser:    browser,
-        DeviceType: device,
-    }
-    _ = s.linkRepo.CreateClick(click)
-    _ = s.linkRepo.IncrementClickCount(linkID)
-}
-
-func (s *linkService) GetUserLinks(userID uint) ([]models.Link, error) {
-    return s.linkRepo.FindByUserID(userID)
-}
-
-func (s *linkService) DeleteLink(userID uint, linkID uint) error {
-    return s.linkRepo.DeleteByIDAndUserID(linkID, userID)
-}
-
-func (s *linkService) GetAnalytics(userID uint) ([]repositories.DailyClickData, error) {
-    return s.linkRepo.GetDailyClicks(userID)
-}
-
-// متد جدید برای گرفتن آمار
-func (s *linkService) GetClickStats(userID uint) (map[string][]repositories.NameCount, error) {
-    return s.linkRepo.GetClickStats(userID)
 }

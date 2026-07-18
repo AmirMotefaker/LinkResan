@@ -1,6 +1,8 @@
 package handlers
 
 import (
+    "encoding/csv"
+    "io"
     "strings"
     "time"
 
@@ -11,10 +13,9 @@ import (
 
 type LinkHandler struct {
     linkService services.LinkService
-    authService services.AuthService // اضافه شد
+    authService services.AuthService
 }
 
-// تغییر کرد: authService تزریق شد
 func NewLinkHandler(linkService services.LinkService, authService services.AuthService) *LinkHandler {
     return &LinkHandler{linkService: linkService, authService: authService}
 }
@@ -41,13 +42,11 @@ func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
     userID := c.Locals("user_id").(float64)
     baseURL := "https://linkresan.ir"
 
-    // چک کردن وضعیت Pro کاربر
     user, err := h.authService.GetUserByID(uint(userID))
     if err != nil || user == nil {
         return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User not found"})
     }
 
-    // اعمال محدودیت‌ها برای کاربران رایگان
     if !user.IsPremium {
         if req.ExpiresAt != nil || req.ClickLimit != nil || req.Password != "" || req.DomainID != nil {
             return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "استفاده از تاریخ انقضا، محدودیت کلیک، رمز عبور و دامنه اختصاصی فقط برای پلن Pro فعال است."})
@@ -65,6 +64,68 @@ func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
         "short_url":    baseURL + "/" + link.ShortCode,
         "domain_id":    link.DomainID,
     })
+}
+
+// هندلر جدید برای ساخت انبوه لینک
+func (h *LinkHandler) BulkCreateLinks(c *fiber.Ctx) error {
+    userID := c.Locals("user_id").(float64)
+
+    // دریافت فایل آپلود شده با کلید "file"
+    file, err := c.FormFile("file")
+    if err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "فایل CSV آپلود نشده است"})
+    }
+
+    // باز کردن فایل
+    src, err := file.Open()
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "خطا در باز کردن فایل"})
+    }
+    defer src.Close()
+
+    // خواندن فایل CSV
+    reader := csv.NewReader(src)
+    records, err := reader.ReadAll()
+    if err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "فرمت فایل CSV نامعتبر است"})
+    }
+
+    var urls []string
+    for _, record := range records {
+        if len(record) > 0 {
+            url := strings.TrimSpace(record[0])
+            if url != "" && strings.ToLower(url) != "url" && strings.ToLower(url) != "link" { // نادیده گرفتن هدر اکسل
+                urls = append(urls, url)
+            }
+        }
+    }
+
+    if len(urls) == 0 {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "هیچ لینکی در فایل یافت نشد"})
+    }
+
+    // محدودیت برای جلوگیری از اسپم (مثلا نهایتا ۱۰۰ لینک در هر فایل)
+    if len(urls) > 100 {
+        urls = urls[:100]
+    }
+
+    // ساخت لینک‌ها
+    links, err := h.linkService.BulkCreateShortLinks(uint(userID), urls)
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // آماده‌سازی خروجی برای دانلود به صورت CSV
+    c.Set("Content-Type", "text/csv")
+    c.Set("Content-Disposition", "attachment; filename=shortened_links.csv")
+
+    // نوشتن خروجی
+    output := "Original URL,Short URL\n"
+    for _, link := range links {
+        output += link.OriginalURL + ",https://linkresan.ir/" + link.ShortCode + "\n"
+    }
+
+    return c.Status(fiber.StatusOK).SendString(output)
 }
 
 func (h *LinkHandler) GetUserLinks(c *fiber.Ctx) error {
@@ -153,5 +214,6 @@ func (h *LinkHandler) VerifyLinkPassword(c *fiber.Ctx) error {
     }
 
     _ = strings.ToLower
+    _ = io.EOF // برای جلوگیری از ارور ایمپورت نشده
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"original_url": link.OriginalURL})
 }

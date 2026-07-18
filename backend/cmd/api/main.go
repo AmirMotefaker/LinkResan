@@ -40,7 +40,7 @@ func main() {
 
     // --- Services ---
     linkService := services.NewLinkService(linkRepo, domainRepo, rdb)
-    authService := services.NewAuthService(userRepo, cfg) // آپدیت شد: افزودن cfg
+    authService := services.NewAuthService(userRepo, cfg)
     domainService := services.NewDomainService(domainRepo)
     bioService := services.NewBioService(bioRepo)
     paymentService := services.NewPaymentService(paymentRepo, cfg)
@@ -72,6 +72,7 @@ func main() {
 
     // Protected Link Routes
     api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)
+    api.Post("/links/bulk", middleware.Protected(), linkHandler.BulkCreateLinks) // اضافه شد
     api.Get("/links", middleware.Protected(), linkHandler.GetUserLinks)
     api.Get("/links/analytics", middleware.Protected(), linkHandler.GetAnalytics)
     api.Get("/links/stats", middleware.Protected(), linkHandler.GetClickStats)
