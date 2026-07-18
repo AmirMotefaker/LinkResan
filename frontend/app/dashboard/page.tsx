@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor, Crown } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// تابع تبدیل اعداد انگلیسی به فارسی
 const toFa = (num: any) => {
   if (num === null || num === undefined) return "";
   return num.toString().replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
@@ -27,9 +26,26 @@ export default function Dashboard() {
   const [newDomain, setNewDomain] = useState("");
   const [domainLoading, setDomainLoading] = useState(false);
 
+  // متغیرهای پیام پرداخت
+  const [paymentMsg, setPaymentMsg] = useState("");
+  
+  const [newLink, setNewLink] = useState("");
+
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    // بررسی وضعیت بازگشت از بانک
+    const paymentStatus = searchParams.get('payment');
+    if (paymentStatus === 'success') {
+      setPaymentMsg("پرداخت با موفقیت انجام شد! اکانت شما به پلن Pro ارتقا یافت.");
+      // پاک کردن پارامتر URL
+      router.replace('/dashboard');
+    } else if (paymentStatus === 'failed') {
+      setPaymentMsg("پرداخت ناموفق بود یا لغو شد. لطفاً دوباره تلاش کنید.");
+      router.replace('/dashboard');
+    }
+
     const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
@@ -52,7 +68,7 @@ export default function Dashboard() {
       .catch(() => {
         setLoading(false);
       });
-  }, [router]);
+  }, [router, searchParams]);
 
   const handleCopy = (url: string, id: number) => {
     navigator.clipboard.writeText(url);
@@ -145,11 +161,15 @@ export default function Dashboard() {
           <span className="text-lg sm:text-xl font-bold tracking-tight">داشبورد</span>
         </div>
         <div className="flex gap-2 sm:gap-4 items-center">
-          {/* دکمه صفحه بیو اضافه شد */}
-          <button onClick={() => router.push("/dashboard/bio")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
-            صفحه بیو
-          </button>
+          <button onClick={() => router.push("/dashboard/bio")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">صفحه بیو</button>
           <button onClick={() => router.push("/")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">ساخت لینک</button>
+          
+          {/* دکمه ارتقا به پلن پرو */}
+          <button onClick={() => router.push("/dashboard/upgrade")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium bg-indigo-100 text-indigo-600 hover:bg-indigo-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
+            <Crown className="w-4 h-4" />
+            ارتقا به Pro
+          </button>
+
           <button onClick={handleLogout} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors flex items-center gap-2 cursor-pointer">
             <LogOut className="w-4 h-4" /> خروج
           </button>
@@ -158,7 +178,13 @@ export default function Dashboard() {
 
       <section className="w-full max-w-6xl mt-8 mb-12">
         
-        {/* کارت مدیریت دامنه‌های اختصاصی */}
+        {/* پیام وضعیت پرداخت */}
+        {paymentMsg && (
+          <div className={`mb-8 p-4 rounded-xl text-sm ${paymentMsg.includes('موفق') ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+            {paymentMsg}
+          </div>
+        )}
+
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm mb-8">
           <div className="flex items-center gap-2 mb-6">
             <Globe className="w-5 h-5 text-indigo-600" />
@@ -181,7 +207,7 @@ export default function Dashboard() {
           </form>
 
           <div className="text-xs text-gray-500 mb-4 bg-gray-50 p-3 rounded-lg">
-            <strong>راهنمای تنظیم DNS:</strong> برای فعال‌سازی دامنه، وارد پنل سایتی که دامنه را خریدیده‌اید شوید و یک رکورد CNAME برای `www` (یا یک رکورد A برای `@`) با مقدار `cname.vercel-dns.com` ایجاد کنید. (فعلاً در حالت آزمایشی است)
+            <strong>راهنمای تنظیم DNS:</strong> برای فعال‌سازی دامنه، وارد پنل سایتی که دامنه را خریدیده‌اید شوید و یک رکورد CNAME برای `www` با مقدار `cname.vercel-dns.com` ایجاد کنید.
           </div>
 
           {domains.length > 0 ? (
@@ -208,7 +234,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* کارت‌های نمودار و آمار */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-2 bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
@@ -241,7 +266,6 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* کارت آمار مرورگر و سیستم‌عامل */}
           <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
             <h3 className="text-base sm:text-lg font-bold mb-6">دستگاه‌ها و مرورگرها</h3>
             {loading ? (
