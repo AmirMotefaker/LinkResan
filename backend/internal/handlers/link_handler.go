@@ -11,10 +11,12 @@ import (
 
 type LinkHandler struct {
     linkService services.LinkService
+    authService services.AuthService // اضافه شد
 }
 
-func NewLinkHandler(linkService services.LinkService) *LinkHandler {
-    return &LinkHandler{linkService: linkService}
+// تغییر کرد: authService تزریق شد
+func NewLinkHandler(linkService services.LinkService, authService services.AuthService) *LinkHandler {
+    return &LinkHandler{linkService: linkService, authService: authService}
 }
 
 type CreateLinkRequest struct {
@@ -38,6 +40,19 @@ func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
 
     userID := c.Locals("user_id").(float64)
     baseURL := "https://linkresan.ir"
+
+    // چک کردن وضعیت Pro کاربر
+    user, err := h.authService.GetUserByID(uint(userID))
+    if err != nil || user == nil {
+        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User not found"})
+    }
+
+    // اعمال محدودیت‌ها برای کاربران رایگان
+    if !user.IsPremium {
+        if req.ExpiresAt != nil || req.ClickLimit != nil || req.Password != "" || req.DomainID != nil {
+            return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "استفاده از تاریخ انقضا، محدودیت کلیک، رمز عبور و دامنه اختصاصی فقط برای پلن Pro فعال است."})
+        }
+    }
 
     link, err := h.linkService.CreateShortLink(uint(userID), req.OriginalURL, req.CustomCode, req.Password, req.ExpiresAt, req.ClickLimit, req.DomainID)
     if err != nil {
@@ -107,7 +122,6 @@ func (h *LinkHandler) GetLinkInfo(c *fiber.Ctx) error {
         return c.Status(fiber.StatusOK).JSON(fiber.Map{"requires_password": true})
     }
 
-    // بازگرداندن لینک اصلی. موبایل خودش (Universal Links) اپلیکیشن را باز می‌کند
     return c.Status(fiber.StatusOK).JSON(fiber.Map{
         "requires_password": false,
         "original_url":      link.OriginalURL,
@@ -138,6 +152,6 @@ func (h *LinkHandler) VerifyLinkPassword(c *fiber.Ctx) error {
         return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "رمز عبور اشتباه است"})
     }
 
-    _ = strings.ToLower // فقط برای جلوگیری از ارور ایمپورت نشده
+    _ = strings.ToLower
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"original_url": link.OriginalURL})
 }

@@ -46,11 +46,11 @@ func main() {
     paymentService := services.NewPaymentService(paymentRepo, cfg) // اضافه شد
 
     // --- Handlers ---
-    linkHandler := handlers.NewLinkHandler(linkService)
+    linkHandler := handlers.NewLinkHandler(linkService, authService) // آپدیت شد
     authHandler := handlers.NewAuthHandler(authService)
-    domainHandler := handlers.NewDomainHandler(domainService)
+    domainHandler := handlers.NewDomainHandler(domainService, authService) // آپدیت شد
     bioHandler := handlers.NewBioHandler(bioService)
-    paymentHandler := handlers.NewPaymentHandler(paymentService, authService) // اضافه شد
+    paymentHandler := handlers.NewPaymentHandler(paymentService, authService)
 
     // --- Routes ---
     api := app.Group("/api")

@@ -6,7 +6,7 @@ import { Link2, Loader2 } from "lucide-react";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const GOOGLE_CLIENT_ID = "653070447275-4jn6a7fjmmocc832bdq2ljo741la970b.apps.googleusercontent.com"; // کلاینت آیدی شما اینجا
+const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE"; // کلاینت آیدی گوگل شما اینجا
 
 function LoginContent() {
   const [email, setEmail] = useState("");
@@ -35,6 +35,7 @@ function LoginContent() {
 
       if (isLogin) {
         localStorage.setItem("token", data.token);
+        localStorage.setItem("is_premium", data.is_premium ? "true" : "false");
         router.push("/onboarding");
       } else {
         setIsLogin(true);
@@ -59,6 +60,7 @@ function LoginContent() {
       const data = await res.json();
       if (res.ok && data.token) {
         localStorage.setItem("token", data.token);
+        localStorage.setItem("is_premium", data.is_premium ? "true" : "false");
         router.push("/onboarding");
       } else {
         setError(data.error || "ورود با گوگل ناموفق بود");
@@ -135,7 +137,7 @@ function LoginContent() {
 
         <button
           onClick={() => { setIsLogin(!isLogin); setError(""); }}
-          className="w-full mt-6 text-sm text-gray-500 hover:text-indigo-600 transition-colors"
+          className="w-full mt-6 text-sm text-gray-500 hover:text-indigo-600 transition-colors cursor-pointer"
         >
           {isLogin ? "حساب ندارید؟ ثبت‌نام کنید" : "حساب دارید؟ وارد شوید"}
         </button>

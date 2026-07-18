@@ -51,18 +51,19 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
         return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
     }
 
-    token, err := h.authService.Login(req.Email, req.Password)
+    token, user, err := h.authService.Login(req.Email, req.Password)
     if err != nil {
         return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
     }
 
+    // اضافه شدن is_premium
     return c.Status(fiber.StatusOK).JSON(fiber.Map{
-        "message": "Login successful",
-        "token":   token,
+        "message":   "Login successful",
+        "token":     token,
+        "is_premium": user.IsPremium,
     })
 }
 
-// هندلر جدید برای ورود با گوگل
 type GoogleLoginRequest struct {
     Credential string `json:"credential"`
 }
@@ -78,9 +79,10 @@ func (h *AuthHandler) GoogleLogin(c *fiber.Ctx) error {
         return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
     }
 
+    // اضافه شدن is_premium
     return c.Status(fiber.StatusOK).JSON(fiber.Map{
-        "message": "Login successful",
-        "token":   token,
-        "email":   user.Email,
+        "message":   "Login successful",
+        "token":     token,
+        "is_premium": user.IsPremium,
     })
 }

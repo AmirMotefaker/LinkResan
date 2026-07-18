@@ -17,8 +17,9 @@ var jwtKey = []byte("linkresan_super_secret_key_2024")
 
 type AuthService interface {
     Register(email, password string) (*models.User, error)
-    Login(email, password string) (string, error)
+    Login(email, password string) (string, *models.User, error)
     GoogleLogin(credential string) (string, *models.User, error)
+    GetUserByID(userID uint) (*models.User, error) // اضافه شد
 }
 
 type authService struct {
@@ -54,15 +55,16 @@ func (s *authService) Register(email, password string) (*models.User, error) {
     return user, nil
 }
 
-func (s *authService) Login(email, password string) (string, error) {
+// تغییر کرد: حالا یوزر را هم برمی‌گرداند تا فرانت‌اند بدونه Pro است یا خیر
+func (s *authService) Login(email, password string) (string, *models.User, error) {
     user, err := s.userRepo.FindByEmail(email)
     if err != nil {
-        return "", errors.New("user not found")
+        return "", nil, errors.New("user not found")
     }
 
     err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
     if err != nil {
-        return "", errors.New("invalid password")
+        return "", nil, errors.New("invalid password")
     }
 
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -73,15 +75,13 @@ func (s *authService) Login(email, password string) (string, error) {
 
     tokenString, err := token.SignedString(jwtKey)
     if err != nil {
-        return "", err
+        return "", nil, err
     }
 
-    return tokenString, nil
+    return tokenString, user, nil
 }
 
-// متد جدید برای ورود با گوگل
 func (s *authService) GoogleLogin(credential string) (string, *models.User, error) {
-    // گرفتن اطلاعات کاربر از سرور گوگل
     resp, err := http.Get("https://oauth2.googleapis.com/tokeninfo?id_token=" + credential)
     if err != nil || resp.StatusCode != http.StatusOK {
         return "", nil, errors.New("invalid google token")
@@ -97,13 +97,11 @@ func (s *authService) GoogleLogin(credential string) (string, *models.User, erro
         return "", nil, errors.New("could not get email from google")
     }
 
-    // چک کردن اینکه آیا کاربر قبلا ثبت نام کرده یا خیر
     user, err := s.userRepo.FindByEmail(email)
     if err != nil {
-        // اگر کاربر نبود، با پسورد رندوم ثبت‌نامش می‌کنیم (چون گوگل پسورد نمیده)
         user = &models.User{
             Email:        email,
-            PasswordHash: "google_oauth_user", // نشان‌دهنده ورود با گوگل
+            PasswordHash: "google_oauth_user",
             IsActive:     true,
         }
         err = s.userRepo.Create(user)
@@ -112,7 +110,6 @@ func (s *authService) GoogleLogin(credential string) (string, *models.User, erro
         }
     }
 
-    // ساخت توکن JWT برای اپلیکیشن خودمان
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
         "user_id": user.ID,
         "email":   user.Email,
@@ -125,4 +122,9 @@ func (s *authService) GoogleLogin(credential string) (string, *models.User, erro
     }
 
     return tokenString, user, nil
+}
+
+// اضافه شد
+func (s *authService) GetUserByID(userID uint) (*models.User, error) {
+    return s.userRepo.FindByID(userID)
 }
