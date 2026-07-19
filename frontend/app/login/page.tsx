@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Link2, Loader2 } from "lucide-react";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE"; // کلاینت آیدی شما
+const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE"; // کلاینت آیدی گوگل شما
 
 function LoginContent() {
   const [email, setEmail] = useState("");
@@ -63,7 +64,7 @@ function LoginContent() {
         localStorage.setItem("is_premium", data.is_premium ? "true" : "false");
         router.push("/onboarding");
       } else {
-        setError("ورود با گوگل ناموفق بود");
+        setError(data.error || "ورود با گوگل ناموفق بود");
       }
     } catch {
       setError("ارتباط با سرور برقرار نشد");
@@ -73,17 +74,19 @@ function LoginContent() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 transition-colors duration-300">
+      <div className="absolute top-4 left-4">
+        <ThemeToggle />
+      </div>
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
         <div className="flex flex-col items-center mb-8">
-          <div onClick={() => router.push("/")} className="bg-indigo-50 p-3 rounded-xl mb-4 border border-indigo-100 cursor-pointer">
-            <Link2 className="w-7 h-7 text-indigo-600" />
+          <div onClick={() => router.push("/")} className="bg-indigo-50 dark:bg-gray-700 p-3 rounded-xl mb-4 border border-indigo-100 dark:border-gray-600 cursor-pointer">
+            <Link2 className="w-7 h-7 text-indigo-600 dark:text-indigo-400" />
           </div>
           <h1 className="text-2xl font-bold">{isLogin ? "ورود به حساب" : "ساخت حساب جدید"}</h1>
-          <p className="text-gray-500 text-sm mt-1">به لینک رسان خوش آمدید</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">به لینک رسان خوش آمدید</p>
         </div>
 
-        {/* دکمه رسمی ورود با گوگل */}
         <div className="w-full flex justify-center mb-4">
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
@@ -95,29 +98,27 @@ function LoginContent() {
           />
         </div>
 
-        {/* جداکننده */}
         <div className="flex items-center gap-4 mb-4">
-          <div className="h-px bg-gray-200 flex-grow"></div>
-          <span className="text-xs text-gray-400">یا</span>
-          <div className="h-px bg-gray-200 flex-grow"></div>
+          <div className="h-px bg-gray-200 dark:bg-gray-700 flex-grow"></div>
+          <span className="text-xs text-gray-400 dark:text-gray-500">یا</span>
+          <div className="h-px bg-gray-200 dark:bg-gray-700 flex-grow"></div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">ایمیل</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ایمیل</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-12 px-4 bg-gray-50 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 focus:bg-white transition-all"
+              className="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-gray-800 transition-all text-white"
               required
             />
           </div>
           <div>
-            {/* بخش رمز عبور با دکمه فراموشی رمز */}
             <div className="flex justify-between items-center">
-              <label className="block text-sm font-medium text-gray-700 mb-1">رمز عبور</label>
-              <button type="button" onClick={() => router.push("/forgot-password")} className="text-xs text-indigo-600 hover:underline mb-1 cursor-pointer">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">رمز عبور</label>
+              <button type="button" onClick={() => router.push("/forgot-password")} className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline mb-1 cursor-pointer">
                 فراموشی رمز؟
               </button>
             </div>
@@ -125,7 +126,7 @@ function LoginContent() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full h-12 px-4 bg-gray-50 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 focus:bg-white transition-all"
+              className="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-gray-800 transition-all text-white"
               required
             />
           </div>
@@ -143,7 +144,7 @@ function LoginContent() {
 
         <button
           onClick={() => { setIsLogin(!isLogin); setError(""); }}
-          className="w-full mt-6 text-sm text-gray-500 hover:text-indigo-600 transition-colors cursor-pointer"
+          className="w-full mt-6 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
         >
           {isLogin ? "حساب ندارید؟ ثبت‌نام کنید" : "حساب دارید؟ وارد شوید"}
         </button>

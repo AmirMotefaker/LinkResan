@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor, Crown, Layers, Users, Webhook } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -148,40 +149,40 @@ export default function Dashboard() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center bg-gray-50 text-gray-900 px-4">
+    <main className="min-h-screen flex flex-col items-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 transition-colors duration-300">
       
       <header className="w-full max-w-6xl flex justify-between items-center py-3 sm:py-6">
         <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
-          <Link2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" />
+          <Link2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400" />
           <span className="text-lg sm:text-xl font-bold tracking-tight">داشبورد</span>
         </div>
         <div className="flex gap-2 sm:gap-4 items-center">
-          <button onClick={() => router.push("/dashboard/bio")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">صفحه بیو</button>
+          <ThemeToggle />
+          <button onClick={() => router.push("/dashboard/bio")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">صفحه بیو</button>
           
-          <button onClick={() => router.push("/dashboard/bulk")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer flex items-center gap-1">
+          <button onClick={() => router.push("/dashboard/bulk")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
             <Layers className="w-4 h-4" />
             انبوه
           </button>
 
-          <button onClick={() => router.push("/dashboard/team")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer flex items-center gap-1">
+          <button onClick={() => router.push("/dashboard/team")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
             <Users className="w-4 h-4" />
             تیم
           </button>
 
-          {/* دکمه وب‌هوک‌ها اضافه شد */}
-          <button onClick={() => router.push("/dashboard/webhooks")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer flex items-center gap-1">
+          <button onClick={() => router.push("/dashboard/webhooks")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
             <Webhook className="w-4 h-4" />
             وب‌هوک
           </button>
 
-          <button onClick={() => router.push("/")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">ساخت لینک</button>
+          <button onClick={() => router.push("/")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">ساخت لینک</button>
           
-          <button onClick={() => router.push("/pricing/pro")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium bg-indigo-100 text-indigo-600 hover:bg-indigo-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
+          <button onClick={() => router.push("/pricing/pro")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/60 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
             <Crown className="w-4 h-4" />
             Pro
           </button>
 
-          <button onClick={handleLogout} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors flex items-center gap-2 cursor-pointer">
+          <button onClick={handleLogout} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 dark:text-black text-white rounded-lg transition-colors flex items-center gap-2 cursor-pointer">
             <LogOut className="w-4 h-4" /> خروج
           </button>
         </div>
@@ -190,14 +191,14 @@ export default function Dashboard() {
       <section className="w-full max-w-6xl mt-8 mb-12">
         
         {paymentMsg && (
-          <div className={`mb-8 p-4 rounded-xl text-sm ${paymentMsg.includes('موفق') ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+          <div className={`mb-8 p-4 rounded-xl text-sm ${paymentMsg.includes('موفق') ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'}`}>
             {paymentMsg}
           </div>
         )}
 
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm mb-8">
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm mb-8">
           <div className="flex items-center gap-2 mb-6">
-            <Globe className="w-5 h-5 text-indigo-600" />
+            <Globe className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <h3 className="text-base sm:text-lg font-bold">دامنه‌های اختصاصی شما</h3>
           </div>
           
@@ -207,7 +208,7 @@ export default function Dashboard() {
               placeholder="دامنه خود را وارد کنید (مثلا: go.myshop.ir)"
               value={newDomain}
               onChange={(e) => setNewDomain(e.target.value)}
-              className="w-full h-12 px-4 text-sm bg-gray-50 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition-all cursor-pointer"
+              className="w-full h-12 px-4 text-sm bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-indigo-500 transition-all cursor-pointer text-white"
               required
             />
             <button type="submit" disabled={domainLoading} className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50">
@@ -216,23 +217,23 @@ export default function Dashboard() {
             </button>
           </form>
 
-          <div className="text-xs text-gray-500 mb-4 bg-gray-50 p-3 rounded-lg">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-4 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
             <strong>راهنمای تنظیم DNS:</strong> برای فعال‌سازی دامنه، وارد پنل سایتی که دامنه را خریدیده‌اید شوید و یک رکورد CNAME برای `www` با مقدار `cname.vercel-dns.com` ایجاد کنید.
           </div>
 
           {domains.length > 0 ? (
             <div className="space-y-2">
               {domains.map((domain) => (
-                <div key={domain.ID} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                <div key={domain.ID} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-xl">
                   <div className="flex items-center gap-2">
                     <Globe className="w-4 h-4 text-gray-400" />
                     <span className="font-medium text-sm">{domain.Domain}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`text-xs px-2 py-1 rounded-md ${domain.IsVerified ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}`}>
+                    <span className={`text-xs px-2 py-1 rounded-md ${domain.IsVerified ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'}`}>
                       {domain.IsVerified ? "تایید شده" : "در انتظار تایید"}
                     </span>
-                    <button onClick={() => handleDeleteDomain(domain.ID)} className="p-1 hover:bg-red-50 rounded transition-colors cursor-pointer">
+                    <button onClick={() => handleDeleteDomain(domain.ID)} className="p-1 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors cursor-pointer">
                       <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
                     </button>
                   </div>
@@ -240,20 +241,20 @@ export default function Dashboard() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-400 text-center py-4">هنوز دامنه اختصاصی اضافه نکرده‌اید.</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">هنوز دامنه اختصاصی اضافه نکرده‌اید.</p>
           )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <div className="lg:col-span-2 bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
+          <div className="lg:col-span-2 bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
-              <TrendingUp className="w-5 h-5 text-indigo-600" />
+              <TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               <h3 className="text-base sm:text-lg font-bold">آمار کلیک‌های ۷ روز اخیر</h3>
             </div>
             
             {loading ? (
               <div className="flex justify-center items-center h-48">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+                <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" />
               </div>
             ) : (
               <div className="w-full h-48 sm:h-64">
@@ -265,10 +266,10 @@ export default function Dashboard() {
                         <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6b7280' }} tickMargin={8} />
-                    <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(value) => toFa(value)} tickMargin={15} width={50} />
-                    <Tooltip contentStyle={{ direction: 'rtl', borderRadius: '12px', border: '1px solid #e5e7eb', fontSize: '14px' }} formatter={(value: any) => [toFa(value) + ' کلیک', 'تعداد']} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.2} />
+                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#9ca3af' }} tickMargin={8} />
+                    <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} tickFormatter={(value) => toFa(value)} tickMargin={15} width={50} />
+                    <Tooltip contentStyle={{ direction: 'rtl', borderRadius: '12px', border: '1px solid #374151', backgroundColor: '#1f2937', color: '#fff', fontSize: '14px' }} formatter={(value: any) => [toFa(value) + ' کلیک', 'تعداد']} />
                     <Area type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorClick)" />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -276,16 +277,16 @@ export default function Dashboard() {
             )}
           </div>
 
-          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
             <h3 className="text-base sm:text-lg font-bold mb-6">دستگاه‌ها و مرورگرها</h3>
             {loading ? (
               <div className="flex justify-center items-center h-32">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+                <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" />
               </div>
             ) : stats ? (
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-3">سیستم‌عامل‌ها</h4>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">سیستم‌عامل‌ها</h4>
                   <div className="space-y-2">
                     {stats.devices && stats.devices.length > 0 ? (
                       stats.devices.slice(0, 3).map((device: any, i: number) => (
@@ -294,14 +295,14 @@ export default function Dashboard() {
                             <Monitor className="w-4 h-4 text-gray-400" />
                             <span>{device.name}</span>
                           </div>
-                          <span className="font-bold text-gray-700">{toFa(device.count)}</span>
+                          <span className="font-bold text-gray-700 dark:text-gray-200">{toFa(device.count)}</span>
                         </div>
                       ))
-                    ) : <p className="text-xs text-gray-400">داده‌ای موجود نیست</p>}
+                    ) : <p className="text-xs text-gray-400 dark:text-gray-500">داده‌ای موجود نیست</p>}
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-3">مرورگرها</h4>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">مرورگرها</h4>
                   <div className="space-y-2">
                     {stats.browsers && stats.browsers.length > 0 ? (
                       stats.browsers.slice(0, 3).map((browser: any, i: number) => (
@@ -310,10 +311,10 @@ export default function Dashboard() {
                             <Globe className="w-4 h-4 text-gray-400" />
                             <span>{browser.name}</span>
                           </div>
-                          <span className="font-bold text-gray-700">{toFa(browser.count)}</span>
+                          <span className="font-bold text-gray-700 dark:text-gray-200">{toFa(browser.count)}</span>
                         </div>
                       ))
-                    ) : <p className="text-xs text-gray-400">داده‌ای موجود نیست</p>}
+                    ) : <p className="text-xs text-gray-400 dark:text-gray-500">داده‌ای موجود نیست</p>}
                   </div>
                 </div>
               </div>
@@ -325,16 +326,16 @@ export default function Dashboard() {
 
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" />
           </div>
         ) : links.length === 0 ? (
-          <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center shadow-sm">
-            <p className="text-gray-500 mb-4">شما هنوز هیچ لینکی نساخته‌اید.</p>
+          <div className="bg-white dark:bg-gray-800 p-12 rounded-2xl border border-gray-100 dark:border-gray-700 text-center shadow-sm">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">شما هنوز هیچ لینکی نساخته‌اید.</p>
             <button onClick={() => router.push("/")} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors cursor-pointer">ساخت اولین لینک</button>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden overflow-x-auto">
-            <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-gray-100 bg-gray-50 text-sm font-medium text-gray-500 min-w-[900px]">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden overflow-x-auto">
+            <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm font-medium text-gray-500 dark:text-gray-400 min-w-[900px]">
               <div className="col-span-1 text-center">#</div>
               <div className="col-span-4">لینک کوتاه</div>
               <div className="col-span-3">لینک اصلی</div>
@@ -348,29 +349,29 @@ export default function Dashboard() {
               const shortUrl = `https://${domain ? domain.Domain : 'linkresan.ir'}/${link.ShortCode}`;
               
               return (
-                <div key={link.ID} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border-b border-gray-50 hover:bg-gray-50/50 transition-colors items-center min-w-[900px]">
-                  <div className="md:col-span-1 md:text-center font-medium text-gray-400">{toFa(index + 1)}</div>
+                <div key={link.ID} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors items-center min-w-[900px]">
+                  <div className="md:col-span-1 md:text-center font-medium text-gray-400 dark:text-gray-500">{toFa(index + 1)}</div>
                   <div className="md:col-span-4 flex items-center gap-2">
-                    <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 font-medium hover:underline flex items-center gap-1 truncate">
+                    <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline flex items-center gap-1 truncate">
                       {shortUrl.replace('https://', '')}
                       <ExternalLink className="w-3 h-3 flex-shrink-0" />
                     </a>
-                    <button onClick={() => handleCopy(shortUrl, link.ID)} className="p-1 hover:bg-indigo-50 rounded transition-colors flex-shrink-0 cursor-pointer">
+                    <button onClick={() => handleCopy(shortUrl, link.ID)} className="p-1 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded transition-colors flex-shrink-0 cursor-pointer">
                       {copiedId === link.ID ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-gray-400" />}
                     </button>
                   </div>
-                  <div className="md:col-span-3 text-gray-500 truncate text-sm">{link.OriginalURL}</div>
-                  <div className="md:col-span-2 text-gray-500 text-xs">{formatDate(link.CreatedAt)}</div>
+                  <div className="md:col-span-3 text-gray-500 dark:text-gray-400 truncate text-sm">{link.OriginalURL}</div>
+                  <div className="md:col-span-2 text-gray-500 dark:text-gray-400 text-xs">{formatDate(link.CreatedAt)}</div>
                   <div className="md:col-span-1 flex md:justify-center items-center">
-                    <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
+                    <span className="inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
                       <MousePointerClick className="w-3 h-3" />{toFa(link.ClickCount)}
                     </span>
                   </div>
                   <div className="md:col-span-1 flex md:justify-center items-center gap-2">
-                    <button onClick={() => setQrModalUrl(shortUrl)} className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group cursor-pointer" title="دانلود QR Code">
-                      <QrCode className="w-4 h-4 text-gray-400 group-hover:text-indigo-600 transition-colors" />
+                    <button onClick={() => setQrModalUrl(shortUrl)} className="p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors group cursor-pointer" title="دانلود QR Code">
+                      <QrCode className="w-4 h-4 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
                     </button>
-                    <button onClick={() => handleDeleteLink(link.ID)} className="p-2 hover:bg-red-50 rounded-lg transition-colors group cursor-pointer" title="حذف لینک">
+                    <button onClick={() => handleDeleteLink(link.ID)} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors group cursor-pointer" title="حذف لینک">
                       <Trash2 className="w-4 h-4 text-gray-400 group-hover:text-red-500 transition-colors" />
                     </button>
                   </div>
@@ -383,17 +384,17 @@ export default function Dashboard() {
 
       {qrModalUrl && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setQrModalUrl(null)}>
-          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl flex flex-col items-center max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-xl flex flex-col items-center max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
             <div className="w-full flex justify-between items-center mb-6">
               <h3 className="text-lg sm:text-xl font-bold">QR Code</h3>
-              <button onClick={() => setQrModalUrl(null)} className="p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
+              <button onClick={() => setQrModalUrl(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-4 border-2 border-gray-100 rounded-xl mb-6">
-              <QRCodeCanvas id="qr-canvas" value={qrModalUrl} size={200} bgColor="#ffffff" fgColor="#000000" level="H" includeMargin={true} />
+            <div className="p-4 border-2 border-gray-100 dark:border-gray-700 rounded-xl mb-6">
+              <QRCodeCanvas id="qr-canvas" value={qrModalUrl} size={200} bgColor="transparent" fgColor="currentColor" level="H" includeMargin={true} className="text-black dark:text-white" />
             </div>
-            <p className="text-sm text-gray-500 mb-6 text-center break-all">{qrModalUrl}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 text-center break-all">{qrModalUrl}</p>
             <button onClick={downloadQR} className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer">
               <Download className="w-5 h-5" /> دانلود تصویر QR
             </button>
