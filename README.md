@@ -1,6 +1,8 @@
-<div align="center">
+<div align="center" dir="rtl">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:4F46E5,50:7C3AED,100:DB2777&height=230&section=header&text=LinkResan&fontSize=72&fontColor=FFFFFF&animation=fadeIn&fontAlignY=35&desc=Fast%20%C2%B7%20Open-Source%20%C2%B7%20Persian-First%20URL%20Shortener&descAlignY=57&descSize=18" width="100%" alt="LinkResan — Persian-first open-source URL shortener" />
+<a href="https://www.linkresan.ir/">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:4F46E5,50:7C3AED,100:DB2777&height=230&section=header&text=LinkResan&fontSize=72&fontColor=FFFFFF&animation=fadeIn&fontAlignY=35&desc=Fast%20%C2%B7%20Open-Source%20%C2%B7%20Persian-First%20URL%20Shortener&descAlignY=57&descSize=18" width="100%" alt="LinkResan — Persian-first open-source URL shortener" />
+</a>
 
 # 🔗 لینک‌رسان | LinkResan
 
@@ -11,36 +13,37 @@
 
 <br/>
 
-[![Website](https://img.shields.io/badge/Website-linkresan.ir-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white)](https://linkresan.ir)
-[![Latest Release](https://img.shields.io/github/v/release/AmirMotefaker/LinkResan?style=for-the-badge&logo=github&label=Release)](https://github.com/AmirMotefaker/LinkResan/releases/latest)
-[![Last Commit](https://img.shields.io/github/last-commit/AmirMotefaker/LinkResan?style=for-the-badge&logo=git&label=Last%20Commit)](https://github.com/AmirMotefaker/LinkResan/commits/main)
-[![Stars](https://img.shields.io/github/stars/AmirMotefaker/LinkResan?style=for-the-badge&logo=github&label=Stars)](https://github.com/AmirMotefaker/LinkResan/stargazers)
-[![Issues](https://img.shields.io/github/issues/AmirMotefaker/LinkResan?style=for-the-badge&logo=github)](https://github.com/AmirMotefaker/LinkResan/issues)
+<p dir="rtl">
+  <a href="https://linkresan.ir"><img src="https://img.shields.io/badge/Website-linkresan.ir-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Website"/></a>
+  <a href="https://github.com/AmirMotefaker/LinkResan/releases/latest"><img src="https://img.shields.io/github/v/release/AmirMotefaker/LinkResan?style=for-the-badge&logo=github&label=Release" alt="Latest Release"/></a>
+  <a href="https://github.com/AmirMotefaker/LinkResan/commits/main"><img src="https://img.shields.io/github/last-commit/AmirMotefaker/LinkResan?style=for-the-badge&logo=git&label=Last%20Commit" alt="Last Commit"/></a>
+  <a href="https://github.com/AmirMotefaker/LinkResan/stargazers"><img src="https://img.shields.io/github/stars/AmirMotefaker/LinkResan?style=for-the-badge&logo=github&label=Stars" alt="Stars"/></a>
+  <a href="https://github.com/AmirMotefaker/LinkResan/issues"><img src="https://img.shields.io/github/issues/AmirMotefaker/LinkResan?style=for-the-badge&logo=github" alt="Issues"/></a>
+</p>
 
-[نسخه آنلاین](https://linkresan.ir)
-·
-[آخرین Release](https://github.com/AmirMotefaker/LinkResan/releases/latest)
-·
-[تاریخچه نسخه‌ها](#release-history)
-·
-[مستندات API](#api-reference)
-·
-[Roadmap](#roadmap)
-·
-[گزارش مشکل](https://github.com/AmirMotefaker/LinkResan/issues/new)
+<p dir="rtl">
+  <a href="https://linkresan.ir">نسخه آنلاین</a> · 
+  <a href="https://github.com/AmirMotefaker/LinkResan/releases/latest">آخرین Release</a> · 
+  <a href="#release-history">تاریخچه نسخه‌ها</a> · 
+  <a href="#api-reference">مستندات API</a> · 
+  <a href="#roadmap">نقشه راه</a> · 
+  <a href="https://github.com/AmirMotefaker/LinkResan/issues/new">گزارش مشکل</a>
+</p>
 
 <br/>
 
-![Go](https://img.shields.io/badge/Go-1.25.0-00ADD8?style=flat-square&logo=go&logoColor=white)
-![Fiber](https://img.shields.io/badge/Fiber-2.52-00ACD7?style=flat-square&logo=go&logoColor=white)
-![Next.js](https://img.shields.io/badge/Next.js-16.2.10-000000?style=flat-square&logo=nextdotjs&logoColor=white)
-![React Native](https://img.shields.io/badge/React_Native-Expo-61DAFB?style=flat-square&logo=react&logoColor=black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![Tailwind](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-Cache-DC382D?style=flat-square&logo=redis&logoColor=white)
-![PWA](https://img.shields.io/badge/PWA-Installable-5A0FC8?style=flat-square&logo=pwa&logoColor=white)
-![Zarinpal](https://img.shields.io/badge/Zarinpal-Payment-FFD700?style=flat-square&logo=bitcoin&logoColor=black)
+<p dir="rtl">
+  <img src="https://img.shields.io/badge/Go-1.25.0-00ADD8?style=flat-square&logo=go&logoColor=white" alt="Go"/>
+  <img src="https://img.shields.io/badge/Fiber-2.52-00ACD7?style=flat-square&logo=go&logoColor=white" alt="Fiber"/>
+  <img src="https://img.shields.io/badge/Next.js-16.2.10-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js"/>
+  <img src="https://img.shields.io/badge/React_Native-Expo-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React Native"/>
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"/>
+  <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL"/>
+  <img src="https://img.shields.io/badge/Redis-Cache-DC382D?style=flat-square&logo=redis&logoColor=white" alt="Redis"/>
+  <img src="https://img.shields.io/badge/PWA-Installable-5A0FC8?style=flat-square&logo=pwa&logoColor=white" alt="PWA"/>
+  <img src="https://img.shields.io/badge/Zarinpal-Payment-FFD700?style=flat-square&logo=bitcoin&logoColor=black" alt="Zarinpal"/>
+</p>
 
 </div>
 
@@ -53,7 +56,7 @@
 > **Mobile App, Dark Mode & Developer Tools**  
 > پروژه از یک پلتفرم وب به یک اکوسیستم کامل (وب، موبایل و ابزار توسعه‌دهنده) تبدیل شد.
 
-### مهم‌ترین قابلیت‌های v5.1.0
+### مهم‌ترین قابلیت‌های نسخه v5.1.0
 
 - 📱 **اپلیکیشن موبایل (React Native):** اپلیکیشن نیتیو برای اندروید و iOS با تب‌بار پایین، صفحه ساخت لینک و تنظیمات.
 - 🌙 **دارک مد (Dark Mode):** پشتیبانی کامل از حالت تاریک در تمامی صفحات وب‌سایت با قابلیت ذخیره انتخاب کاربر.
@@ -76,41 +79,41 @@
 
 ## 📑 فهرست مطالب
 
-- [معرفی](#overview)
+- [معرفی پروژه](#overview)
 - [چرا لینک‌رسان؟](#why-linkresan)
 - [قابلیت‌های فعلی](#features)
-- [معماری](#architecture)
-- [تکنولوژی‌ها](#tech-stack)
+- [معماری سیستم](#architecture)
+- [تکنولوژی‌های استفاده شده](#tech-stack)
 - [راه‌اندازی محلی](#getting-started)
 - [مستندات API](#api-reference)
-- [استقرار](#deployment)
-- [Roadmap کامل](#roadmap)
-- [مشارکت](#contributing)
+- [استقرار روی سرور](#deployment)
+- [نقشه راه (Roadmap)](#roadmap)
+- [مشارکت در پروژه](#contributing)
 - [لایسنس](#license)
 
 ---
 
 <a id="overview"></a>
 
-## معرفی
+## معرفی پروژه
 
 **LinkResan** یک اکوسیستم Full-Stack، رایگان و متن‌باز برای کوتاه‌سازی و مدیریت لینک است که با تمرکز بر تجربه کاربران فارسی‌زبان طراحی شده است.
 
 کاربران می‌توانند:
 
-1. از طریق وب‌سایت یا اپلیکیشن موبایل با ایمیل یا گوگل ثبت‌نام کنند.
-2. لینک‌های طولانی را با اسلاگ دلخواه کوتاه کنند.
-3. برای لینک‌های خود رمز عبور، تاریخ انقضا و محدودیت کلیک تعیین کنند.
-4. دامنه‌های اختصاصی خود را متصل کنند.
-5. در داشبورد حرفه‌ای، لینک‌های خود را مدیریت و حذف کنند.
-6. آمار دقیق کلیک‌ها (مرورگر، سیستم‌عامل، نمودار هفتگی) را مشاهده کنند.
-7. QR Code هر لینک را تولید و دانلود کنند.
-8. یک صفحه بیو (Linktree) زیبا بسازند.
-9. با پرداخت اشتراک ماهانه/سالانه، امکانات حرفه‌ای را فعال کنند.
-10. با استفاده از کلید API، لینک‌ها را مستقیماً از کدهای خود بسازند.
+۱. از طریق وب‌سایت یا اپلیکیشن موبایل با ایمیل یا گوگل ثبت‌نام کنند.
+۲. لینک‌های طولانی را با اسلاگ دلخواه کوتاه کنند.
+۳. برای لینک‌های خود رمز عبور، تاریخ انقضا و محدودیت کلیک تعیین کنند.
+۴. دامنه‌های اختصاصی خود را متصل کنند.
+۵. در داشبورد حرفه‌ای، لینک‌های خود را مدیریت و حذف کنند.
+۶. آمار دقیق کلیک‌ها (مرورگر، سیستم‌عامل، نمودار هفتگی) را مشاهده کنند.
+۷. QR Code هر لینک را تولید و دانلود کنند.
+۸. یک صفحه بیو (Linktree) زیبا بسازند.
+۹. با پرداخت اشتراک ماهانه/سالانه، امکانات حرفه‌ای را فعال کنند.
+۱۰. با استفاده از کلید API، لینک‌ها را مستقیماً از کدهای خود بسازند.
 
 > [!IMPORTANT]
-> `v5.1.0` یک نسخه کاملاً تجاری، چند سکویی (وب و موبایل) و آماده استفاده عمومی است.
+> نسخه `v5.1.0` یک پلتفرم کاملاً تجاری، چند سکویی (وب و موبایل) و آماده استفاده عمومی است.
 
 ---
 
@@ -131,7 +134,7 @@
 | 🌲 Link-in-Bio | ساخت صفحات فرود یک‌صفحه‌ای رقیب Linktree |
 | 👥 تیمی | امکان دعوت کاربران و همکاری روی یک مجموعه لینک |
 | 🔐 امنیت | JWT، Google OAuth، Password Reset، Bcrypt، رمزگذاری لینک‌ها |
-| ☁️ Cloud Ready | PostgreSQL ابری، Redis TLS، Render و Vercel |
+| ☁️ Cloud Ready | دیتابیس ابری PostgreSQL، Redis TLS، هاست Render و Vercel |
 
 ---
 
@@ -159,7 +162,7 @@
 ### ⚡ Redirect و Cache
 - Lookup اولیه در Redis
 - Fallback به PostgreSQL در Cache Miss
-- Redirect با `302 Found` و Headerهای ضدکش (Anti-Cache)
+- Redirect با کد `302 Found` و Headerهای ضدکش (Anti-Cache)
 - ثبت Click Event در Goroutine (Async)
 
 ### 📊 آنالیتیکس پیشرفته
@@ -203,8 +206,8 @@
 - بهینه‌سازی موتورهای جستجو (SEO) با Sitemap و Robots.txt
 
 ### ☁️ زیرساخت و اتوماسیون
-- PostgreSQL ابری با Neon
-- Redis ابری با Upstash و TLS
+- دیتابیس ابری PostgreSQL با Neon
+- دیتابیس ابری Redis با Upstash و TLS
 - سرویس Cron Jobs برای پاکسازی خودکار دیتابیس (حذف لینک‌های منقضی)
 - مستندات فنی Swagger/OpenAPI در مسیر `/docs`
 
@@ -212,7 +215,7 @@
 
 <a id="architecture"></a>
 
-## 🏗️ معماری
+## 🏗️ معماری سیستم
 
 ```mermaid
 flowchart LR
@@ -244,50 +247,50 @@ flowchart LR
 
 <a id="tech-stack"></a>
 
-## 🧰 تکنولوژی‌ها
+## 🧰 تکنولوژی‌های استفاده شده
 
-### Backend
+### بخش بک‌اند (Backend)
 | فناوری | کاربرد |
 |---|---|
-| Go `1.25.0` | زبان Backend |
-| Fiber `v2.52` | HTTP Framework |
-| GORM `v1.31` | ORM و AutoMigrate |
-| PostgreSQL | دیتابیس اصلی |
-| Redis (Upstash) | کش و کاهش بار دیتابیس |
-| golang-jwt `v5` | احراز هویت JWT |
-| robfig/cron `v3` | زمان‌بند پاکسازی خودکار |
-| Resend API | سرویس ارسال ایمیل |
-| Zarinpal API | درگاه پرداخت |
+| زبان Go `1.25.0` | بک‌اند اصلی |
+| فریم‌ورک Fiber `v2.52` | HTTP Framework |
+| ابزار GORM `v1.31` | ORM و مایگریشن |
+| دیتابیس PostgreSQL | پایگاه داده اصلی |
+| کش Redis (Upstash) | کاهش بار دیتابیس |
+| کتابخانه golang-jwt `v5` | احراز هویت JWT |
+| سرویس robfig/cron `v3` | زمان‌بند پاکسازی خودکار |
+| سرویس Resend API | ارسال ایمیل |
+| درگاه Zarinpal API | پرداخت بانکی |
 
-### Frontend (Web)
+### بخش فرانت‌اند وب (Web Frontend)
 | فناوری | کاربرد |
 |---|---|
-| Next.js `16` | App Router، SSR و Frontend Runtime |
-| React `19` | رابط کاربری |
-| TypeScript | Type Safety |
-| Tailwind CSS `4` | استایل‌دهی و دارک مد |
-| Recharts | نمودارهای تحلیلی |
-| qrcode.react | تولید QR Code |
-| react-multi-date-picker | تقویم شمسی و Time Picker |
-| Framer Motion | انیمیشن‌ها |
-| @react-oauth/google | ورود با گوگل |
+| فریم‌ورک Next.js `16` | App Router، SSR و رندرینگ |
+| کتابخانه React `19` | رابط کاربری |
+| زبان TypeScript | Type Safety |
+| فریم‌ورک Tailwind CSS `4` | استایل‌دهی و دارک مد |
+| کامپوننت Recharts | نمودارهای تحلیلی |
+| کامپوننت qrcode.react | تولید QR Code |
+| پلاگین react-multi-date-picker | تقویم شمسی و Time Picker |
+| کتابخانه Framer Motion | انیمیشن‌ها |
+| پلاگین @react-oauth/google | ورود با گوگل |
 
-### Mobile App
+### بخش اپلیکیشن موبایل (Mobile App)
 | فناوری | کاربرد |
 |---|---|
-| React Native `0.86` | اپلیکیشن نیتیو اندروید و iOS |
-| Expo `SDK 57` | فریم‌ورک توسعه و تست سریع |
-| Expo Router | مسیریابی استاندارد |
-| AsyncStorage | ذخیره‌سازی محلی توکن |
-| lucide-react-native | آیکون‌های مدرن |
+| فریم‌ورک React Native `0.86` | اپلیکیشن نیتیو اندروید و iOS |
+| پلتفرم Expo `SDK 57` | توسعه و تست سریع |
+| کتابخانه Expo Router | مسیریابی استاندارد |
+| ماژول AsyncStorage | ذخیره‌سازی محلی توکن |
+| پکیج lucide-react-native | آیکون‌های مدرن |
 
-### زیرساخت Production
+### بخش زیرساخت پروداکشن (Production)
 | سرویس | کاربرد |
 |---|---|
-| Vercel | هاست Frontend |
-| Render | هاست Backend |
-| Neon | دیتابیس PostgreSQL |
-| Upstash | دیتابیس Redis |
+| هاست Vercel | میزبانی Frontend |
+| هاست Render | میزبانی Backend |
+| سرویس Neon | دیتابیس PostgreSQL |
+| سرویس Upstash | دیتابیس Redis |
 
 ---
 
@@ -296,10 +299,10 @@ flowchart LR
 ## 🚀 راه‌اندازی محلی
 
 ### پیش‌نیازها
-- Go `1.25.0+`
-- Node.js `20.9+`
-- PostgreSQL
-- Redis دارای TLS
+- زبان Go نسخه `1.25.0+`
+- محیط Node.js نسخه `20.9+`
+- دیتابیس PostgreSQL
+| دیتابیس Redis دارای TLS
 - اپلیکیشن Expo Go (روی گوشی موبایل)
 
 ### ۱. Clone کردن پروژه
@@ -309,7 +312,7 @@ git clone https://github.com/AmirMotefaker/LinkResan.git
 cd LinkResan
 ```
 
-### ۲. اجرای Backend
+### ۲. اجرای بک‌اند (Backend)
 
 ```bash
 cd backend
@@ -337,9 +340,9 @@ APP_URL=http://localhost:3000
 go run ./cmd/api
 ```
 
-### ۳. اجرای Frontend (وب‌سایت)
+### ۳. اجرای فرانت‌اند وب (Frontend)
 
-در Terminal جدید:
+در ترمینال جدید:
 
 ```bash
 cd frontend
@@ -357,9 +360,9 @@ NEXT_PUBLIC_API_URL=http://localhost:8080/api
 npm run dev
 ```
 
-### ۴. اجرای Mobile App
+### ۴. اجرای اپلیکیشن موبایل (Mobile)
 
-در Terminal جدید:
+در ترمینال جدید:
 
 ```bash
 cd mobile
@@ -378,21 +381,21 @@ npx expo start
 
 ## 📡 مستندات API
 
-### Base URL
+### آدرس پایه (Base URL)
 ```text
 API Group: https://linkresan-api.onrender.com/api
 Swagger UI: https://linkresan-api.onrender.com/docs
 ```
 
 ### احراز هویت
-Routeهای خصوصی به یکی از Headerهای زیر نیاز دارند:
+مسیرهای خصوصی به یکی از هدرهای زیر نیاز دارند:
 ```http
 Authorization: Bearer <JWT_TOKEN>
 # یا
 X-API-Key: <API_KEY>
 ```
 
-### Endpointهای اصلی
+### مسیرهای اصلی (Endpoints)
 
 | متد | مسیر | توضیح | احراز هویت |
 |---|---|---|:---:|
@@ -423,7 +426,7 @@ X-API-Key: <API_KEY>
 
 <a id="deployment"></a>
 
-## ☁️ استقرار (Deployment)
+## ☁️ استقرار روی سرور (Deployment)
 
 پروژه به صورت کامل روی سرویس‌های ابری رایگان مستقر شده است:
 
@@ -442,7 +445,7 @@ flowchart TB
 
 <a id="roadmap"></a>
 
-## 🗺️ Roadmap
+## 🗺️ نقشه راه (Roadmap)
 
 - [x] Core Shortener & Redirect (v0.1)
 - [x] Authentication & JWT (v0.2)
@@ -472,15 +475,15 @@ flowchart TB
 
 <a id="contributing"></a>
 
-## 🤝 مشارکت
+## 🤝 مشارکت در پروژه
 
-Contribution، Bug Report و پیشنهاد Feature خوش‌آمد است.
+از Contribution، گزارش Bug و پیشنهاد Feature جدید استقبال می‌کنیم.
 
-1. Repository را Fork کنید.
-2. Branch بسازید: `git checkout -b feat/your-feature`
-3. تغییرات را Commit کنید: `git commit -m "feat: add your feature"`
-4. Push کنید: `git push origin feat/your-feature`
-5. Pull Request بسازید.
+۱. ریپازیتوری را Fork کنید.
+۲. برنچ جدید بسازید: `git checkout -b feat/your-feature`
+۳. تغییرات را Commit کنید: `git commit -m "feat: add your feature"`
+۴. Push کنید: `git push origin feat/your-feature`
+۵. Pull Request بسازید.
 
 ---
 
