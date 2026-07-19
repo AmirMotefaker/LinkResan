@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Link2, Loader2, KeyRound, Trash2, Plus, Copy, Check, AlertTriangle } from "lucide-react";
+import { Link2, Loader2, KeyRound, Trash2, Plus, Copy, Check, AlertTriangle, BookOpen } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -124,11 +124,22 @@ export default function ApiKeysDashboard() {
           {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
         </div>
 
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400 p-4 rounded-xl text-sm mb-8 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <div>
-            <strong>هشدار امنیتی:</strong> کلیدهای API مانند رمزهای عبور عمل می‌کنند. هرگز آن‌ها را در مخازن عمومی گیت‌هاب (Public Repos) قرار ندهید. در صورت لو رفتن، فوراً کلید را حذف و کلید جدید بسازید.
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400 p-4 rounded-xl text-sm mb-8 flex flex-col gap-3">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <div>
+              <strong>هشدار امنیتی:</strong> کلیدهای API مانند رمزهای عبور عمل می‌کنند. هرگز آن‌ها را در مخازن عمومی گیت‌هاب (Public Repos) قرار ندهید. در صورت لو رفتن، فوراً کلید را حذف و کلید جدید بسازید.
+            </div>
           </div>
+          <a 
+            href="https://linkresan-api.onrender.com/docs" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-xs font-bold w-fit flex items-center gap-1 cursor-pointer"
+          >
+            <BookOpen className="w-4 h-4" />
+            مشاهده مستندات فنی API (Swagger)
+          </a>
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">

@@ -25,7 +25,6 @@ func main() {
         ServerHeader: "Fiber",
     })
 
-    // اضافه شدن X-API-Key به هدرهای مجاز CORS
     app.Use(cors.New(cors.Config{
         AllowOrigins: "*",
         AllowHeaders: "Origin, Content-Type, Accept, Authorization, X-API-Key",
@@ -60,6 +59,7 @@ func main() {
     paymentHandler := handlers.NewPaymentHandler(paymentService, authService)
     webhookHandler := handlers.NewWebhookHandler(webhookService)
     apiKeyHandler := handlers.NewApiKeyHandler(apiKeyService)
+    docsHandler := handlers.NewDocsHandler() // اضافه شد
 
     // --- Routes ---
     api := app.Group("/api")
@@ -67,6 +67,10 @@ func main() {
     api.Get("/health", func(c *fiber.Ctx) error {
         return c.JSON(fiber.Map{"status": "success", "message": "LinkResan API is running perfectly!"})
     })
+
+    // API Documentation Routes (Swagger)
+    app.Get("/docs", docsHandler.SwaggerUI)
+    api.Get("/docs/openapi.json", docsHandler.GetOpenAPISpec)
 
     // Auth & Password Reset Routes
     api.Post("/register", authHandler.Register)
