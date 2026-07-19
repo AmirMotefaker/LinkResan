@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor, Crown, Layers } from "lucide-react";
+import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor, Crown, Layers, Users } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
@@ -31,6 +31,7 @@ export default function Dashboard() {
   const router = useRouter();
 
   useEffect(() => {
+    // بررسی وضعیت بازگشت از بانک با استفاده از window.location (برای جلوگیری از ارور Suspense)
     const queryParams = new URLSearchParams(window.location.search);
     const paymentStatus = queryParams.get('payment');
     if (paymentStatus === 'success') {
@@ -158,10 +159,16 @@ export default function Dashboard() {
         <div className="flex gap-2 sm:gap-4 items-center">
           <button onClick={() => router.push("/dashboard/bio")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">صفحه بیو</button>
           
-          {/* دکمه ساخت انبوه اضافه شد */}
+          {/* دکمه ساخت انبوه */}
           <button onClick={() => router.push("/dashboard/bulk")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer flex items-center gap-1">
             <Layers className="w-4 h-4" />
             ساخت انبوه
+          </button>
+
+          {/* دکمه تیم اضافه شد */}
+          <button onClick={() => router.push("/dashboard/team")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer flex items-center gap-1">
+            <Users className="w-4 h-4" />
+            تیم
           </button>
 
           <button onClick={() => router.push("/")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">ساخت لینک</button>
