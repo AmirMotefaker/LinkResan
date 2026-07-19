@@ -12,7 +12,6 @@ type DailyClickData struct {
     Count int    `json:"count"`
 }
 
-// ساختار جدید برای آمار کلی
 type NameCount struct {
     Name  string `json:"name"`
     Count int    `json:"count"`
@@ -26,7 +25,8 @@ type LinkRepository interface {
     FindByUserID(userID uint) ([]models.Link, error)
     DeleteByIDAndUserID(linkID uint, userID uint) error
     GetDailyClicks(userID uint) ([]DailyClickData, error)
-    GetClickStats(userID uint) (map[string][]NameCount, error) // اضافه شد
+    GetClickStats(userID uint) (map[string][]NameCount, error)
+    DeleteExpiredLinks() error // اضافه شد
 }
 
 type linkRepository struct {
@@ -110,7 +110,6 @@ func (r *linkRepository) GetDailyClicks(userID uint) ([]DailyClickData, error) {
     return finalResults, nil
 }
 
-// تابع جدید برای گرفتن آمار مرورگرها و دستگاه‌ها
 func (r *linkRepository) GetClickStats(userID uint) (map[string][]NameCount, error) {
     var browsers []NameCount
     r.db.Model(&models.Click{}).
@@ -134,4 +133,21 @@ func (r *linkRepository) GetClickStats(userID uint) (map[string][]NameCount, err
         "browsers": browsers,
         "devices":  devices,
     }, nil
+}
+
+// اضافه شد: پاکسازی لینک‌های منقضی شده و رسیده به حد نصاب کلیک
+func (r *linkRepository) DeleteExpiredLinks() error {
+    now := time.Now()
+    
+    // حذف لینک‌هایی که تاریخ انقضایشان گذشته است
+    if err := r.db.Where("expires_at IS NOT NULL AND expires_at < ?", now).Delete(&models.Link{}).Error; err != nil {
+        return err
+    }
+    
+    // حذف لینک‌هایی که به محدودیت کلیک رسیده‌اند
+    if err := r.db.Where("click_limit IS NOT NULL AND click_count >= click_limit").Delete(&models.Link{}).Error; err != nil {
+        return err
+    }
+    
+    return nil
 }

@@ -46,6 +46,10 @@ func main() {
     domainService := services.NewDomainService(domainRepo)
     bioService := services.NewBioService(bioRepo)
     paymentService := services.NewPaymentService(paymentRepo, cfg)
+    
+    // اضافه شد: سرویس Cron
+    cronService := services.NewCronService(linkRepo, userRepo)
+    cronService.Start() // شروع زمان‌بند
 
     // --- Handlers ---
     linkHandler := handlers.NewLinkHandler(linkService, authService)
