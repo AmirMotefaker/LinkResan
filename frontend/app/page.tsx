@@ -157,11 +157,11 @@ export default function Home() {
     setSelectedDomain("linkresan.ir");
   };
 
-  // اضافه شدن slug برای لینک‌دار کردن کارت‌ها
+  // کلمات کلیدی در متن‌ها برای تقویت سئو (SEO)
   const features = [
-    { slug: "speed", icon: Zap, title: "ریدایرکت فوق سریع", desc: "استفاده از Redis برای ریدایرکت در کسری از ثانیه" },
-    { slug: "security", icon: Shield, title: "امنیت و حریم خصوصی", desc: "احراز هویت پیشرفته با JWT" },
-    { slug: "analytics", icon: BarChart2, title: "آمار دقیق کلیک‌ها", desc: "تحلیل دقیق کلیک‌ها و دستگاه‌ها" },
+    { slug: "speed", icon: Zap, title: "ریدایرکت فوق سریع لینک", desc: "تبدیل لینک طولانی به کوتاه با استفاده از Redis برای ریدایرکت در کسری از ثانیه" },
+    { slug: "security", icon: Shield, title: "امنیت و حفظ حریم خصوصی", desc: "ابزار کوتاه کردن لینک با احراز هویت پیشرفته و رمزگذاری" },
+    { slug: "analytics", icon: BarChart2, title: "آمار دقیق کلیک‌ها", desc: "تحلیل دقیق کلیک‌های لینک کوتاه و دستگاه‌های کاربران" },
   ];
 
   return (
@@ -192,8 +192,13 @@ export default function Home() {
       </header>
 
       <section className="flex-grow w-full max-w-2xl flex flex-col items-center justify-center text-center mt-10 sm:mt-0">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 sm:mb-4">کوتاه‌کننده لینک حرفه‌ای</h1>
-        <p className="text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-400 mb-6 sm:mb-8 max-w-xl">لینک‌های طولانی خود را به لینک‌های کوتاه، امن و قابل اندازه‌گیری تبدیل کنید.</p>
+        {/* تگ H1 اصلی برای گوگل */}
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 sm:mb-4">
+          کوتاه‌کننده لینک حرفه‌ای رایگان
+        </h1>
+        <p className="text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-400 mb-6 sm:mb-8 max-w-xl">
+          با لینک رسان، بهترین ابزار کوتاه کردن لینک ایرانی، لینک‌های طولانی خود را به لینک‌های کوتاه، امن و قابل اندازه‌گیری تبدیل کنید.
+        </p>
 
         <form onSubmit={handleShorten} className="w-full flex flex-col items-center">
           
@@ -214,7 +219,7 @@ export default function Home() {
 
           <input
             type="url"
-            placeholder="لینک خود را اینجا وارد کنید..."
+            placeholder="لینک خود را برای کوتاه کردن اینجا وارد کنید..."
             value={url}
             onChange={(e) => { setUrl(e.target.value); setShowLoginMsg(false); }}
             className="w-full h-12 sm:h-14 px-4 sm:px-6 text-sm sm:text-base bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-gray-900 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 shadow-sm cursor-pointer"
@@ -303,7 +308,7 @@ export default function Home() {
           )}
           
           <button type="submit" disabled={loading} className="mt-2 h-12 px-8 sm:px-10 text-sm sm:text-base font-bold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 cursor-pointer">
-            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : (showLoginMsg && !isLoggedIn ? "برای کوتاه کردن وارد شوید" : "کوتاه کن")}
+            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : (showLoginMsg && !isLoggedIn ? "برای کوتاه کردن وارد شوید" : "کوتاه کردن لینک")}
           </button>
         </form>
 
@@ -328,7 +333,8 @@ export default function Home() {
             <div className="bg-indigo-50 dark:bg-gray-800 p-3 sm:p-4 rounded-2xl mb-3 border border-indigo-100 dark:border-gray-700 group-hover:scale-110 transition-transform">
               <feature.icon className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600 dark:text-indigo-400" />
             </div>
-            <h3 className="text-base sm:text-lg font-bold mb-1 tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{feature.title}</h3>
+            {/* تگ H2 برای суб‌عنوان‌ها */}
+            <h2 className="text-base sm:text-lg font-bold mb-1 tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{feature.title}</h2>
             <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm leading-relaxed max-w-xs">{feature.desc}</p>
           </div>
         ))}
