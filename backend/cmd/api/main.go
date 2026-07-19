@@ -37,9 +37,11 @@ func main() {
     domainRepo := repositories.NewDomainRepository(database.DB)
     bioRepo := repositories.NewBioRepository(database.DB)
     paymentRepo := repositories.NewPaymentRepository(database.DB)
+    webhookRepo := repositories.NewWebhookRepository(database.DB)
 
     // --- Services ---
-    linkService := services.NewLinkService(linkRepo, domainRepo, rdb)
+    webhookService := services.NewWebhookService(webhookRepo)
+    linkService := services.NewLinkService(linkRepo, domainRepo, rdb, webhookService)
     authService := services.NewAuthService(userRepo, cfg)
     domainService := services.NewDomainService(domainRepo)
     bioService := services.NewBioService(bioRepo)
@@ -51,6 +53,7 @@ func main() {
     domainHandler := handlers.NewDomainHandler(domainService, authService)
     bioHandler := handlers.NewBioHandler(bioService)
     paymentHandler := handlers.NewPaymentHandler(paymentService, authService)
+    webhookHandler := handlers.NewWebhookHandler(webhookService)
 
     // --- Routes ---
     api := app.Group("/api")
@@ -71,10 +74,10 @@ func main() {
     api.Get("/payment/verify", paymentHandler.VerifyPayment)
 
     // User & Team Routes (Protected)
-    api.Get("/me", middleware.Protected(), authHandler.GetMe) // اضافه شد
-    api.Post("/team/create", middleware.Protected(), authHandler.CreateTeam) // اضافه شد
-    api.Post("/team/invite", middleware.Protected(), authHandler.InviteUser) // اضافه شد
-    api.Get("/team/members", middleware.Protected(), authHandler.GetTeamMembers) // اضافه شد
+    api.Get("/me", middleware.Protected(), authHandler.GetMe)
+    api.Post("/team/create", middleware.Protected(), authHandler.CreateTeam)
+    api.Post("/team/invite", middleware.Protected(), authHandler.InviteUser)
+    api.Get("/team/members", middleware.Protected(), authHandler.GetTeamMembers)
 
     // Protected Link Routes
     api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)
@@ -98,6 +101,11 @@ func main() {
     // Public Bio Routes
     api.Get("/bio/:slug", bioHandler.GetPublicBio)
     api.Post("/bio/links/track/:id", bioHandler.TrackBioLink)
+
+    // Webhooks Routes (Protected)
+    api.Post("/webhooks", middleware.Protected(), webhookHandler.CreateWebhook)
+    api.Get("/webhooks", middleware.Protected(), webhookHandler.GetUserWebhooks)
+    api.Delete("/webhooks/:id", middleware.Protected(), webhookHandler.DeleteWebhook)
 
     // Public Link Resolution Routes
     api.Get("/links/info/:code", linkHandler.GetLinkInfo)

@@ -13,7 +13,7 @@ type User struct {
     PasswordHash string         `gorm:"size:255;not null"`
     IsActive     bool           `gorm:"default:true"`
     IsPremium    bool           `gorm:"default:false"`
-    TeamID       *uint          `gorm:"index"` // اضافه شد: اگر نال باشد یعنی کاربر مستقل است
+    TeamID       *uint          `gorm:"index"`
     CreatedAt    time.Time
     UpdatedAt    time.Time
     DeletedAt    gorm.DeletedAt `gorm:"index"`
@@ -105,4 +105,16 @@ type Transaction struct {
     Description string    `gorm:"size:255"`
     CreatedAt   time.Time
     UpdatedAt   time.Time
+}
+
+// مدل جدید برای وب‌هوک‌ها
+type Webhook struct {
+    ID        uint           `gorm:"primaryKey"`
+    UserID    uint           `gorm:"index;not null"`
+    User      User           `gorm:"foreignKey:UserID"`
+    URL       string         `gorm:"type:text;not null"`
+    IsActive  bool           `gorm:"default:true"`
+    CreatedAt time.Time
+    UpdatedAt time.Time
+    DeletedAt gorm.DeletedAt `gorm:"index"`
 }

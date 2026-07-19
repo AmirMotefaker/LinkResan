@@ -216,7 +216,13 @@ func (h *LinkHandler) GetLinkInfo(c *fiber.Ctx) error {
         return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Link not found or expired"})
     }
 
-    go h.linkService.TrackClick(link.ID, c.IP(), c.Get("User-Agent"), c.Get("Referer"))
+    // گرفتن UserID مالک لینک برای وب‌هوک
+    userID := uint(0)
+    if link.UserID != nil {
+        userID = *link.UserID
+    }
+
+    go h.linkService.TrackClick(link.ID, userID, c.IP(), c.Get("User-Agent"), c.Get("Referer"))
 
     if link.PasswordHash != nil {
         return c.Status(fiber.StatusOK).JSON(fiber.Map{"requires_password": true})

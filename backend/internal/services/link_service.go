@@ -22,9 +22,9 @@ type CachedLink struct {
 
 type LinkService interface {
     CreateShortLink(userID uint, originalURL, customCode, password string, expiresAt *time.Time, clickLimit *int, domainID *uint) (*models.Link, error)
-    BulkCreateShortLinks(userID uint, urls []string) ([]models.Link, error) // اضافه شد
+    BulkCreateShortLinks(userID uint, urls []string) ([]models.Link, error)
     GetLinkByCode(shortCode, host string) (*models.Link, error)
-    TrackClick(linkID uint, ipAddress, userAgent, referrer string)
+    TrackClick(linkID uint, userID uint, ipAddress, userAgent, referrer string) // تغییر کرد
     GetUserLinks(userID uint) ([]models.Link, error)
     DeleteLink(userID uint, linkID uint) error
     GetAnalytics(userID uint) ([]repositories.DailyClickData, error)
@@ -32,13 +32,15 @@ type LinkService interface {
 }
 
 type linkService struct {
-    linkRepo    repositories.LinkRepository
-    domainRepo  repositories.DomainRepository
-    redisClient *redis.Client
+    linkRepo       repositories.LinkRepository
+    domainRepo     repositories.DomainRepository
+    redisClient    *redis.Client
+    webhookService WebhookService // اضافه شد
 }
 
-func NewLinkService(linkRepo repositories.LinkRepository, domainRepo repositories.DomainRepository, rdb *redis.Client) LinkService {
-    return &linkService{linkRepo: linkRepo, domainRepo: domainRepo, redisClient: rdb}
+// آپدیت شد: webhookService تزریق شد
+func NewLinkService(linkRepo repositories.LinkRepository, domainRepo repositories.DomainRepository, rdb *redis.Client, webhookService WebhookService) LinkService {
+    return &linkService{linkRepo: linkRepo, domainRepo: domainRepo, redisClient: rdb, webhookService: webhookService}
 }
 
 func generateShortCode() string {
@@ -94,7 +96,6 @@ func (s *linkService) CreateShortLink(userID uint, originalURL, customCode, pass
     return link, nil
 }
 
-// متد جدید برای ساخت انبوه لینک‌ها
 func (s *linkService) BulkCreateShortLinks(userID uint, urls []string) ([]models.Link, error) {
     var createdLinks []models.Link
 
@@ -102,7 +103,6 @@ func (s *linkService) BulkCreateShortLinks(userID uint, urls []string) ([]models
         if u == "" {
             continue
         }
-        // اضافه کردن https:// اگر کاربر فراموش کرده بود
         if !strings.HasPrefix(u, "http://") && !strings.HasPrefix(u, "https://") {
             u = "https://" + u
         }
@@ -169,8 +169,10 @@ func (s *linkService) GetLinkByCode(shortCode, host string) (*models.Link, error
     return link, nil
 }
 
-func (s *linkService) TrackClick(linkID uint, ipAddress, userAgent, referrer string) {
+// آپدیت شد: userID اضافه شد و وب‌هوک ارسال می‌شود
+func (s *linkService) TrackClick(linkID uint, userID uint, ipAddress, userAgent, referrer string) {
     browser, device := parseUserAgent(userAgent)
+    
     click := &models.Click{
         LinkID:     linkID,
         IPAddress:  ipAddress,
@@ -179,8 +181,24 @@ func (s *linkService) TrackClick(linkID uint, ipAddress, userAgent, referrer str
         Browser:    browser,
         DeviceType: device,
     }
+    
     _ = s.linkRepo.CreateClick(click)
     _ = s.linkRepo.IncrementClickCount(linkID)
+
+    // ارسال رویداد به وب‌هوک‌ها
+    if userID > 0 && s.webhookService != nil {
+        clickData := map[string]interface{}{
+            "event":      "click",
+            "link_id":    linkID,
+            "ip_address": ipAddress,
+            "user_agent": userAgent,
+            "referrer":   referrer,
+            "browser":    browser,
+            "device":     device,
+            "timestamp":  time.Now().Unix(),
+        }
+        s.webhookService.TriggerWebhooks(userID, clickData)
+    }
 }
 
 func (s *linkService) GetUserLinks(userID uint) ([]models.Link, error) {
