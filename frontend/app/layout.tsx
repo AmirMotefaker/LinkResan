@@ -3,10 +3,11 @@ import { Vazirmatn } from "next/font/google";
 import "./globals.css";
 import ServiceWorkerRegister from "./sw-register";
 
+// تغییر نام متغیر به --font-sans
 const vazirmatn = Vazirmatn({
   subsets: ["arabic", "latin"],
   weight: ["300", "400", "500", "700", "800"],
-  variable: "--font-vazirmatn",
+  variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
@@ -32,7 +33,6 @@ export const viewport: Viewport = {
   colorScheme: "light dark",
 };
 
-// اسکریپت جلوگیری از پرش رنگ (FOUC) - قبل از لود صفحه تم را اعمال می‌کند
 const themeScript = `
   (function() {
     try {
