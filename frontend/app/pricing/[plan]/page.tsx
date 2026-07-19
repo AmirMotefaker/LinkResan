@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Check, ArrowLeft, Crown, BarChart2, Building2, Zap, Loader2 } from "lucide-react";
+import { Check, ArrowLeft, Crown, BarChart2, Building2, Zap, Loader2, HelpCircle } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -28,8 +28,7 @@ export default function PlanDetailsPage() {
   const currentPrice = billingCycle === 'monthly' ? plan?.monthly : plan?.yearly;
 
   const handlePayment = async () => {
-    setLoading(true);
-    setError("");
+    setLoading(true); setError("");
     const token = localStorage.getItem("token");
     if (!token) { router.push("/login"); return; }
     try {
@@ -45,14 +44,21 @@ export default function PlanDetailsPage() {
     return (<main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white"><p>پلن پیدا نشد. <button onClick={handleBack} className="text-indigo-600 cursor-pointer">بازگشت</button></p></main>);
   }
 
+  const faqs = [
+    { q: "آیا می‌توانم پلن خود را تغییر دهم؟", a: "بله، شما می‌توانید در هر زمان پلن خود را ارتقا دهید یا تغییر دهید. هزینه به صورت روزشمار محاسبه می‌شود." },
+    { q: "آیا امکان لغو اشتراک وجود دارد؟", a: "بله، شما می‌توانید اشتراک خود را لغو کنید. تا پایان دوره پرداخت شده، به امکانات پلن دسترسی خواهید داشت." },
+    { q: "چه روش‌های پرداخلی پشتیبانی می‌شود؟", a: "پرداخت‌ها از طریق درگاه امن بانکی زرین‌پال انجام می‌شود و تمام کارت‌های بانکی عضو شتاب پشتیبانی می‌شوند." }
+  ];
+
   return (
     <main className="min-h-screen flex flex-col items-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 py-12 transition-colors duration-300">
       <div className="absolute top-4 left-4"><ThemeToggle /></div>
-      <div className="w-full max-w-3xl">
+      <div className="w-full max-w-4xl">
         <button onClick={handleBack} className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 mb-8 cursor-pointer">
           <ArrowLeft className="w-4 h-4 rotate-180" /> بازگشت به پلن‌ها
         </button>
-        <div className="bg-white dark:bg-gray-800 p-8 sm:p-12 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 flex flex-col items-center text-center">
+
+        <div className="bg-white dark:bg-gray-800 p-8 sm:p-12 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 flex flex-col items-center text-center mb-12">
           <div className="inline-block bg-indigo-50 dark:bg-gray-700 p-4 rounded-2xl mb-6 border border-indigo-100 dark:border-gray-600"><plan.icon className="w-10 h-10 text-indigo-600 dark:text-indigo-400" /></div>
           <h1 className="text-4xl font-extrabold mb-2">پلن {plan.name}</h1>
           <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md">{plan.desc}</p>
@@ -89,6 +95,20 @@ export default function PlanDetailsPage() {
           </div>
           <p className="mt-6 text-xs text-gray-400 dark:text-gray-500 max-w-xs mx-auto">پرداخت شما از طریق درگاه امن زرین‌پال انجام می‌شود.</p>
         </div>
+
+        {/* بخش سوالات متداول */}
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><HelpCircle className="w-6 h-6 text-indigo-600 dark:text-indigo-400" /> سوالات متداول</h2>
+          <div className="space-y-6">
+            {faqs.map((faq, i) => (
+              <div key={i}>
+                <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200">{faq.q}</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </main>
   );

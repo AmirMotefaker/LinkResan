@@ -43,7 +43,7 @@ export default function PricingPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl w-full">
         {plans.map((plan, i) => (
-          <div key={i} className={`relative bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border flex flex-col ${plan.highlight ? 'border-indigo-600 border-2 lg:scale-105 z-10' : 'border-gray-100 dark:border-gray-700'}`}>
+          <div key={i} className={`relative bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border flex flex-col items-center text-center ${plan.highlight ? 'border-indigo-600 border-2 lg:scale-105 z-10' : 'border-gray-100 dark:border-gray-700'}`}>
             {plan.highlight && (<div className="absolute -top-3 right-1/2 translate-x-1/2 bg-indigo-600 text-white text-xs font-bold px-4 py-1 rounded-full">محبوب‌ترین</div>)}
             <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-xl w-fit mb-6 border border-gray-100 dark:border-gray-600"><plan.icon className="w-6 h-6 text-indigo-600 dark:text-indigo-400" /></div>
             <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
@@ -52,7 +52,7 @@ export default function PricingPage() {
               {plan.price[billingCycle as keyof typeof plan.price] === 0 ? (<span className="text-4xl font-extrabold">رایگان</span>) : (<><span className="text-4xl font-extrabold">{toFa(plan.price[billingCycle as keyof typeof plan.price].toLocaleString())}</span><span className="text-gray-500 dark:text-gray-400 mr-1">تومان / {billingCycle === 'monthly' ? 'ماه' : 'سال'}</span></>)}
             </div>
             <button onClick={() => router.push(isLoggedIn ? `/pricing/${plan.slug}` : "/login")} className={`w-full h-12 font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer mb-8 ${plan.color}`}>{plan.cta}<ArrowLeft className="w-4 h-4" /></button>
-            <ul className="space-y-3">
+            <ul className="space-y-3 w-full text-right">
               {plan.features.map((feature, j) => (
                 <li key={j} className="flex items-start gap-2 text-sm">
                   {feature.included ? <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" /> : <X className="w-5 h-5 text-gray-300 dark:text-gray-600 flex-shrink-0 mt-0.5" />}
