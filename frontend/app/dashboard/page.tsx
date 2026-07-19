@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor, Crown, Layers, Users } from "lucide-react";
+import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor, Crown, Layers, Users, Webhook } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
@@ -31,7 +31,6 @@ export default function Dashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    // بررسی وضعیت بازگشت از بانک با استفاده از window.location (برای جلوگیری از ارور Suspense)
     const queryParams = new URLSearchParams(window.location.search);
     const paymentStatus = queryParams.get('payment');
     if (paymentStatus === 'success') {
@@ -159,23 +158,27 @@ export default function Dashboard() {
         <div className="flex gap-2 sm:gap-4 items-center">
           <button onClick={() => router.push("/dashboard/bio")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">صفحه بیو</button>
           
-          {/* دکمه ساخت انبوه */}
           <button onClick={() => router.push("/dashboard/bulk")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer flex items-center gap-1">
             <Layers className="w-4 h-4" />
-            ساخت انبوه
+            انبوه
           </button>
 
-          {/* دکمه تیم اضافه شد */}
           <button onClick={() => router.push("/dashboard/team")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer flex items-center gap-1">
             <Users className="w-4 h-4" />
             تیم
+          </button>
+
+          {/* دکمه وب‌هوک‌ها اضافه شد */}
+          <button onClick={() => router.push("/dashboard/webhooks")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer flex items-center gap-1">
+            <Webhook className="w-4 h-4" />
+            وب‌هوک
           </button>
 
           <button onClick={() => router.push("/")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">ساخت لینک</button>
           
           <button onClick={() => router.push("/pricing/pro")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium bg-indigo-100 text-indigo-600 hover:bg-indigo-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
             <Crown className="w-4 h-4" />
-            ارتقا به Pro
+            Pro
           </button>
 
           <button onClick={handleLogout} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 text-white rounded-lg transition-colors flex items-center gap-2 cursor-pointer">
