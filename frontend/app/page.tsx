@@ -157,10 +157,11 @@ export default function Home() {
     setSelectedDomain("linkresan.ir");
   };
 
+  // اضافه شدن slug برای لینک‌دار کردن کارت‌ها
   const features = [
-    { icon: Zap, title: "ریدایرکت فوق سریع", desc: "استفاده از Redis برای ریدایرکت در کسری از ثانیه" },
-    { icon: Shield, title: "امنیت و حریم خصوصی", desc: "احراز هویت پیشرفته با JWT" },
-    { icon: BarChart2, title: "آمار دقیق کلیک‌ها", desc: "تحلیل دقیق کلیک‌ها و دستگاه‌ها" },
+    { slug: "speed", icon: Zap, title: "ریدایرکت فوق سریع", desc: "استفاده از Redis برای ریدایرکت در کسری از ثانیه" },
+    { slug: "security", icon: Shield, title: "امنیت و حریم خصوصی", desc: "احراز هویت پیشرفته با JWT" },
+    { slug: "analytics", icon: BarChart2, title: "آمار دقیق کلیک‌ها", desc: "تحلیل دقیق کلیک‌ها و دستگاه‌ها" },
   ];
 
   return (
@@ -319,11 +320,15 @@ export default function Home() {
 
       <section className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 text-center mt-16 sm:mt-24 mb-10 sm:mb-12 flex-shrink-0">
         {features.map((feature, index) => (
-          <div key={index} className="flex flex-col items-center p-2">
-            <div className="bg-indigo-50 dark:bg-gray-800 p-3 sm:p-4 rounded-2xl mb-3 border border-indigo-100 dark:border-gray-700">
+          <div 
+            key={index} 
+            onClick={() => router.push(`/features/${feature.slug}`)} 
+            className="flex flex-col items-center p-2 cursor-pointer group"
+          >
+            <div className="bg-indigo-50 dark:bg-gray-800 p-3 sm:p-4 rounded-2xl mb-3 border border-indigo-100 dark:border-gray-700 group-hover:scale-110 transition-transform">
               <feature.icon className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600 dark:text-indigo-400" />
             </div>
-            <h3 className="text-base sm:text-lg font-bold mb-1 tracking-tight">{feature.title}</h3>
+            <h3 className="text-base sm:text-lg font-bold mb-1 tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{feature.title}</h3>
             <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm leading-relaxed max-w-xs">{feature.desc}</p>
           </div>
         ))}
