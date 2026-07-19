@@ -25,9 +25,10 @@ func main() {
         ServerHeader: "Fiber",
     })
 
+    // اضافه شدن X-API-Key به هدرهای مجاز CORS
     app.Use(cors.New(cors.Config{
         AllowOrigins: "*",
-        AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+        AllowHeaders: "Origin, Content-Type, Accept, Authorization, X-API-Key",
         AllowMethods: "GET, POST, HEAD, PUT, DELETE, PATCH",
     }))
 
@@ -38,6 +39,7 @@ func main() {
     bioRepo := repositories.NewBioRepository(database.DB)
     paymentRepo := repositories.NewPaymentRepository(database.DB)
     webhookRepo := repositories.NewWebhookRepository(database.DB)
+    apiKeyRepo := repositories.NewApiKeyRepository(database.DB)
 
     // --- Services ---
     webhookService := services.NewWebhookService(webhookRepo)
@@ -46,10 +48,9 @@ func main() {
     domainService := services.NewDomainService(domainRepo)
     bioService := services.NewBioService(bioRepo)
     paymentService := services.NewPaymentService(paymentRepo, cfg)
-    
-    // اضافه شد: سرویس Cron
+    apiKeyService := services.NewApiKeyService(apiKeyRepo)
     cronService := services.NewCronService(linkRepo, userRepo)
-    cronService.Start() // شروع زمان‌بند
+    cronService.Start()
 
     // --- Handlers ---
     linkHandler := handlers.NewLinkHandler(linkService, authService)
@@ -58,6 +59,7 @@ func main() {
     bioHandler := handlers.NewBioHandler(bioService)
     paymentHandler := handlers.NewPaymentHandler(paymentService, authService)
     webhookHandler := handlers.NewWebhookHandler(webhookService)
+    apiKeyHandler := handlers.NewApiKeyHandler(apiKeyService)
 
     // --- Routes ---
     api := app.Group("/api")
@@ -74,42 +76,47 @@ func main() {
     api.Post("/reset-password", authHandler.ResetPassword)
 
     // Payment Routes
-    api.Post("/payment/request", middleware.Protected(), paymentHandler.RequestPayment)
+    api.Post("/payment/request", middleware.Protected(authService, apiKeyService), paymentHandler.RequestPayment)
     api.Get("/payment/verify", paymentHandler.VerifyPayment)
 
     // User & Team Routes (Protected)
-    api.Get("/me", middleware.Protected(), authHandler.GetMe)
-    api.Post("/team/create", middleware.Protected(), authHandler.CreateTeam)
-    api.Post("/team/invite", middleware.Protected(), authHandler.InviteUser)
-    api.Get("/team/members", middleware.Protected(), authHandler.GetTeamMembers)
+    api.Get("/me", middleware.Protected(authService, apiKeyService), authHandler.GetMe)
+    api.Post("/team/create", middleware.Protected(authService, apiKeyService), authHandler.CreateTeam)
+    api.Post("/team/invite", middleware.Protected(authService, apiKeyService), authHandler.InviteUser)
+    api.Get("/team/members", middleware.Protected(authService, apiKeyService), authHandler.GetTeamMembers)
 
     // Protected Link Routes
-    api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)
-    api.Post("/links/bulk", middleware.Protected(), linkHandler.BulkCreateLinks)
-    api.Get("/links", middleware.Protected(), linkHandler.GetUserLinks)
-    api.Get("/links/analytics", middleware.Protected(), linkHandler.GetAnalytics)
-    api.Get("/links/stats", middleware.Protected(), linkHandler.GetClickStats)
-    api.Delete("/links/:id", middleware.Protected(), linkHandler.DeleteLink)
+    api.Post("/links", middleware.Protected(authService, apiKeyService), linkHandler.CreateShortLink)
+    api.Post("/links/bulk", middleware.Protected(authService, apiKeyService), linkHandler.BulkCreateLinks)
+    api.Get("/links", middleware.Protected(authService, apiKeyService), linkHandler.GetUserLinks)
+    api.Get("/links/analytics", middleware.Protected(authService, apiKeyService), linkHandler.GetAnalytics)
+    api.Get("/links/stats", middleware.Protected(authService, apiKeyService), linkHandler.GetClickStats)
+    api.Delete("/links/:id", middleware.Protected(authService, apiKeyService), linkHandler.DeleteLink)
 
     // Protected Domain Routes
-    api.Post("/domains", middleware.Protected(), domainHandler.CreateDomain)
-    api.Get("/domains", middleware.Protected(), domainHandler.GetUserDomains)
-    api.Delete("/domains/:id", middleware.Protected(), domainHandler.DeleteDomain)
+    api.Post("/domains", middleware.Protected(authService, apiKeyService), domainHandler.CreateDomain)
+    api.Get("/domains", middleware.Protected(authService, apiKeyService), domainHandler.GetUserDomains)
+    api.Delete("/domains/:id", middleware.Protected(authService, apiKeyService), domainHandler.DeleteDomain)
 
     // Protected Bio Routes
-    api.Get("/bio", middleware.Protected(), bioHandler.GetMyBio)
-    api.Put("/bio", middleware.Protected(), bioHandler.UpdateBio)
-    api.Post("/bio/links", middleware.Protected(), bioHandler.AddBioLink)
-    api.Delete("/bio/links/:id", middleware.Protected(), bioHandler.DeleteBioLink)
+    api.Get("/bio", middleware.Protected(authService, apiKeyService), bioHandler.GetMyBio)
+    api.Put("/bio", middleware.Protected(authService, apiKeyService), bioHandler.UpdateBio)
+    api.Post("/bio/links", middleware.Protected(authService, apiKeyService), bioHandler.AddBioLink)
+    api.Delete("/bio/links/:id", middleware.Protected(authService, apiKeyService), bioHandler.DeleteBioLink)
 
     // Public Bio Routes
     api.Get("/bio/:slug", bioHandler.GetPublicBio)
     api.Post("/bio/links/track/:id", bioHandler.TrackBioLink)
 
     // Webhooks Routes (Protected)
-    api.Post("/webhooks", middleware.Protected(), webhookHandler.CreateWebhook)
-    api.Get("/webhooks", middleware.Protected(), webhookHandler.GetUserWebhooks)
-    api.Delete("/webhooks/:id", middleware.Protected(), webhookHandler.DeleteWebhook)
+    api.Post("/webhooks", middleware.Protected(authService, apiKeyService), webhookHandler.CreateWebhook)
+    api.Get("/webhooks", middleware.Protected(authService, apiKeyService), webhookHandler.GetUserWebhooks)
+    api.Delete("/webhooks/:id", middleware.Protected(authService, apiKeyService), webhookHandler.DeleteWebhook)
+
+    // API Keys Routes (Protected)
+    api.Post("/api-keys", middleware.Protected(authService, apiKeyService), apiKeyHandler.CreateApiKey)
+    api.Get("/api-keys", middleware.Protected(authService, apiKeyService), apiKeyHandler.GetApiKeys)
+    api.Delete("/api-keys/:id", middleware.Protected(authService, apiKeyService), apiKeyHandler.DeleteApiKey)
 
     // Public Link Resolution Routes
     api.Get("/links/info/:code", linkHandler.GetLinkInfo)

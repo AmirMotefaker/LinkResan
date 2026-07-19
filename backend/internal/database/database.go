@@ -30,6 +30,7 @@ func Connect(cfg *config.Config) {
         &models.BioLink{},
         &models.Transaction{},
         &models.Webhook{},
+        &models.ApiKey{},
     )
     if err != nil {
         log.Fatal("Failed to migrate database:", err)

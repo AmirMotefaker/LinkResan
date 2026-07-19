@@ -107,12 +107,24 @@ type Transaction struct {
     UpdatedAt   time.Time
 }
 
-// مدل جدید برای وب‌هوک‌ها
 type Webhook struct {
     ID        uint           `gorm:"primaryKey"`
     UserID    uint           `gorm:"index;not null"`
     User      User           `gorm:"foreignKey:UserID"`
     URL       string         `gorm:"type:text;not null"`
+    IsActive  bool           `gorm:"default:true"`
+    CreatedAt time.Time
+    UpdatedAt time.Time
+    DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+
+// مدل جدید برای کلیدهای API
+type ApiKey struct {
+    ID        uint           `gorm:"primaryKey"`
+    UserID    uint           `gorm:"index;not null"`
+    User      User           `gorm:"foreignKey:UserID"`
+    Key       string         `gorm:"uniqueIndex;size:64;not null"`
+    Name      string         `gorm:"size:100"`
     IsActive  bool           `gorm:"default:true"`
     CreatedAt time.Time
     UpdatedAt time.Time
