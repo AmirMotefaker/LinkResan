@@ -98,24 +98,25 @@ export default function ApiKeysDashboard() {
             ساخت کلید API جدید
           </h2>
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-            با استفاده از کلید API، می‌توانید لینک‌ها را مستقیماً از کدهای خود (پایتون، Node.js، PHP و...) بسازید، بدون نیاز به ورود به داشبورد.
+            با استفاده از کلید API، می‌توانید لینک‌ها را مستقیماً از کدهای خود (پایتون، Node.js، PHP و...) بسازید.
           </p>
           
+          {/* اصلاح سایز و فاصله برای جا گرفتن در یک خط */}
           <form onSubmit={handleAddKey} className="flex flex-col sm:flex-row gap-2">
             <div className="flex items-center gap-2 w-full bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl px-4">
-              <KeyRound className="w-5 h-5 text-gray-400" />
+              <KeyRound className="w-4 h-4 text-gray-400 flex-shrink-0" />
               <input
                 type="text"
                 placeholder="نام کلید (مثلا: سرور پروداکشن)"
                 value={newKeyName}
                 onChange={(e) => setNewKeyName(e.target.value)}
-                className="w-full h-12 bg-transparent outline-none text-sm text-white"
+                className="w-full h-10 bg-transparent outline-none text-xs sm:text-sm text-white"
               />
             </div>
             <button 
               type="submit" 
               disabled={adding}
-              className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="h-10 px-5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap flex-shrink-0"
             >
               {adding ? <Loader2 className="animate-spin w-4 h-4" /> : <Plus className="w-4 h-4" />}
               ساخت کلید
@@ -124,8 +125,9 @@ export default function ApiKeysDashboard() {
           {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
         </div>
 
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400 p-4 rounded-xl text-sm mb-8 flex flex-col gap-3">
-          <div className="flex items-start gap-3">
+        {/* وسط‌چین کردن محتوای کادر زرد رنگ */}
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400 p-4 rounded-xl text-sm mb-8 flex flex-col gap-4 items-center text-center">
+          <div className="flex items-start gap-3 w-full text-right">
             <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <div>
               <strong>هشدار امنیتی:</strong> کلیدهای API مانند رمزهای عبور عمل می‌کنند. هرگز آن‌ها را در مخازن عمومی گیت‌هاب (Public Repos) قرار ندهید. در صورت لو رفتن، فوراً کلید را حذف و کلید جدید بسازید.
@@ -135,7 +137,7 @@ export default function ApiKeysDashboard() {
             href="https://linkresan-api.onrender.com/docs" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-xs font-bold w-fit flex items-center gap-1 cursor-pointer"
+            className="bg-yellow-600 hover:bg-yellow-700 text-white px-5 py-2.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
           >
             <BookOpen className="w-4 h-4" />
             مشاهده مستندات فنی API (Swagger)

@@ -84,24 +84,49 @@ func (h *DocsHandler) GetOpenAPISpec(c *fiber.Ctx) error {
     return c.JSON(spec)
 }
 
-// Swagger UI HTML
+// Swagger UI HTML (طراحی مجدد و زیباسازی شده)
 func (h *DocsHandler) SwaggerUI(c *fiber.Ctx) error {
     html := `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="LinkResan API Documentation" />
-  <title>LinkResan API Docs</title>
+  <title>مستندات API لینک رسان</title>
   <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body { margin: 0; }
-    .topbar { background-color: #2563eb; }
-    .topbar-wrapper a { color: #fff; }
+    body { margin: 0; font-family: 'Vazirmatn', sans-serif; background-color: #f9fafb; }
+    
+    /* هدر برند لینک رسان */
+    .lr-header { 
+      background: linear-gradient(to right, #2563eb, #4f46e5); 
+      padding: 1.5rem 2rem; 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .lr-header h1 { color: white; font-size: 1.5rem; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+    .lr-header a { color: #bfdbfe; font-size: 0.875rem; text-decoration: none; transition: color 0.2s; }
+    .lr-header a:hover { color: white; }
+
+    /* تنظیمات Swagger UI */
+    .swagger-ui { padding: 2rem; }
+    .swagger-ui .topbar { display: none; } /* مخفی کردن هدر پیش‌فرض */
+    .swagger-ui .info { margin: 2rem 0; }
+    .swagger-ui .opblock.opblock-post { background: rgba(37, 99, 235, 0.1); border-color: #2563eb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .swagger-ui .opblock.opblock-get { background: rgba(34, 197, 94, 0.1); border-color: #22c55e; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .swagger-ui .btn.authorize { background-color: #2563eb; color: white; border: 2px solid #2563eb; font-family: 'Vazirmatn', sans-serif; }
+    .swagger-ui .btn.authorize svg { fill: white; }
+    .swagger-ui .btn.try-out__btn { background-color: #f3f4f6; color: #374151; border-color: #d1d5db; }
   </style>
 </head>
 <body>
+  <div class="lr-header">
+    <h1>🔗 مستندات API لینک رسان</h1>
+    <a href="https://linkresan.ir">بازگشت به سایت</a>
+  </div>
   <div id="swagger-ui"></div>
   <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js" crossorigin></script>
   <script>
