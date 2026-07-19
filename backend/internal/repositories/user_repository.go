@@ -15,6 +15,8 @@ type UserRepository interface {
     FindValidToken(token string) (*models.PasswordReset, error)
     MarkTokenAsUsed(token *models.PasswordReset) error
     UpdateUserPassword(userID uint, newHash string) error
+    UpdateUserTeamID(userID uint, teamID uint) error      // اضافه شد
+    FindUsersByTeamID(teamID uint) ([]models.User, error) // اضافه شد
 }
 
 type userRepository struct {
@@ -66,4 +68,16 @@ func (r *userRepository) MarkTokenAsUsed(token *models.PasswordReset) error {
 
 func (r *userRepository) UpdateUserPassword(userID uint, newHash string) error {
     return r.db.Model(&models.User{}).Where("id = ?", userID).Update("password_hash", newHash).Error
+}
+
+// اضافه شد: برای ساخت تیم یا عضویت
+func (r *userRepository) UpdateUserTeamID(userID uint, teamID uint) error {
+    return r.db.Model(&models.User{}).Where("id = ?", userID).Update("team_id", teamID).Error
+}
+
+// اضافه شد: برای گرفتن لیست اعضای تیم
+func (r *userRepository) FindUsersByTeamID(teamID uint) ([]models.User, error) {
+    var users []models.User
+    err := r.db.Where("team_id = ?", teamID).Find(&users).Error
+    return users, err
 }

@@ -25,6 +25,9 @@ type AuthService interface {
     GetUserByID(userID uint) (*models.User, error)
     RequestPasswordReset(email string) error
     ResetPassword(token, newPassword string) error
+    CreateTeam(userID uint) error      // اضافه شد
+    InviteUserToTeam(inviterID uint, email string) error // اضافه شد
+    GetTeamMembers(userID uint) ([]models.User, error)  // اضافه شد
 }
 
 type authService struct {
@@ -200,4 +203,33 @@ func (s *authService) ResetPassword(token, newPassword string) error {
 
     s.userRepo.MarkTokenAsUsed(resetToken)
     return nil
+}
+
+// اضافه شد: ساخت تیم (کاربر خودش را مدیر تیم می‌کند)
+func (s *authService) CreateTeam(userID uint) error {
+    return s.userRepo.UpdateUserTeamID(userID, userID)
+}
+
+// اضافه شد: دعوت کاربر به تیم با ایمیل
+func (s *authService) InviteUserToTeam(inviterID uint, email string) error {
+    inviter, err := s.userRepo.FindByID(inviterID)
+    if err != nil || inviter.TeamID == nil {
+        return errors.New("شما تیمی نساخته‌اید")
+    }
+
+    invitee, err := s.userRepo.FindByEmail(email)
+    if err != nil {
+        return errors.New("کاربر با این ایمیل در لینک رسان ثبت‌نام نکرده است")
+    }
+
+    return s.userRepo.UpdateUserTeamID(invitee.ID, *inviter.TeamID)
+}
+
+// اضافه شد: گرفتن لیست اعضای تیم
+func (s *authService) GetTeamMembers(userID uint) ([]models.User, error) {
+    user, err := s.userRepo.FindByID(userID)
+    if err != nil || user.TeamID == nil {
+        return nil, errors.New("تیمی وجود ندارد")
+    }
+    return s.userRepo.FindUsersByTeamID(*user.TeamID)
 }

@@ -13,12 +13,12 @@ type User struct {
     PasswordHash string         `gorm:"size:255;not null"`
     IsActive     bool           `gorm:"default:true"`
     IsPremium    bool           `gorm:"default:false"`
+    TeamID       *uint          `gorm:"index"` // اضافه شد: اگر نال باشد یعنی کاربر مستقل است
     CreatedAt    time.Time
     UpdatedAt    time.Time
     DeletedAt    gorm.DeletedAt `gorm:"index"`
 }
 
-// مدل جدید برای توکن‌های فراموشی رمز
 type PasswordReset struct {
     ID        uint      `gorm:"primaryKey"`
     Email     string    `gorm:"index;size:255;not null"`
@@ -26,19 +26,6 @@ type PasswordReset struct {
     ExpiresAt time.Time `gorm:"not null"`
     IsUsed    bool      `gorm:"default:false"`
     CreatedAt time.Time
-}
-
-// مدل جدید برای تراکنش‌ها
-type Transaction struct {
-    ID          uint      `gorm:"primaryKey"`
-    UserID      uint      `gorm:"index;not null"`
-    User        User      `gorm:"foreignKey:UserID"`
-    Authority   string    `gorm:"uniqueIndex;size:255"`
-    Amount      int       `gorm:"not null"` // به تومان
-    Status      string    `gorm:"size:50;default:'pending'"` // pending, paid, failed
-    Description string    `gorm:"size:255"`
-    CreatedAt   time.Time
-    UpdatedAt   time.Time
 }
 
 type Link struct {
@@ -106,4 +93,16 @@ type BioLink struct {
     URL       string    `gorm:"type:text;not null"`
     Clicks    int       `gorm:"default:0"`
     CreatedAt time.Time
+}
+
+type Transaction struct {
+    ID          uint      `gorm:"primaryKey"`
+    UserID      uint      `gorm:"index;not null"`
+    User        User      `gorm:"foreignKey:UserID"`
+    Authority   string    `gorm:"uniqueIndex;size:255"`
+    Amount      int       `gorm:"not null"`
+    Status      string    `gorm:"size:50;default:'pending'"`
+    Description string    `gorm:"size:255"`
+    CreatedAt   time.Time
+    UpdatedAt   time.Time
 }

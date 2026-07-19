@@ -53,7 +53,13 @@ func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
         }
     }
 
-    link, err := h.linkService.CreateShortLink(uint(userID), req.OriginalURL, req.CustomCode, req.Password, req.ExpiresAt, req.ClickLimit, req.DomainID)
+    // اگر کاربر در تیم بود، لینک به نام مدیر تیم ثبت شود
+    targetUserID := uint(userID)
+    if user.TeamID != nil && *user.TeamID != user.ID {
+        targetUserID = *user.TeamID
+    }
+
+    link, err := h.linkService.CreateShortLink(targetUserID, req.OriginalURL, req.CustomCode, req.Password, req.ExpiresAt, req.ClickLimit, req.DomainID)
     if err != nil {
         return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
     }
@@ -66,24 +72,30 @@ func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
     })
 }
 
-// هندلر جدید برای ساخت انبوه لینک
 func (h *LinkHandler) BulkCreateLinks(c *fiber.Ctx) error {
     userID := c.Locals("user_id").(float64)
+    user, err := h.authService.GetUserByID(uint(userID))
+    if err != nil {
+        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User not found"})
+    }
 
-    // دریافت فایل آپلود شده با کلید "file"
+    // اگر کاربر در تیم بود، لینک‌ها به نام مدیر تیم ثبت شود
+    targetUserID := uint(userID)
+    if user.TeamID != nil && *user.TeamID != user.ID {
+        targetUserID = *user.TeamID
+    }
+
     file, err := c.FormFile("file")
     if err != nil {
         return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "فایل CSV آپلود نشده است"})
     }
 
-    // باز کردن فایل
     src, err := file.Open()
     if err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "خطا در باز کردن فایل"})
     }
     defer src.Close()
 
-    // خواندن فایل CSV
     reader := csv.NewReader(src)
     records, err := reader.ReadAll()
     if err != nil {
@@ -94,7 +106,7 @@ func (h *LinkHandler) BulkCreateLinks(c *fiber.Ctx) error {
     for _, record := range records {
         if len(record) > 0 {
             url := strings.TrimSpace(record[0])
-            if url != "" && strings.ToLower(url) != "url" && strings.ToLower(url) != "link" { // نادیده گرفتن هدر اکسل
+            if url != "" && strings.ToLower(url) != "url" && strings.ToLower(url) != "link" {
                 urls = append(urls, url)
             }
         }
@@ -104,22 +116,18 @@ func (h *LinkHandler) BulkCreateLinks(c *fiber.Ctx) error {
         return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "هیچ لینکی در فایل یافت نشد"})
     }
 
-    // محدودیت برای جلوگیری از اسپم (مثلا نهایتا ۱۰۰ لینک در هر فایل)
     if len(urls) > 100 {
         urls = urls[:100]
     }
 
-    // ساخت لینک‌ها
-    links, err := h.linkService.BulkCreateShortLinks(uint(userID), urls)
+    links, err := h.linkService.BulkCreateShortLinks(targetUserID, urls)
     if err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
     }
 
-    // آماده‌سازی خروجی برای دانلود به صورت CSV
     c.Set("Content-Type", "text/csv")
     c.Set("Content-Disposition", "attachment; filename=shortened_links.csv")
 
-    // نوشتن خروجی
     output := "Original URL,Short URL\n"
     for _, link := range links {
         output += link.OriginalURL + ",https://linkresan.ir/" + link.ShortCode + "\n"
@@ -130,7 +138,18 @@ func (h *LinkHandler) BulkCreateLinks(c *fiber.Ctx) error {
 
 func (h *LinkHandler) GetUserLinks(c *fiber.Ctx) error {
     userID := c.Locals("user_id").(float64)
-    links, err := h.linkService.GetUserLinks(uint(userID))
+    user, err := h.authService.GetUserByID(uint(userID))
+    if err != nil {
+        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User not found"})
+    }
+
+    // اگر کاربر در تیم بود، لینک‌های مدیر تیم را ببیند
+    targetUserID := uint(userID)
+    if user.TeamID != nil && *user.TeamID != user.ID {
+        targetUserID = *user.TeamID
+    }
+
+    links, err := h.linkService.GetUserLinks(targetUserID)
     if err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch links"})
     }
@@ -139,7 +158,17 @@ func (h *LinkHandler) GetUserLinks(c *fiber.Ctx) error {
 
 func (h *LinkHandler) GetAnalytics(c *fiber.Ctx) error {
     userID := c.Locals("user_id").(float64)
-    data, err := h.linkService.GetAnalytics(uint(userID))
+    user, err := h.authService.GetUserByID(uint(userID))
+    if err != nil {
+        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User not found"})
+    }
+
+    targetUserID := uint(userID)
+    if user.TeamID != nil && *user.TeamID != user.ID {
+        targetUserID = *user.TeamID
+    }
+
+    data, err := h.linkService.GetAnalytics(targetUserID)
     if err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch analytics"})
     }
@@ -148,7 +177,17 @@ func (h *LinkHandler) GetAnalytics(c *fiber.Ctx) error {
 
 func (h *LinkHandler) GetClickStats(c *fiber.Ctx) error {
     userID := c.Locals("user_id").(float64)
-    stats, err := h.linkService.GetClickStats(uint(userID))
+    user, err := h.authService.GetUserByID(uint(userID))
+    if err != nil {
+        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User not found"})
+    }
+
+    targetUserID := uint(userID)
+    if user.TeamID != nil && *user.TeamID != user.ID {
+        targetUserID = *user.TeamID
+    }
+
+    stats, err := h.linkService.GetClickStats(targetUserID)
     if err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch stats"})
     }
@@ -214,6 +253,6 @@ func (h *LinkHandler) VerifyLinkPassword(c *fiber.Ctx) error {
     }
 
     _ = strings.ToLower
-    _ = io.EOF // برای جلوگیری از ارور ایمپورت نشده
+    _ = io.EOF
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"original_url": link.OriginalURL})
 }

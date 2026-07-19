@@ -70,9 +70,15 @@ func main() {
     api.Post("/payment/request", middleware.Protected(), paymentHandler.RequestPayment)
     api.Get("/payment/verify", paymentHandler.VerifyPayment)
 
+    // User & Team Routes (Protected)
+    api.Get("/me", middleware.Protected(), authHandler.GetMe) // اضافه شد
+    api.Post("/team/create", middleware.Protected(), authHandler.CreateTeam) // اضافه شد
+    api.Post("/team/invite", middleware.Protected(), authHandler.InviteUser) // اضافه شد
+    api.Get("/team/members", middleware.Protected(), authHandler.GetTeamMembers) // اضافه شد
+
     // Protected Link Routes
     api.Post("/links", middleware.Protected(), linkHandler.CreateShortLink)
-    api.Post("/links/bulk", middleware.Protected(), linkHandler.BulkCreateLinks) // اضافه شد
+    api.Post("/links/bulk", middleware.Protected(), linkHandler.BulkCreateLinks)
     api.Get("/links", middleware.Protected(), linkHandler.GetUserLinks)
     api.Get("/links/analytics", middleware.Protected(), linkHandler.GetAnalytics)
     api.Get("/links/stats", middleware.Protected(), linkHandler.GetClickStats)

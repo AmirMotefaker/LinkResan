@@ -57,8 +57,8 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
     }
 
     return c.Status(fiber.StatusOK).JSON(fiber.Map{
-        "message":   "Login successful",
-        "token":     token,
+        "message":    "Login successful",
+        "token":      token,
         "is_premium": user.IsPremium,
     })
 }
@@ -79,13 +79,12 @@ func (h *AuthHandler) GoogleLogin(c *fiber.Ctx) error {
     }
 
     return c.Status(fiber.StatusOK).JSON(fiber.Map{
-        "message":   "Login successful",
-        "token":     token,
+        "message":    "Login successful",
+        "token":      token,
         "is_premium": user.IsPremium,
     })
 }
 
-// هندلر درخواست بازنشانی رمز
 func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
     var req struct {
         Email string `json:"email"`
@@ -102,7 +101,6 @@ func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "اگر ایمیل معتبر باشد، لینک بازنشانی برای شما ارسال شد."})
 }
 
-// هندلر تغییر رمز با توکن
 func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
     var req struct {
         Token    string `json:"token"`
@@ -118,4 +116,62 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
     }
 
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "رمز عبور با موفقیت تغییر کرد."})
+}
+
+// اضافه شد: گرفتن اطلاعات کاربر فعلی (برای فرانت‌اند)
+func (h *AuthHandler) GetMe(c *fiber.Ctx) error {
+    userID := c.Locals("user_id").(float64)
+    user, err := h.authService.GetUserByID(uint(userID))
+    if err != nil {
+        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
+    }
+
+    teamID := uint(0)
+    if user.TeamID != nil {
+        teamID = *user.TeamID
+    }
+
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{
+        "id":        user.ID,
+        "email":     user.Email,
+        "is_premium": user.IsPremium,
+        "team_id":   teamID,
+    })
+}
+
+// اضافه شد: ساخت تیم
+func (h *AuthHandler) CreateTeam(c *fiber.Ctx) error {
+    userID := c.Locals("user_id").(float64)
+    err := h.authService.CreateTeam(uint(userID))
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "تیم با موفقیت ساخته شد"})
+}
+
+// اضافه شد: دعوت به تیم
+func (h *AuthHandler) InviteUser(c *fiber.Ctx) error {
+    inviterID := c.Locals("user_id").(float64)
+    var req struct {
+        Email string `json:"email"`
+    }
+    if err := c.BodyParser(&req); err != nil || req.Email == "" {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "ایمیل الزامی است"})
+    }
+
+    err := h.authService.InviteUserToTeam(uint(inviterID), req.Email)
+    if err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "کاربر با موفقیت به تیم اضافه شد"})
+}
+
+// اضافه شد: لیست اعضای تیم
+func (h *AuthHandler) GetTeamMembers(c *fiber.Ctx) error {
+    userID := c.Locals("user_id").(float64)
+    members, err := h.authService.GetTeamMembers(uint(userID))
+    if err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"members": members})
 }
