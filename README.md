@@ -6,8 +6,8 @@
 
 ### پلتفرم متن‌باز کوتاه‌سازی، مدیریت و تحلیل لینک برای کاربران فارسی‌زبان
 
-ساخته‌شده با **Go، Next.js، PostgreSQL و Redis**؛  
-مجهز به اسلاگ دلخواه، QR Code، تاریخ انقضا، صفحه بیو، مدیریت تیمی، درگاه پرداخت و داشبورد تحلیلی.
+ساخته‌شده با **Go، Next.js، React Native، PostgreSQL و Redis**؛  
+مجهز به اسلاگ دلخواه، QR Code، تاریخ انقضا، صفحه بیو، مدیریت تیمی، درگاه پرداخت، اپلیکیشن موبایل و داشبورد تحلیلی.
 
 <br/>
 
@@ -34,7 +34,7 @@
 ![Go](https://img.shields.io/badge/Go-1.25.0-00ADD8?style=flat-square&logo=go&logoColor=white)
 ![Fiber](https://img.shields.io/badge/Fiber-2.52-00ACD7?style=flat-square&logo=go&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-16.2.10-000000?style=flat-square&logo=nextdotjs&logoColor=white)
-![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat-square&logo=react&logoColor=111827)
+![React Native](https://img.shields.io/badge/React_Native-Expo-61DAFB?style=flat-square&logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=flat-square&logo=postgresql&logoColor=white)
@@ -48,27 +48,25 @@
 
 <a id="latest-release"></a>
 
-## 🚀 آخرین نسخه — v4.0.0
+## 🚀 آخرین نسخه — v5.1.0
 
-> **Enterprise Ready & Fully Monetized**  
-> پروژه از یک کوتاه‌کننده ساده به یک پلتفرم سازمانی، تجاری و خودکار تبدیل شد.
+> **Mobile App, Dark Mode & Developer Tools**  
+> پروژه از یک پلتفرم وب به یک اکوسیستم کامل (وب، موبایل و ابزار توسعه‌دهنده) تبدیل شد.
 
-### مهم‌ترین قابلیت‌های v4.0.0
+### مهم‌ترین قابلیت‌های v5.1.0
 
-- 💰 **موتور درآمدزایی:** اتصال به درگاه زرین‌پال، صفحات قیمت‌گذاری ۴ طبقه‌ای و اعمال خودکار محدودیت‌ها برای پلن رایگان (Feature Gating).
-- 👥 **مدیریت تیمی:** امکان ساخت تیم، دعوت کاربران و اشتراک‌گذاری لینک‌ها برای سازمان‌ها.
-- 🔔 **وب‌هوک‌ها (Webhooks):** ارسال خودکار اطلاعات کلیک‌ها به سرورهای خارجی یا ربات‌های تلگرام.
-- ⏱️ **پاکسازی خودکار (Cron Jobs):** حذف خودکار لینک‌های منقضی شده و توکن‌های استفاده شده هر شب در سکوت.
-- 📱 **اپلیکیشن وب (PWA):** قابلیت نصب سایت روی موبایل و دسکتاپ بدون نیاز به App Store.
-- 🔐 **احراز هویت پیشرفته:** ورود با گوگل (OAuth) و سیستم بازگردانی رمز عبور از طریق ایمیل.
-- 🌲 **صفحه فرود بیو (Link-in-bio):** رقیب مستقیم Linktree با آدرس‌های اختصاصی (`linkresan.ir/b/name`).
-- 🌐 **دامنه‌های اختصاصی:** پشتیبانی از دامنه‌های شخصی کاربران (Custom Domains).
-- 🔒 **لینک‌های امن:** امکان رمزگذاری روی لینک‌ها (Password Protected Links).
-- 📊 **آمار پیشرفته:** سازنده UTM، تشخیص سیستم‌عامل و مرورگر، و نمودارهای تحلیلی دقیق.
+- 📱 **اپلیکیشن موبایل (React Native):** اپلیکیشن نیتیو برای اندروید و iOS با تب‌بار پایین، صفحه ساخت لینک و تنظیمات.
+- 🌙 **دارک مد (Dark Mode):** پشتیبانی کامل از حالت تاریک در تمامی صفحات وب‌سایت با قابلیت ذخیره انتخاب کاربر.
+- 🔑 **مدیریت کلیدهای API:** امکان ساخت کلیدهای امن (lr_) برای توسعه‌دهندگان جهت اتصال اسکریپت‌ها به لینک رسان.
+- 📖 **مستندات Swagger/OpenAPI:** رابط کاربری زیبا و راست‌چین برای مستندات فنی API.
+- 🚀 **صفحات فرود اختصاصی فیچرها:** صفحات سئو‌محور برای توضیحات فنی امکانات (سرعت، امنیت، آمار).
+- 💰 **موتور درآمدزایی:** اتصال به درگاه زرین‌پال، صفحات قیمت‌گذاری ۴ طبقه‌ای و اعمال خودکار محدودیت‌ها (Feature Gating).
+- 👥 **مدیریت تیمی و وب‌هوک‌ها:** امکان ساخت تیم، دعوت کاربران و ارسال وب‌هوک هنگام کلیک.
+- ⏱️ **پاکسازی خودکار (Cron Jobs):** حذف خودکار لینک‌های منقضی شده و توکن‌های استفاده شده.
 
 <div align="center">
 
-[مشاهده جزئیات کامل v4.0.0](https://github.com/AmirMotefaker/LinkResan/releases/tag/v4.0.0)
+[مشاهده جزئیات کامل v5.1.0](https://github.com/AmirMotefaker/LinkResan/releases/tag/v5.1.0)
 
 </div>
 
@@ -96,11 +94,11 @@
 
 ## معرفی
 
-**LinkResan** یک پلتفرم Full-Stack، رایگان و متن‌باز برای کوتاه‌سازی و مدیریت لینک است که با تمرکز بر تجربه کاربران فارسی‌زبان طراحی شده است.
+**LinkResan** یک اکوسیستم Full-Stack، رایگان و متن‌باز برای کوتاه‌سازی و مدیریت لینک است که با تمرکز بر تجربه کاربران فارسی‌زبان طراحی شده است.
 
 کاربران می‌توانند:
 
-1. با ایمیل یا گوگل ثبت‌نام کنند.
+1. از طریق وب‌سایت یا اپلیکیشن موبایل با ایمیل یا گوگل ثبت‌نام کنند.
 2. لینک‌های طولانی را با اسلاگ دلخواه کوتاه کنند.
 3. برای لینک‌های خود رمز عبور، تاریخ انقضا و محدودیت کلیک تعیین کنند.
 4. دامنه‌های اختصاصی خود را متصل کنند.
@@ -109,9 +107,10 @@
 7. QR Code هر لینک را تولید و دانلود کنند.
 8. یک صفحه بیو (Linktree) زیبا بسازند.
 9. با پرداخت اشتراک ماهانه/سالانه، امکانات حرفه‌ای را فعال کنند.
+10. با استفاده از کلید API، لینک‌ها را مستقیماً از کدهای خود بسازند.
 
 > [!IMPORTANT]
-> `v4.0.0` یک نسخه کاملاً تجاری و آماده استفاده عمومی است. تمام امکانات سازمانی، درگاه پرداخت و اتوماسیون سرور در آن ادغام شده‌اند.
+> `v5.1.0` یک نسخه کاملاً تجاری، چند سکویی (وب و موبایل) و آماده استفاده عمومی است.
 
 ---
 
@@ -122,14 +121,16 @@
 | ویژگی | توضیح |
 |---|---|
 | 🇮🇷 فارسی‌محور | طراحی RTL، اعداد فارسی، تقویم شمسی و منطقه زمانی تهران |
-| 💰 درآمدزایی | درگاه پرداخت زرین‌پال، پلن‌های رایگان تا سازمانی، اعمال خودکار محدودیت‌ها |
+| 📱 چند سکویی | وب‌سایت PWA + اپلیکیشن موبایل نیتیو (React Native) |
+| 🌙 دارک مد | پشتیبانی کامل از حالت تاریک در تمامی صفحات |
+| 💰 درآمدزایی | درگاه پرداخت زرین‌پال، پلن‌های رایگان تا سازمانی، Feature Gating |
+| 🔑 ابزار توسعه‌دهنده | کلیدهای API امن و مستندات Swagger/OpenAPI |
 | ⚡ سریع | Resolve لینک با Redis Cache و Backend نوشته‌شده با Go |
 | 📊 آنالیتیکس | تشخیص مرورگر و سیستم‌عامل، نمودار هفت‌روزه و سازنده UTM |
 | 🌐 برندینگ | دامنه‌های اختصاصی (Custom Domains) برای کسب‌وکارها |
 | 🌲 Link-in-Bio | ساخت صفحات فرود یک‌صفحه‌ای رقیب Linktree |
 | 👥 تیمی | امکان دعوت کاربران و همکاری روی یک مجموعه لینک |
 | 🔐 امنیت | JWT، Google OAuth، Password Reset، Bcrypt، رمزگذاری لینک‌ها |
-| 📱 PWA | قابل نصب روی موبایل و دسکتاپ بدون مرورگر |
 | ☁️ Cloud Ready | PostgreSQL ابری، Redis TLS، Render و Vercel |
 
 ---
@@ -143,8 +144,8 @@
 - ورود با گوگل (Google OAuth 2.0)
 - سیستم بازگردانی رمز عبور با ارسال ایمیل (Resend API)
 - توکن JWT با اعتبار ۲۴ ساعت
-- Middleware محافظت‌شده برای Routeهای خصوصی
-- اتصال هر لینک به مالک آن (Link Ownership)
+- مدیریت کلیدهای API (تولید، نام‌گذاری و حذف امن)
+- احراز هویت دوگانه (Dual-Auth): پشتیبانی همزمان از توکن JWT (مرورگر) و هدر X-API-Key (اسکریپت‌ها)
 
 ### ✂️ مدیریت لینک‌ها
 - تولید کد تصادفی شش‌کاراکتری
@@ -172,7 +173,7 @@
 - جدول حرفه‌ای لینک‌ها با شماره ردیف و تاریخ شمسی
 - کپی لینک، بازکردن لینک و حذف امن لینک
 - تولید و دانلود QR Code با فرمت PNG
-- مدیریت وب‌هوک‌ها (افزودن و حذف)
+- مدیریت وب‌هوک‌ها و کلیدهای API در داشبورد
 - مدیریت تیم (ساخت تیم، دعوت با ایمیل، لیست اعضا)
 - صفحه ارتقا به پلن‌های پولی
 
@@ -190,18 +191,22 @@
 - اعمال خودکار محدودیت‌ها برای کاربران رایگان (Feature Gating)
 - فعال‌سازی خودکار پلن Pro پس از پرداخت موفق
 
-### 🌐 برندینگ و موبایل
+### 🌐 برندینگ، موبایل و سئو
 - اتصال دامنه‌های اختصاصی (Custom Domains)
 - دیپ‌لینکینگ شبکه‌های اجتماعی (Universal Links)
 - طراحی کاملاً ریسپانسیو (Mobile-First)
 - تبدیل به PWA (قابلیت نصب روی موبایل و دسکتاپ)
 - Service Worker برای حالت آفلاین
+- **اپلیکیشن موبایل نیتیو (React Native):** دارای تب‌بار پایین، صفحه ساخت لینک و خروج امن.
+- **دارک مد (Dark Mode):** یکپارچه در تمام صفحات وب.
+- **صفحات فرود اختصاصی:** توضیحات فنی دقیق برای هر فیچر (`/features/speed` و...).
+- بهینه‌سازی موتورهای جستجو (SEO) با Sitemap و Robots.txt
 
 ### ☁️ زیرساخت و اتوماسیون
 - PostgreSQL ابری با Neon
 - Redis ابری با Upstash و TLS
 - سرویس Cron Jobs برای پاکسازی خودکار دیتابیس (حذف لینک‌های منقضی)
-- بهینه‌سازی موتورهای جستجو (SEO) با Sitemap و Robots.txt
+- مستندات فنی Swagger/OpenAPI در مسیر `/docs`
 
 ---
 
@@ -212,11 +217,13 @@
 ```mermaid
 flowchart LR
     USER["👤 کاربر"] --> WEB["Next.js 16<br/>React 19 + TypeScript"]
-    WEB -->|"REST /api"| API["Go 1.25<br/>Fiber API"]
+    MOBILE["📱 اپ موبایل<br/>React Native"] -->|"REST /api"| API["Go 1.25<br/>Fiber API"]
+    WEB -->|"REST /api"| API
 
     subgraph BACKEND["Backend Layers"]
-        API --> AUTH["JWT Middleware"]
+        API --> AUTH["JWT/API-Key Middleware"]
         API --> HANDLER["Handlers"]
+        API --> DOCS["Swagger UI"]
         HANDLER --> SERVICE["Services"]
         SERVICE --> REPO["Repositories"]
     end
@@ -252,18 +259,27 @@ flowchart LR
 | Resend API | سرویس ارسال ایمیل |
 | Zarinpal API | درگاه پرداخت |
 
-### Frontend
+### Frontend (Web)
 | فناوری | کاربرد |
 |---|---|
 | Next.js `16` | App Router، SSR و Frontend Runtime |
 | React `19` | رابط کاربری |
 | TypeScript | Type Safety |
-| Tailwind CSS `4` | استایل‌دهی |
+| Tailwind CSS `4` | استایل‌دهی و دارک مد |
 | Recharts | نمودارهای تحلیلی |
 | qrcode.react | تولید QR Code |
 | react-multi-date-picker | تقویم شمسی و Time Picker |
 | Framer Motion | انیمیشن‌ها |
 | @react-oauth/google | ورود با گوگل |
+
+### Mobile App
+| فناوری | کاربرد |
+|---|---|
+| React Native `0.86` | اپلیکیشن نیتیو اندروید و iOS |
+| Expo `SDK 57` | فریم‌ورک توسعه و تست سریع |
+| Expo Router | مسیریابی استاندارد |
+| AsyncStorage | ذخیره‌سازی محلی توکن |
+| lucide-react-native | آیکون‌های مدرن |
 
 ### زیرساخت Production
 | سرویس | کاربرد |
@@ -284,6 +300,7 @@ flowchart LR
 - Node.js `20.9+`
 - PostgreSQL
 - Redis دارای TLS
+- اپلیکیشن Expo Go (روی گوشی موبایل)
 
 ### ۱. Clone کردن پروژه
 
@@ -320,7 +337,7 @@ APP_URL=http://localhost:3000
 go run ./cmd/api
 ```
 
-### ۳. اجرای Frontend
+### ۳. اجرای Frontend (وب‌سایت)
 
 در Terminal جدید:
 
@@ -340,6 +357,21 @@ NEXT_PUBLIC_API_URL=http://localhost:8080/api
 npm run dev
 ```
 
+### ۴. اجرای Mobile App
+
+در Terminal جدید:
+
+```bash
+cd mobile
+npm install
+```
+
+اجرا:
+```bash
+npx expo start
+```
+*(سپس با اپلیکیشن Expo Go روی گوشی خود، QR Code را اسکن کنید یا دکمه `w` را برای اجرا در مرورگر بزنید).*
+
 ---
 
 <a id="api-reference"></a>
@@ -349,12 +381,15 @@ npm run dev
 ### Base URL
 ```text
 API Group: https://linkresan-api.onrender.com/api
+Swagger UI: https://linkresan-api.onrender.com/docs
 ```
 
 ### احراز هویت
-Routeهای خصوصی به Header زیر نیاز دارند:
+Routeهای خصوصی به یکی از Headerهای زیر نیاز دارند:
 ```http
 Authorization: Bearer <JWT_TOKEN>
+# یا
+X-API-Key: <API_KEY>
 ```
 
 ### Endpointهای اصلی
@@ -379,6 +414,7 @@ Authorization: Bearer <JWT_TOKEN>
 | `POST` | `/api/team/create` | ساخت تیم | ✅ |
 | `POST` | `/api/team/invite` | دعوت کاربر به تیم | ✅ |
 | `POST` | `/api/webhooks` | ثبت وب‌هوک | ✅ |
+| `POST` | `/api/api-keys` | ساخت کلید API | ✅ |
 | `POST` | `/api/payment/request` | درخواست پرداخت زرین‌پال | ✅ |
 | `GET` | `/:code` | Resolve و Redirect لینک | ❌ |
 | `GET` | `/b/:slug` | دریافت صفحه بیو کاربر | ❌ |
@@ -394,6 +430,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```mermaid
 flowchart TB
     DOMAIN["linkresan.ir"] --> WEB["Vercel<br/>Next.js PWA"]
+    MOBILE["Mobile App<br/>Expo"] --> API
     WEB --> API["Render<br/>Go Fiber"]
     API --> PG[("Neon PostgreSQL")]
     API --> RD[("Upstash Redis TLS")]
@@ -424,10 +461,12 @@ flowchart TB
 - [x] Team Management & Collaboration (v3.6)
 - [x] Webhooks & Developer Integrations (v3.7)
 - [x] Automated Database Cleanup (Cron Jobs) (v4.0)
-- [ ] Dark Mode
-- [ ] API Key Management for Developers
-- [ ] Swagger / OpenAPI Documentation
-- [ ] Mobile Apps (React Native)
+- [x] Dark Mode (v5.1)
+- [x] API Key Management for Developers (v5.1)
+- [x] Swagger / OpenAPI Documentation (v5.1)
+- [x] Mobile Apps (React Native) (v5.0)
+- [ ] Push Notifications for Mobile App
+- [ ] Dark Mode for Mobile App
 
 ---
 
