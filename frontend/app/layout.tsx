@@ -15,27 +15,12 @@ export const metadata: Metadata = {
     default: "لینک رسان | کوتاه‌کننده لینک حرفه‌ای رایگان",
     template: "%s | لینک رسان",
   },
-  description: "سرویس کوتاه‌کننده لینک حرفه‌ای، رایگان و متن‌باز برای کاربران ایرانی. ساخت لینک کوتاه، QR Code، صفحه بیو و آمار دقیق کلیک‌ها.",
-  keywords: ["کوتاه کننده لینک", "لینک رسان", "short link", "url shortener", "کوتاه کردن لینک", "qr code", "linkresan"],
-  authors: [{ name: "امیر متفکر" }],
+  description: "سرویس کوتاه‌کننده لینک حرفه‌ای، رایگان و متن‌باز برای کاربران ایرانی.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     title: "لینک رسان",
     statusBarStyle: "default",
     capable: true,
-  },
-  openGraph: {
-    title: "لینک رسان | کوتاه‌کننده لینک حرفه‌ای",
-    description: "کوتاه‌سازی لینک، QR Code، صفحه بیو و آمار دقیق کلیک‌ها برای کاربران ایرانی.",
-    url: "https://linkresan.ir",
-    siteName: "لینک رسان",
-    locale: "fa_IR",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "لینک رسان | کوتاه‌کننده لینک حرفه‌ای",
-    description: "کوتاه‌سازی لینک، QR Code، صفحه بیو و آمار دقیق کلیک‌ها برای کاربران ایرانی.",
   },
 };
 
@@ -44,7 +29,23 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  colorScheme: "light dark",
 };
+
+// اسکریپت جلوگیری از پرش رنگ (FOUC) - قبل از لود صفحه تم را اعمال می‌کند
+const themeScript = `
+  (function() {
+    try {
+      var theme = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (theme === 'dark' || (!theme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch (e) {}
+  })();
+`;
 
 export default function RootLayout({
   children,
@@ -52,7 +53,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fa" dir="rtl" className={vazirmatn.variable}>
+    <html lang="fa" dir="rtl" className={vazirmatn.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="font-sans antialiased">
         {children}
         <ServiceWorkerRegister />
