@@ -30,3 +30,12 @@ export const createLink = async (token: string, originalUrl: string) => {
   if (!res.ok) throw new Error(data.error || "خطا در ساخت لینک");
   return data;
 };
+
+export const getAnalytics = async (token: string) => {
+  const res = await fetch(`${API_URL}/links/analytics`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error("خطا در دریافت آمار");
+  return data.analytics;
+};

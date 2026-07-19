@@ -1,64 +1,36 @@
 import { Stack } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Layout() {
+export default function RootLayout() {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const checkToken = async () => {
+      const t = await AsyncStorage.getItem('token');
+      setToken(t);
+      setLoading(false);
+    };
     checkToken();
   }, []);
 
-  const checkToken = async () => {
-    try {
-      const storedToken = await AsyncStorage.getItem('token');
-      setToken(storedToken);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogin = async (newToken: string, premium: boolean) => {
-    setToken(newToken);
-    try {
-      await AsyncStorage.setItem('token', newToken);
-      await AsyncStorage.setItem('is_premium', premium ? 'true' : 'false');
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleLogout = async () => {
-    setToken(null);
-    try {
-      await AsyncStorage.removeItem('token');
-      await AsyncStorage.removeItem('is_premium');
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  if (loading) return null;
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#2563eb" />
+      </View>
+    );
+  }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index">
-        {token ? (
-          // @ts-ignore
-          () => <DashboardScreen token={token} onLogout={handleLogout} />
-        ) : (
-          // @ts-ignore
-          () => <LoginScreen onLogin={handleLogin} />
-        )}
-      </Stack.Screen>
+      {token ? (
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      ) : (
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+      )}
     </Stack>
   );
 }
-
-// @ts-ignore
-import LoginScreen from './login';
-// @ts-ignore
-import DashboardScreen from './dashboard';
