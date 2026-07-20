@@ -17,6 +17,10 @@ type User struct {
     IsPremium    bool           `gorm:"default:false"`
     IsAdmin      bool           `gorm:"default:false"`
     TeamID       *uint          `gorm:"index"`
+    LastLoginIP  string         `gorm:"type:text"`
+    Country      string         `gorm:"size:100"`
+    City         string         `gorm:"size:100"`
+    LastLoginAt  time.Time
     CreatedAt    time.Time
     UpdatedAt    time.Time
     DeletedAt    gorm.DeletedAt `gorm:"index"`

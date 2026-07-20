@@ -91,6 +91,10 @@ func main() {
     api.Post("/team/invite", middleware.Protected(authService, apiKeyService), authHandler.InviteUser)
     api.Get("/team/members", middleware.Protected(authService, apiKeyService), authHandler.GetTeamMembers)
 
+    // Admin Routes (Protected)
+    api.Get("/admin/stats", middleware.Protected(authService, apiKeyService), authHandler.GetAdminStats)
+    api.Get("/admin/users", middleware.Protected(authService, apiKeyService), authHandler.GetAllUsers)
+
     // Protected Link Routes
     api.Post("/links", middleware.Protected(authService, apiKeyService), linkHandler.CreateShortLink)
     api.Post("/links/bulk", middleware.Protected(authService, apiKeyService), linkHandler.BulkCreateLinks)

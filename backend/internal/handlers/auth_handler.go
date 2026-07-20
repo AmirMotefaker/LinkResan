@@ -51,7 +51,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
         return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
     }
 
-    token, user, err := h.authService.Login(req.Email, req.Password)
+    token, user, err := h.authService.Login(req.Email, req.Password, c.IP())
     if err != nil {
         return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
     }
@@ -208,4 +208,33 @@ func (h *AuthHandler) GetTeamMembers(c *fiber.Ctx) error {
         return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
     }
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"members": members})
+}
+
+// هندلرهای ادمین
+func (h *AuthHandler) GetAdminStats(c *fiber.Ctx) error {
+    userID := c.Locals("user_id").(float64)
+    user, err := h.authService.GetUserByID(uint(userID))
+    if err != nil || !user.IsAdmin {
+        return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Access denied"})
+    }
+
+    stats, err := h.authService.GetAdminStats()
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch stats"})
+    }
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"stats": stats})
+}
+
+func (h *AuthHandler) GetAllUsers(c *fiber.Ctx) error {
+    userID := c.Locals("user_id").(float64)
+    user, err := h.authService.GetUserByID(uint(userID))
+    if err != nil || !user.IsAdmin {
+        return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Access denied"})
+    }
+
+    users, err := h.authService.GetAllUsers()
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch users"})
+    }
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"users": users})
 }

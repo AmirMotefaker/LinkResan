@@ -19,6 +19,9 @@ type UserRepository interface {
     FindUsersByTeamID(teamID uint) ([]models.User, error)
     DeleteExpiredTokens() error
     UpdateUserProfile(userID uint, name, avatarURL string) error
+    UpdateUserLoginInfo(userID uint, ip, country, city string) error
+    GetAllUsers() ([]models.User, error)
+    GetAdminStats() (map[string]int64, error)
 }
 
 type userRepository struct {
@@ -92,4 +95,35 @@ func (r *userRepository) UpdateUserProfile(userID uint, name, avatarURL string) 
         "name":       name,
         "avatar_url": avatarURL,
     }).Error
+}
+
+func (r *userRepository) UpdateUserLoginInfo(userID uint, ip, country, city string) error {
+    return r.db.Model(&models.User{}).Where("id = ?", userID).Updates(map[string]interface{}{
+        "last_login_ip": ip,
+        "country":       country,
+        "city":          city,
+        "last_login_at": time.Now(),
+    }).Error
+}
+
+func (r *userRepository) GetAllUsers() ([]models.User, error) {
+    var users []models.User
+    err := r.db.Order("created_at desc").Find(&users).Error
+    return users, err
+}
+
+func (r *userRepository) GetAdminStats() (map[string]int64, error) {
+    var totalUsers, proUsers, totalLinks, totalClicks int64
+
+    r.db.Model(&models.User{}).Count(&totalUsers)
+    r.db.Model(&models.User{}).Where("is_premium = ?", true).Count(&proUsers)
+    r.db.Model(&models.Link{}).Count(&totalLinks)
+    r.db.Model(&models.Click{}).Count(&totalClicks)
+
+    return map[string]int64{
+        "users":    totalUsers,
+        "proUsers": proUsers,
+        "links":    totalLinks,
+        "clicks":   totalClicks,
+    }, nil
 }

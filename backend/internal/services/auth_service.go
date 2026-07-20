@@ -20,7 +20,7 @@ var jwtKey = []byte("linkresan_super_secret_key_2024")
 
 type AuthService interface {
     Register(email, password string) (*models.User, error)
-    Login(email, password string) (string, *models.User, error)
+    Login(email, password string, clientIP string) (string, *models.User, error)
     GoogleLogin(credential string) (string, *models.User, error)
     GetUserByID(userID uint) (*models.User, error)
     RequestPasswordReset(email string) error
@@ -30,6 +30,8 @@ type AuthService interface {
     GetTeamMembers(userID uint) ([]models.User, error)
     UpdateProfile(userID uint, name, avatarURL string) error
     ChangePassword(userID uint, oldPassword, newPassword string) error
+    GetAdminStats() (map[string]int64, error)
+    GetAllUsers() ([]models.User, error)
 }
 
 type authService struct {
@@ -66,7 +68,7 @@ func (s *authService) Register(email, password string) (*models.User, error) {
     return user, nil
 }
 
-func (s *authService) Login(email, password string) (string, *models.User, error) {
+func (s *authService) Login(email, password string, clientIP string) (string, *models.User, error) {
     user, err := s.userRepo.FindByEmail(email)
     if err != nil {
         return "", nil, errors.New("user not found")
@@ -87,6 +89,28 @@ func (s *authService) Login(email, password string) (string, *models.User, error
     if err != nil {
         return "", nil, err
     }
+
+    // استخراج کشور و شهر از IP در پس‌زمینه (Asynchronous)
+    go func(ip string) {
+        if ip == "" || ip == "127.0.0.1" {
+            ip = ""
+        }
+        
+        var country, city string
+        if ip != "" {
+            resp, err := http.Get("http://ip-api.com/json/" + ip + "?fields=country,city,status&lang=fa")
+            if err == nil {
+                defer resp.Body.Close()
+                var geoData map[string]string
+                json.NewDecoder(resp.Body).Decode(&geoData)
+                if geoData["status"] == "success" {
+                    country = geoData["country"]
+                    city = geoData["city"]
+                }
+            }
+        }
+        s.userRepo.UpdateUserLoginInfo(user.ID, ip, country, city)
+    }(clientIP)
 
     return tokenString, user, nil
 }
@@ -279,4 +303,12 @@ func (s *authService) ChangePassword(userID uint, oldPassword, newPassword strin
     }
 
     return s.userRepo.UpdateUserPassword(userID, string(hashedPassword))
+}
+
+func (s *authService) GetAdminStats() (map[string]int64, error) {
+    return s.userRepo.GetAdminStats()
+}
+
+func (s *authService) GetAllUsers() ([]models.User, error) {
+    return s.userRepo.GetAllUsers()
 }
