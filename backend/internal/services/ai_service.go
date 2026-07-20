@@ -44,7 +44,8 @@ func (s *aiService) SuggestSlug(originalURL string) (string, error) {
     }
     jsonData, _ := json.Marshal(payload)
 
-    url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + s.apiKey
+    // تغییر کرد: استفاده از جدیدترین مدل gemini-2.0-flash
+    url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + s.apiKey
     req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
     req.Header.Set("Content-Type", "application/json")
 
@@ -55,7 +56,6 @@ func (s *aiService) SuggestSlug(originalURL string) (string, error) {
     }
     defer resp.Body.Close()
 
-    // تغییر شد: خواندن بدینه پاسخ در صورت ارور
     if resp.StatusCode != http.StatusOK {
         body, _ := io.ReadAll(resp.Body)
         log.Printf("Gemini API Error: Status %d, Body: %s", resp.StatusCode, string(body))
