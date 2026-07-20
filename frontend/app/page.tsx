@@ -181,6 +181,9 @@ export default function Home() {
             </>
           ) : (
             <>
+              <button onClick={() => router.push("/compare")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors cursor-pointer font-bold">
+                مقایسه
+              </button>
               <button onClick={() => router.push("/pricing")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
                 پلن‌ها
               </button>
