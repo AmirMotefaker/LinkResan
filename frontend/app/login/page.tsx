@@ -37,7 +37,14 @@ export default function Login() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("is_premium", data.is_premium ? "true" : "false");
         localStorage.setItem("is_admin", data.is_admin ? "true" : "false");
-        router.push("/onboarding");
+        
+        // تغییر شد: اگر لینکی در انتظار بود، به صفحه اصلی برو، در غیر این صورت به آنبوردینگ
+        const pendingUrl = sessionStorage.getItem("pending_url");
+        if (pendingUrl) {
+          router.push("/");
+        } else {
+          router.push("/onboarding");
+        }
       } else {
         setIsLogin(true);
         setError("ثبت‌نام موفق بود! حالا وارد شوید.");

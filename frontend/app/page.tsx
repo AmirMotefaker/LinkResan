@@ -62,6 +62,19 @@ export default function Home() {
         })
         .catch(() => {});
     }
+
+    // تغییر شد: بازیابی لینک ذخیره شده پس از لاگین
+    const pendingUrl = sessionStorage.getItem("pending_url");
+    const pendingCustomCode = sessionStorage.getItem("pending_custom_code");
+    if (pendingUrl) {
+      setUrl(pendingUrl);
+      sessionStorage.removeItem("pending_url");
+    }
+    if (pendingCustomCode) {
+      setCustomCode(pendingCustomCode);
+      setShowCustomField(true);
+      sessionStorage.removeItem("pending_custom_code");
+    }
   }, []);
 
   const handleShorten = async (e: React.FormEvent) => {
@@ -70,6 +83,11 @@ export default function Home() {
 
     if (!isLoggedIn) {
       if (showLoginMsg) {
+        // تغییر شد: ذخیره لینک در حافظه مرورگر قبل از رفتن به صفحه لاگین
+        sessionStorage.setItem("pending_url", url);
+        if (customCode) {
+          sessionStorage.setItem("pending_custom_code", customCode);
+        }
         router.push("/login");
       } else {
         setShowLoginMsg(true);
@@ -158,7 +176,6 @@ export default function Home() {
         setCustomCode(data.slug);
         setShowCustomField(true);
       } else {
-        // تغییر شد: نمایش متن دقیق ارور بک‌اند
         alert(data.error || "خطای ناشناخته در ارتباط با هوش مصنوعی");
       }
     } catch {
