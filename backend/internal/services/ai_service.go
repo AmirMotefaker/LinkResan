@@ -4,6 +4,7 @@ import (
     "bytes"
     "encoding/json"
     "errors"
+    "io"
     "log"
     "net/http"
     "strings"
@@ -26,7 +27,6 @@ func (s *aiService) SuggestSlug(originalURL string) (string, error) {
         return "", errors.New("AI service is not configured")
     }
 
-    // پرامپت هوشمندتر: اگر لینک متنی نداشت، اسم عمومی جذاب بساز
     prompt := `You are an expert in SEO and URL shortening. 
     Analyze the following URL: ` + originalURL + `
     If the URL contains descriptive words (like blog posts or news), generate a single, short, catchy, and readable URL slug (3 to 5 words max, use kebab-case, english letters and numbers only).
@@ -55,9 +55,11 @@ func (s *aiService) SuggestSlug(originalURL string) (string, error) {
     }
     defer resp.Body.Close()
 
+    // تغییر شد: خواندن بدینه پاسخ در صورت ارور
     if resp.StatusCode != http.StatusOK {
-        log.Printf("Gemini API Error Status: %d", resp.StatusCode)
-        return "", errors.New("failed to connect to AI service")
+        body, _ := io.ReadAll(resp.Body)
+        log.Printf("Gemini API Error: Status %d, Body: %s", resp.StatusCode, string(body))
+        return "", errors.New("Gemini API Error: " + string(body))
     }
 
     var result map[string]interface{}
@@ -87,11 +89,8 @@ func (s *aiService) SuggestSlug(originalURL string) (string, error) {
         return "", errors.New("invalid AI text format")
     }
 
-    // پاکسازی دقیق متن از فاصله‌ها، کوتیشن‌ها و ستاره‌های مارک‌داون
     slug := strings.TrimSpace(text)
     slug = strings.Trim(slug, "\"'\n *`")
-    
-    // جایگزینی فاصله‌ها با خط تیره در صورت وجود
     slug = strings.ReplaceAll(slug, " ", "-")
     slug = strings.ToLower(slug)
 
