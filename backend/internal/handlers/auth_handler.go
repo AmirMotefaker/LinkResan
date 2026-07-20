@@ -200,4 +200,9 @@ func (h *AuthHandler) InviteUser(c *fiber.Ctx) error {
 
 func (h *AuthHandler) GetTeamMembers(c *fiber.Ctx) error {
     userID := c.Locals("user_id").(float64)
-    members, err := h.authService.GetTeamMembers(uint(userID
+    members, err := h.authService.GetTeamMembers(uint(userID))
+    if err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+    return c.Status(fiber.StatusOK).JSON(fiber.Map{"members": members})
+}
