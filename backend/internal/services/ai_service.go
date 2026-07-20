@@ -34,20 +34,20 @@ func (s *aiService) SuggestSlug(originalURL string) (string, error) {
     Return ONLY the slug itself, absolutely nothing else (no quotes, no markdown).`
 
     payload := map[string]interface{}{
-        "contents": []map[string]interface{}{
+        "model": "llama-3.3-70b-versatile",
+        "messages": []map[string]string{
             {
-                "parts": []map[string]string{
-                    {"text": prompt},
-                },
+                "role":    "user",
+                "content": prompt,
             },
         },
     }
     jsonData, _ := json.Marshal(payload)
 
-    // استفاده از نسخه پایدار gemini-1.5-flash-latest
-    url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + s.apiKey
+    url := "https://api.groq.com/openai/v1/chat/completions"
     req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
     req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("Authorization", "Bearer "+s.apiKey)
 
     client := &http.Client{}
     resp, err := client.Do(req)
@@ -58,8 +58,8 @@ func (s *aiService) SuggestSlug(originalURL string) (string, error) {
 
     if resp.StatusCode != http.StatusOK {
         body, _ := io.ReadAll(resp.Body)
-        log.Printf("Gemini API Error: Status %d, Body: %s", resp.StatusCode, string(body))
-        return "", errors.New("Gemini API Error: " + string(body))
+        log.Printf("Groq API Error: Status %d, Body: %s", resp.StatusCode, string(body))
+        return "", errors.New("Groq API Error: " + string(body))
     }
 
     var result map[string]interface{}
@@ -67,26 +67,21 @@ func (s *aiService) SuggestSlug(originalURL string) (string, error) {
         return "", err
     }
 
-    candidates, ok := result["candidates"].([]interface{})
-    if !ok || len(candidates) == 0 {
-        log.Printf("Gemini AI Error: No candidates. Response: %v", result)
+    choices, ok := result["choices"].([]interface{})
+    if !ok || len(choices) == 0 {
+        log.Printf("Groq AI Error: No choices. Response: %v", result)
         return "", errors.New("no response from AI")
     }
 
-    candidate := candidates[0].(map[string]interface{})
-    content, ok := candidate["content"].(map[string]interface{})
+    choice := choices[0].(map[string]interface{})
+    message, ok := choice["message"].(map[string]interface{})
+    if !ok {
+        return "", errors.New("invalid AI message format")
+    }
+
+    text, ok := message["content"].(string)
     if !ok {
         return "", errors.New("invalid AI content format")
-    }
-
-    parts, ok := content["parts"].([]interface{})
-    if !ok || len(parts) == 0 {
-        return "", errors.New("invalid AI parts format")
-    }
-
-    text, ok := parts[0].(map[string]interface{})["text"].(string)
-    if !ok {
-        return "", errors.New("invalid AI text format")
     }
 
     slug := strings.TrimSpace(text)

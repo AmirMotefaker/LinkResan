@@ -48,7 +48,7 @@ func main() {
     bioService := services.NewBioService(bioRepo)
     paymentService := services.NewPaymentService(paymentRepo, cfg)
     apiKeyService := services.NewApiKeyService(apiKeyRepo)
-    aiService := services.NewAIService(cfg.GeminiAPIKey) // اضافه شد
+    aiService := services.NewAIService(cfg.GroqAPIKey) // تغییر کرد به GroqAPIKey
     cronService := services.NewCronService(linkRepo, userRepo)
     cronService.Start()
 
@@ -60,7 +60,7 @@ func main() {
     paymentHandler := handlers.NewPaymentHandler(paymentService, authService)
     webhookHandler := handlers.NewWebhookHandler(webhookService)
     apiKeyHandler := handlers.NewApiKeyHandler(apiKeyService)
-    aiHandler := handlers.NewAIHandler(aiService) // اضافه شد
+    aiHandler := handlers.NewAIHandler(aiService)
     docsHandler := handlers.NewDocsHandler()
 
     // --- Routes ---
@@ -74,7 +74,7 @@ func main() {
     app.Get("/docs", docsHandler.SwaggerUI)
     api.Get("/docs/openapi.json", docsHandler.GetOpenAPISpec)
 
-    // AI Routes (اضافه شد)
+    // AI Routes
     api.Post("/ai/suggest-slug", aiHandler.SuggestSlug)
 
     // Auth & Password Reset Routes

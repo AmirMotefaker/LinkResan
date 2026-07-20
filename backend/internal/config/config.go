@@ -8,15 +8,15 @@ import (
 )
 
 type Config struct {
-    DatabaseURL        string
-    Port               string
-    RedisAddr          string
-    RedisPassword      string
-    ZarinpalMerchantID string
+    DatabaseURL         string
+    Port                string
+    RedisAddr           string
+    RedisPassword       string
+    ZarinpalMerchantID  string
     ZarinpalCallbackURL string
-    ResendAPIKey       string
-    AppURL             string // آدرس سایت برای لینک بازنشانی
-    GeminiAPIKey        string // اضافه شد
+    ResendAPIKey        string
+    AppURL              string
+    GroqAPIKey          string // تغییر کرد
 }
 
 func LoadConfig() *Config {
@@ -26,15 +26,15 @@ func LoadConfig() *Config {
     }
 
     return &Config{
-        DatabaseURL:        getEnv("DATABASE_URL", "postgres://postgres:your_password@localhost:5432/linkresan_db?sslmode=disable"),
-        Port:               getEnv("PORT", "8080"),
-        RedisAddr:          getEnv("REDIS_ADDR", "localhost:6379"),
-        RedisPassword:      getEnv("REDIS_PASSWORD", ""),
-        ZarinpalMerchantID: getEnv("ZARINPAL_MERCHANT_ID", ""),
+        DatabaseURL:         getEnv("DATABASE_URL", "postgres://postgres:your_password@localhost:5432/linkresan_db?sslmode=disable"),
+        Port:                getEnv("PORT", "8080"),
+        RedisAddr:           getEnv("REDIS_ADDR", "localhost:6379"),
+        RedisPassword:       getEnv("REDIS_PASSWORD", ""),
+        ZarinpalMerchantID:  getEnv("ZARINPAL_MERCHANT_ID", ""),
         ZarinpalCallbackURL: getEnv("ZARINPAL_CALLBACK_URL", "https://linkresan.ir/api/payment/verify"),
-        ResendAPIKey:       getEnv("RESEND_API_KEY", ""),
-        AppURL:             getEnv("APP_URL", "https://linkresan.ir"),
-        GeminiAPIKey:        getEnv("GEMINI_API_KEY", ""),
+        ResendAPIKey:        getEnv("RESEND_API_KEY", ""),
+        AppURL:              getEnv("APP_URL", "https://linkresan.ir"),
+        GroqAPIKey:          getEnv("GROQ_API_KEY", ""), // تغییر کرد
     }
 }
 
