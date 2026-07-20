@@ -185,9 +185,21 @@ export default function Home() {
             </>
           ) : (
             <>
-              <button onClick={() => router.push("/compare")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors cursor-pointer font-bold">
-                مقایسه
-              </button>
+              {/* منوی کشویی مقایسه */}
+              <div className="relative group">
+                <button className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors cursor-pointer font-bold">
+                  مقایسه
+                </button>
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <button onClick={() => router.push("/compare")} className="block w-full text-right px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-t-xl cursor-pointer">
+                    مقایسه با رقبای جهانی
+                  </button>
+                  <button onClick={() => router.push("/compare/iran")} className="block w-full text-right px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-b-xl cursor-pointer">
+                    مقایسه با رقبای ایرانی
+                  </button>
+                </div>
+              </div>
+
               <button onClick={() => router.push("/pricing")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
                 پلن‌ها
               </button>

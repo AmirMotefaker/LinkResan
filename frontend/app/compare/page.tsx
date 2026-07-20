@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Link2, Check, X, ArrowLeft, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { Link2, Check, X, ArrowLeft, Sparkles, Globe } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
-// داده‌های جدول مقایسه
 const features = [
   { name: "کوتاه‌کنندگی پایه", linkresan: true, bitly: true, dub: true, short: true, tiny: true, rebrandly: true, blink: true, shorby: true },
   { name: "اسلاگ دلخواه (Custom Alias)", linkresan: true, bitly: true, dub: true, short: true, tiny: true, rebrandly: true, blink: true, shorby: true },
@@ -38,7 +38,7 @@ const columns = [
   { key: "shorby", label: "Shorby" },
 ];
 
-export default function ComparePage() {
+export default function CompareGlobalPage() {
   const router = useRouter();
 
   const renderCell = (value: any) => {
@@ -52,8 +52,7 @@ export default function ComparePage() {
       <div className="absolute top-4 left-4"><ThemeToggle /></div>
       
       <div className="w-full max-w-7xl mx-auto">
-        {/* هدر صفحه */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <div onClick={() => router.push("/")} className="inline-flex items-center gap-2 cursor-pointer mb-6">
             <Link2 className="w-7 h-7 text-blue-600 dark:text-blue-400" />
             <span className="text-xl font-bold tracking-tight">لینک رسان</span>
@@ -62,12 +61,18 @@ export default function ComparePage() {
             مقایسه فنی لینک رسان با رقبای جهانی
             <Sparkles className="w-8 h-8 text-indigo-500" />
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 text-lg max-w-3xl mx-auto">
-            ما دنبال اختراع چرخ نبودیم؛ ما چرخ را به بهترین شکل ساختیم، اما آن را روی جاده‌ای آوردیم که رقبای جهانی به دلیل تحریم‌ها از آن محروم هستند.
-          </p>
         </div>
 
-        {/* جدول مقایسه */}
+        {/* منوی سوئیچر */}
+        <div className="flex justify-center gap-2 mb-12 bg-white dark:bg-gray-800 p-1.5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 max-w-md mx-auto">
+          <span className="flex-1 py-2.5 rounded-lg text-sm font-bold text-center transition-colors bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 cursor-default">
+            رقبای جهانی
+          </span>
+          <Link href="/compare/iran" className="flex-1 py-2.5 rounded-lg text-sm font-bold text-center transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
+            رقبای ایرانی
+          </Link>
+        </div>
+
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-right border-collapse">
@@ -75,10 +80,7 @@ export default function ComparePage() {
                 <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
                   <th className="p-4 font-bold whitespace-nowrap">امکانات (Features)</th>
                   {columns.map((col) => (
-                    <th 
-                      key={col.key} 
-                      className={`p-4 text-center font-bold whitespace-nowrap ${col.highlight ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : ''}`}
-                    >
+                    <th key={col.key} className={`p-4 text-center font-bold whitespace-nowrap ${col.highlight ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : ''}`}>
                       {col.label}
                     </th>
                   ))}
@@ -89,10 +91,7 @@ export default function ComparePage() {
                   <tr key={i} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                     <td className="p-4 font-medium whitespace-nowrap">{row.name}</td>
                     {columns.map((col) => (
-                      <td 
-                        key={col.key} 
-                        className={`p-4 ${col.highlight ? 'bg-indigo-50/50 dark:bg-indigo-900/20' : ''}`}
-                      >
+                      <td key={col.key} className={`p-4 ${col.highlight ? 'bg-indigo-50/50 dark:bg-indigo-900/20' : ''}`}>
                         {renderCell(row[col.key as keyof typeof row])}
                       </td>
                     ))}
@@ -103,16 +102,10 @@ export default function ComparePage() {
           </div>
         </div>
 
-        {/* بخش نتیجه‌گیری و CTA */}
         <div className="mt-12 bg-indigo-600 dark:bg-indigo-900/40 p-8 rounded-2xl text-center text-white">
           <h2 className="text-2xl font-bold mb-4">آماده‌اید رقیب ایرانی خود را جایگزین ابزارهای تحریمی کنید؟</h2>
-          <p className="text-indigo-100 mb-8 max-w-2xl mx-auto">با لینک رسان، همزمان لینک بایو (رقیب Shorby) و مدیریت لینک سازمانی (رقیب Bitly) را با قیمت ایرانی و پشتیبانی فارسی در اختیار دارید.</p>
-          <button 
-            onClick={() => router.push("/pricing")} 
-            className="bg-white text-indigo-600 font-bold px-8 py-3 rounded-xl hover:bg-indigo-50 transition-colors inline-flex items-center gap-2 cursor-pointer"
-          >
-            مشاهده پلن‌ها و قیمت‌ها
-            <ArrowLeft className="w-5 h-5" />
+          <button onClick={() => router.push("/pricing")} className="bg-white text-indigo-600 font-bold px-8 py-3 rounded-xl hover:bg-indigo-50 transition-colors inline-flex items-center gap-2 cursor-pointer">
+            مشاهده پلن‌ها و قیمت‌ها <ArrowLeft className="w-5 h-5" />
           </button>
         </div>
       </div>
