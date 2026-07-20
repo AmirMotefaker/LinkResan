@@ -9,7 +9,6 @@ import (
     "github.com/AmirMotefaker/LinkResan/backend/internal/config"
     "github.com/AmirMotefaker/LinkResan/backend/internal/models"
     "github.com/AmirMotefaker/LinkResan/backend/internal/repositories"
-    "gorm.io/gorm"
 )
 
 type PaymentService interface {
@@ -53,13 +52,26 @@ func (s *paymentService) CreatePayment(userID uint, amount int, description stri
     defer resp.Body.Close()
 
     var result map[string]interface{}
-    json.NewDecoder(resp.Body).Decode(&result)
+    if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+        return "", err
+    }
 
-    data := result["data"].(map[string]interface{})
-    code := int(data["code"].(float64))
-    authority := data["authority"].(string)
+    data, ok := result["data"].(map[string]interface{})
+    if !ok {
+        return "", errors.New("invalid response from zarinpal")
+    }
 
-    if code != 100 {
+    code, ok := data["code"].(float64)
+    if !ok {
+        return "", errors.New("invalid code from zarinpal")
+    }
+
+    authority, ok := data["authority"].(string)
+    if !ok {
+        return "", errors.New("invalid authority from zarinpal")
+    }
+
+    if int(code) != 100 {
         return "", errors.New("zarinpal error: could not create payment")
     }
 
@@ -95,19 +107,28 @@ func (s *paymentService) VerifyPayment(authority string, status string) error {
     defer resp.Body.Close()
 
     var result map[string]interface{}
-    json.NewDecoder(resp.Body).Decode(&result)
+    if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+        return err
+    }
 
-    data := result["data"].(map[string]interface{})
-    code := int(data["code"].(float64))
+    data, ok := result["data"].(map[string]interface{})
+    if !ok {
+        return errors.New("invalid response from zarinpal verify")
+    }
 
-    if code == 100 || code == 101 {
+    code, ok := data["code"].(float64)
+    if !ok {
+        return errors.New("invalid code from zarinpal verify")
+    }
+
+    if int(code) == 100 || int(code) == 101 {
         trans.Status = "paid"
         s.repo.UpdateTransaction(trans)
-        
-        // آپدیت پلن کاربر به pro
+
+        // آپدیت پلن کاربر به pro و فعال‌سازی اشتراک
         s.repo.UpdateUserPlan(trans.UserID, "pro")
         s.repo.UpdateUserPremiumStatus(trans.UserID, true)
-        
+
         return nil
     }
 
@@ -115,15 +136,3 @@ func (s *paymentService) VerifyPayment(authority string, status string) error {
     s.repo.UpdateTransaction(trans)
     return errors.New("payment verification failed")
 }
-
-// برای جلوگیری از ارور unused import
-var _ = gorm.ErrRecordNotFound
-
-
-// در اینترفیس PaymentRepository:
-    UpdateUserPlan(userID uint, plan string) error
-
-// در ساختار paymentRepository:
-    func (r *paymentRepository) UpdateUserPlan(userID uint, plan string) error {
-        return r.db.Model(&models.User{}).Where("id = ?", userID).Update("plan", plan).Error
-    }
