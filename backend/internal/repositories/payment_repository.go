@@ -10,6 +10,7 @@ type PaymentRepository interface {
     UpdateTransaction(trans *models.Transaction) error
     FindByAuthority(authority string) (*models.Transaction, error)
     UpdateUserPremiumStatus(userID uint, isPremium bool) error
+    UpdateUserPlan(userID uint, plan string) error // اضافه شد
 }
 
 type paymentRepository struct {
@@ -39,4 +40,9 @@ func (r *paymentRepository) FindByAuthority(authority string) (*models.Transacti
 
 func (r *paymentRepository) UpdateUserPremiumStatus(userID uint, isPremium bool) error {
     return r.db.Model(&models.User{}).Where("id = ?", userID).Update("is_premium", isPremium).Error
+}
+
+// اضافه شد: برای آپدیت پلن کاربر در دیتابیس هنگام پرداخت موفق
+func (r *paymentRepository) UpdateUserPlan(userID uint, plan string) error {
+    return r.db.Model(&models.User{}).Where("id = ?", userID).Update("plan", plan).Error
 }

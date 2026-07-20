@@ -27,7 +27,6 @@ func NewPaymentService(repo repositories.PaymentRepository, cfg *config.Config) 
 }
 
 func (s *paymentService) CreatePayment(userID uint, amount int, description string) (string, error) {
-    // ساخت رکورد تراکنش در دیتابیس
     trans := &models.Transaction{
         UserID:      userID,
         Amount:      amount,
@@ -39,7 +38,6 @@ func (s *paymentService) CreatePayment(userID uint, amount int, description stri
         return "", err
     }
 
-    // ارسال درخواست به زرین‌پال
     payload := map[string]interface{}{
         "merchant_id":  s.cfg.ZarinpalMerchantID,
         "amount":       amount,
@@ -65,11 +63,9 @@ func (s *paymentService) CreatePayment(userID uint, amount int, description stri
         return "", errors.New("zarinpal error: could not create payment")
     }
 
-    // ذخیره authority در تراکنش
     trans.Authority = authority
     s.repo.UpdateTransaction(trans)
 
-    // بازگرداندن لینک پرداخت برای فرانت‌اند
     return "https://www.zarinpal.com/pg/StartPay/" + authority, nil
 }
 
@@ -85,7 +81,6 @@ func (s *paymentService) VerifyPayment(authority string, status string) error {
         return errors.New("payment failed by user")
     }
 
-    // تایید پرداخت از زرین‌پال
     payload := map[string]interface{}{
         "merchant_id": s.cfg.ZarinpalMerchantID,
         "amount":      trans.Amount,
@@ -107,8 +102,12 @@ func (s *paymentService) VerifyPayment(authority string, status string) error {
 
     if code == 100 || code == 101 {
         trans.Status = "paid"
-		s.repo.UpdateUserPremiumStatus(trans.UserID, true)
         s.repo.UpdateTransaction(trans)
+        
+        // آپدیت پلن کاربر به pro
+        s.repo.UpdateUserPlan(trans.UserID, "pro")
+        s.repo.UpdateUserPremiumStatus(trans.UserID, true)
+        
         return nil
     }
 
@@ -117,10 +116,14 @@ func (s *paymentService) VerifyPayment(authority string, status string) error {
     return errors.New("payment verification failed")
 }
 
-// تابع کمکی برای فعال کردن پلن پرو پس از پرداخت موفق
-func (s *paymentService) ActivateUserPremium(userID uint) error {
-    return s.repo.UpdateUserPremiumStatus(userID, true)
-}
-
 // برای جلوگیری از ارور unused import
 var _ = gorm.ErrRecordNotFound
+
+
+// در اینترفیس PaymentRepository:
+    UpdateUserPlan(userID uint, plan string) error
+
+// در ساختار paymentRepository:
+    func (r *paymentRepository) UpdateUserPlan(userID uint, plan string) error {
+        return r.db.Model(&models.User{}).Where("id = ?", userID).Update("plan", plan).Error
+    }

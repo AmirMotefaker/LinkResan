@@ -20,6 +20,7 @@ type UserRepository interface {
     DeleteExpiredTokens() error
     UpdateUserProfile(userID uint, name, avatarURL string) error
     UpdateUserLoginInfo(userID uint, ip, country, city string) error
+    UpdateUserPlan(userID uint, plan string) error
     GetAllUsers() ([]models.User, error)
     GetAdminStats() (map[string]int64, error)
 }
@@ -106,6 +107,10 @@ func (r *userRepository) UpdateUserLoginInfo(userID uint, ip, country, city stri
     }).Error
 }
 
+func (r *userRepository) UpdateUserPlan(userID uint, plan string) error {
+    return r.db.Model(&models.User{}).Where("id = ?", userID).Update("plan", plan).Error
+}
+
 func (r *userRepository) GetAllUsers() ([]models.User, error) {
     var users []models.User
     err := r.db.Order("created_at desc").Find(&users).Error
@@ -113,17 +118,23 @@ func (r *userRepository) GetAllUsers() ([]models.User, error) {
 }
 
 func (r *userRepository) GetAdminStats() (map[string]int64, error) {
-    var totalUsers, proUsers, totalLinks, totalClicks int64
+    var totalUsers, freeUsers, basicUsers, proUsers, enterpriseUsers, totalLinks, totalClicks int64
 
     r.db.Model(&models.User{}).Count(&totalUsers)
-    r.db.Model(&models.User{}).Where("is_premium = ?", true).Count(&proUsers)
+    r.db.Model(&models.User{}).Where("plan = ?", "free").Count(&freeUsers)
+    r.db.Model(&models.User{}).Where("plan = ?", "basic").Count(&basicUsers)
+    r.db.Model(&models.User{}).Where("plan = ?", "pro").Count(&proUsers)
+    r.db.Model(&models.User{}).Where("plan = ?", "enterprise").Count(&enterpriseUsers)
     r.db.Model(&models.Link{}).Count(&totalLinks)
     r.db.Model(&models.Click{}).Count(&totalClicks)
 
     return map[string]int64{
-        "users":    totalUsers,
-        "proUsers": proUsers,
-        "links":    totalLinks,
-        "clicks":   totalClicks,
+        "users":      totalUsers,
+        "freeUsers":  freeUsers,
+        "basicUsers": basicUsers,
+        "proUsers":   proUsers,
+        "entUsers":   enterpriseUsers,
+        "links":      totalLinks,
+        "clicks":     totalClicks,
     }, nil
 }

@@ -16,6 +16,7 @@ type User struct {
     IsActive     bool           `gorm:"default:true"`
     IsPremium    bool           `gorm:"default:false"`
     IsAdmin      bool           `gorm:"default:false"`
+    Plan         string         `gorm:"size:50;default:'free'"`
     TeamID       *uint          `gorm:"index"`
     LastLoginIP  string         `gorm:"type:text"`
     Country      string         `gorm:"size:100"`

@@ -92,21 +92,21 @@ func (s *authService) Login(email, password string, clientIP string) (string, *m
 
     // استخراج کشور و شهر از IP در پس‌زمینه (Asynchronous)
     go func(ip string) {
-        if ip == "" || ip == "127.0.0.1" {
-            ip = ""
+        if ip == "" || ip == "127.0.0.1" || ip == "::1" {
+            s.userRepo.UpdateUserLoginInfo(user.ID, ip, "Local", "Localhost")
+            return
         }
         
-        var country, city string
-        if ip != "" {
-            resp, err := http.Get("http://ip-api.com/json/" + ip + "?fields=country,city,status&lang=fa")
-            if err == nil {
-                defer resp.Body.Close()
-                var geoData map[string]string
-                json.NewDecoder(resp.Body).Decode(&geoData)
-                if geoData["status"] == "success" {
-                    country = geoData["country"]
-                    city = geoData["city"]
-                }
+        var country, city string = "نامشخص", "نامشخص"
+        client := &http.Client{Timeout: 3 * time.Second}
+        resp, err := client.Get("http://ip-api.com/json/" + ip + "?fields=country,city,status&lang=fa")
+        if err == nil {
+            defer resp.Body.Close()
+            var geoData map[string]string
+            json.NewDecoder(resp.Body).Decode(&geoData)
+            if geoData["status"] == "success" {
+                country = geoData["country"]
+                city = geoData["city"]
             }
         }
         s.userRepo.UpdateUserLoginInfo(user.ID, ip, country, city)
