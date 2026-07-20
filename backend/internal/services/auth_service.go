@@ -222,11 +222,16 @@ func (s *authService) RequestPasswordReset(email string) error {
 
     client := &http.Client{}
     resp, err := client.Do(req)
-    if err != nil || resp.StatusCode != http.StatusOK {
-        return errors.New("failed to send email")
+    if err != nil {
+        return err
     }
     defer resp.Body.Close()
-    io.Copy(io.Discard, resp.Body)
+
+    // تغییر شد: بررسی دقیق استاتوس کد و خواندن بدنه پاسخ
+    if resp.StatusCode != http.StatusOK {
+        body, _ := io.ReadAll(resp.Body)
+        return errors.New("resend error: " + string(body))
+    }
 
     return nil
 }

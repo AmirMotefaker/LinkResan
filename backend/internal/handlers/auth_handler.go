@@ -97,7 +97,8 @@ func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 
     err := h.authService.RequestPasswordReset(req.Email)
     if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "خطا در ارسال ایمیل"})
+        // برگرداندن متن دقیق ارور برای دیباگ
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
     }
 
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "اگر ایمیل معتبر باشد، لینک بازنشانی برای شما ارسال شد."})
