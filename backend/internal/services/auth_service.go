@@ -25,9 +25,9 @@ type AuthService interface {
     GetUserByID(userID uint) (*models.User, error)
     RequestPasswordReset(email string) error
     ResetPassword(token, newPassword string) error
-    CreateTeam(userID uint) error      // اضافه شد
-    InviteUserToTeam(inviterID uint, email string) error // اضافه شد
-    GetTeamMembers(userID uint) ([]models.User, error)  // اضافه شد
+    CreateTeam(userID uint) error
+    InviteUserToTeam(inviterID uint, email string) error
+    GetTeamMembers(userID uint) ([]models.User, error)
 }
 
 type authService struct {
@@ -155,7 +155,32 @@ func (s *authService) RequestPasswordReset(email string) error {
     }
 
     resetLink := s.cfg.AppURL + "/reset-password?token=" + tokenStr
-    emailBody := `<html><body dir="rtl"><h2>بازنشانی رمز عبور لینک رسان</h2><p>برای تغییر رمز عبور خود روی لینک زیر کلیک کنید:</p><a href="` + resetLink + `" style="display:inline-block;padding:10px 20px;background-color:#6366f1;color:white;text-decoration:none;border-radius:8px;">بازنشانی رمز عبور</a><p>اگر شما این درخواست را نداده‌اید، این ایمیل را نادیده بگیرید.</p></body></html>`
+    emailBody := `
+    <div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; background-color: #f3f4f6; padding: 40px 0; margin: 0;">
+        <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+            <div style="background-color: #4f46e5; padding: 20px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px;">لینک رسان</h1>
+            </div>
+            <div style="padding: 40px;">
+                <h2 style="color: #111827; text-align: center; margin-top: 0;">بازنشانی رمز عبور</h2>
+                <p style="color: #4b5563; font-size: 16px; line-height: 1.6; text-align: center;">
+                    سلام،<br><br>
+                    ما درخواستی برای بازنشانی رمز عبور حساب کاربری شما دریافت کردیم. برای تنظیم رمز عبور جدید، روی دکمه زیر کلیک کنید:
+                </p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="` + resetLink + `" style="background-color: #4f46e5; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">
+                        بازنشانی رمز عبور
+                    </a>
+                </div>
+                <p style="color: #6b7280; font-size: 14px; line-height: 1.6; text-align: center;">
+                    اگر شما این درخواست را نداده‌اید، لطفاً این ایمیل را نادیده بگیرید. رمز عبور شما تغییر نخواهد کرد.
+                    <br><br>
+                    <small style="color: #9ca3af;">این لینک تنها ۱ ساعت اعتبار دارد.</small>
+                </p>
+            </div>
+        </div>
+    </div>
+    `
 
     payload := map[string]interface{}{
         "from":    "LinkResan <onboarding@resend.dev>",
@@ -205,12 +230,10 @@ func (s *authService) ResetPassword(token, newPassword string) error {
     return nil
 }
 
-// اضافه شد: ساخت تیم (کاربر خودش را مدیر تیم می‌کند)
 func (s *authService) CreateTeam(userID uint) error {
     return s.userRepo.UpdateUserTeamID(userID, userID)
 }
 
-// اضافه شد: دعوت کاربر به تیم با ایمیل
 func (s *authService) InviteUserToTeam(inviterID uint, email string) error {
     inviter, err := s.userRepo.FindByID(inviterID)
     if err != nil || inviter.TeamID == nil {
@@ -225,7 +248,6 @@ func (s *authService) InviteUserToTeam(inviterID uint, email string) error {
     return s.userRepo.UpdateUserTeamID(invitee.ID, *inviter.TeamID)
 }
 
-// اضافه شد: گرفتن لیست اعضای تیم
 func (s *authService) GetTeamMembers(userID uint) ([]models.User, error) {
     user, err := s.userRepo.FindByID(userID)
     if err != nil || user.TeamID == nil {
