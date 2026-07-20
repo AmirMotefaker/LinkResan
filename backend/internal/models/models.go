@@ -11,9 +11,11 @@ type User struct {
     Email        string         `gorm:"uniqueIndex;size:255"`
     PhoneNumber  *string        `gorm:"uniqueIndex;size:15"`
     PasswordHash string         `gorm:"size:255;not null"`
+    Name         string         `gorm:"size:100"`
+    AvatarURL    string         `gorm:"type:text"`
     IsActive     bool           `gorm:"default:true"`
     IsPremium    bool           `gorm:"default:false"`
-    IsAdmin      bool           `gorm:"default:false"` // اضافه شد: برای پنل مدیریت
+    IsAdmin      bool           `gorm:"default:false"`
     TeamID       *uint          `gorm:"index"`
     CreatedAt    time.Time
     UpdatedAt    time.Time

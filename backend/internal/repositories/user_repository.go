@@ -17,7 +17,8 @@ type UserRepository interface {
     UpdateUserPassword(userID uint, newHash string) error
     UpdateUserTeamID(userID uint, teamID uint) error
     FindUsersByTeamID(teamID uint) ([]models.User, error)
-    DeleteExpiredTokens() error // اضافه شد
+    DeleteExpiredTokens() error
+    UpdateUserProfile(userID uint, name, avatarURL string) error
 }
 
 type userRepository struct {
@@ -81,8 +82,14 @@ func (r *userRepository) FindUsersByTeamID(teamID uint) ([]models.User, error) {
     return users, err
 }
 
-// اضافه شد: پاکسازی توکن‌های استفاده شده یا منقضی شده
 func (r *userRepository) DeleteExpiredTokens() error {
     now := time.Now()
     return r.db.Where("is_used = ? OR expires_at < ?", true, now).Delete(&models.PasswordReset{}).Error
+}
+
+func (r *userRepository) UpdateUserProfile(userID uint, name, avatarURL string) error {
+    return r.db.Model(&models.User{}).Where("id = ?", userID).Updates(map[string]interface{}{
+        "name":       name,
+        "avatar_url": avatarURL,
+    }).Error
 }

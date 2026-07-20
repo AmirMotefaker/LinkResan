@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor, Crown, Layers, Users, Webhook, KeyRound } from "lucide-react";
+import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor, Crown, Layers, Users, Webhook, KeyRound, User } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -175,10 +175,15 @@ export default function Dashboard() {
             وب‌هوک
           </button>
 
-          {/* دکمه کلیدهای API اضافه شد */}
           <button onClick={() => router.push("/dashboard/api-keys")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
             <KeyRound className="w-4 h-4" />
             API
+          </button>
+
+          {/* دکمه پروفایل اضافه شد */}
+          <button onClick={() => router.push("/dashboard/profile")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
+            <User className="w-4 h-4" />
+            پروفایل
           </button>
 
           <button onClick={() => router.push("/")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">ساخت لینک</button>
@@ -208,7 +213,6 @@ export default function Dashboard() {
             <h3 className="text-base sm:text-lg font-bold">دامنه‌های اختصاصی شما</h3>
           </div>
           
-          {/* اصلاح سایز و فاصله دکمه برای جا گرفتن در یک خط */}
           <form onSubmit={handleAddDomain} className="flex flex-col sm:flex-row gap-2 mb-6">
             <input
               type="text"

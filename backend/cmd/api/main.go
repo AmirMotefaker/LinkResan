@@ -59,7 +59,7 @@ func main() {
     paymentHandler := handlers.NewPaymentHandler(paymentService, authService)
     webhookHandler := handlers.NewWebhookHandler(webhookService)
     apiKeyHandler := handlers.NewApiKeyHandler(apiKeyService)
-    docsHandler := handlers.NewDocsHandler() // اضافه شد
+    docsHandler := handlers.NewDocsHandler()
 
     // --- Routes ---
     api := app.Group("/api")
@@ -85,6 +85,8 @@ func main() {
 
     // User & Team Routes (Protected)
     api.Get("/me", middleware.Protected(authService, apiKeyService), authHandler.GetMe)
+    api.Put("/me", middleware.Protected(authService, apiKeyService), authHandler.UpdateProfile)
+    api.Post("/change-password", middleware.Protected(authService, apiKeyService), authHandler.ChangePassword)
     api.Post("/team/create", middleware.Protected(authService, apiKeyService), authHandler.CreateTeam)
     api.Post("/team/invite", middleware.Protected(authService, apiKeyService), authHandler.InviteUser)
     api.Get("/team/members", middleware.Protected(authService, apiKeyService), authHandler.GetTeamMembers)

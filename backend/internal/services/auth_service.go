@@ -28,6 +28,8 @@ type AuthService interface {
     CreateTeam(userID uint) error
     InviteUserToTeam(inviterID uint, email string) error
     GetTeamMembers(userID uint) ([]models.User, error)
+    UpdateProfile(userID uint, name, avatarURL string) error
+    ChangePassword(userID uint, oldPassword, newPassword string) error
 }
 
 type authService struct {
@@ -254,4 +256,27 @@ func (s *authService) GetTeamMembers(userID uint) ([]models.User, error) {
         return nil, errors.New("تیمی وجود ندارد")
     }
     return s.userRepo.FindUsersByTeamID(*user.TeamID)
+}
+
+func (s *authService) UpdateProfile(userID uint, name, avatarURL string) error {
+    return s.userRepo.UpdateUserProfile(userID, name, avatarURL)
+}
+
+func (s *authService) ChangePassword(userID uint, oldPassword, newPassword string) error {
+    user, err := s.userRepo.FindByID(userID)
+    if err != nil {
+        return errors.New("user not found")
+    }
+
+    err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(oldPassword))
+    if err != nil {
+        return errors.New("رمز عبور فعلی اشتباه است")
+    }
+
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+    if err != nil {
+        return err
+    }
+
+    return s.userRepo.UpdateUserPassword(userID, string(hashedPassword))
 }
