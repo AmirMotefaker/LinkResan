@@ -16,6 +16,7 @@ type Config struct {
     ZarinpalCallbackURL string
     ResendAPIKey       string
     AppURL             string // آدرس سایت برای لینک بازنشانی
+    GeminiAPIKey        string // اضافه شد
 }
 
 func LoadConfig() *Config {
@@ -33,6 +34,7 @@ func LoadConfig() *Config {
         ZarinpalCallbackURL: getEnv("ZARINPAL_CALLBACK_URL", "https://linkresan.ir/api/payment/verify"),
         ResendAPIKey:       getEnv("RESEND_API_KEY", ""),
         AppURL:             getEnv("APP_URL", "https://linkresan.ir"),
+        GeminiAPIKey:        getEnv("GEMINI_API_KEY", ""),
     }
 }
 

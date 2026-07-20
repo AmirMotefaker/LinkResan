@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Link2, Zap, Shield, BarChart2, Loader2, Copy, Check } from "lucide-react";
+import { Link2, Zap, Shield, BarChart2, Loader2, Copy, Check, Wand2 } from "lucide-react";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
@@ -33,6 +33,7 @@ export default function Home() {
   
   const [customCode, setCustomCode] = useState("");
   const [showCustomField, setShowCustomField] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [expirationDate, setExpirationDate] = useState<any>(null);
@@ -143,6 +144,29 @@ export default function Home() {
     }
   };
 
+  const handleAISuggest = async () => {
+    if (!url) return;
+    setAiLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/ai/suggest-slug`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      const data = await res.json();
+      if (res.ok && data.slug) {
+        setCustomCode(data.slug);
+        setShowCustomField(true);
+      } else {
+        alert("هوش مصنوعی نتوانست نامی تولید کند. لطفاً خودتان وارد کنید.");
+      }
+    } catch {
+      alert("ارتباط با سرور برقرار نشد");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const handleCopy = () => {
     navigator.clipboard.writeText(shortUrl);
     setCopied(true);
@@ -161,7 +185,6 @@ export default function Home() {
     setSelectedDomain("linkresan.ir");
   };
 
-  // کلمات کلیدی در متن‌ها برای تقویت سئو (SEO)
   const features = [
     { slug: "speed", icon: Zap, title: "ریدایرکت فوق سریع لینک", desc: "تبدیل لینک طولانی به کوتاه با استفاده از Redis برای ریدایرکت در کسری از ثانیه" },
     { slug: "security", icon: Shield, title: "امنیت و حفظ حریم خصوصی", desc: "ابزار کوتاه کردن لینک با احراز هویت پیشرفته و رمزگذاری" },
@@ -185,7 +208,6 @@ export default function Home() {
             </>
           ) : (
             <>
-              {/* منوی کشویی مقایسه */}
               <div className="relative group">
                 <button className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors cursor-pointer font-bold">
                   مقایسه
@@ -211,7 +233,6 @@ export default function Home() {
       </header>
 
       <section className="flex-grow w-full max-w-2xl flex flex-col items-center justify-center text-center mt-10 sm:mt-0">
-        {/* تگ H1 اصلی برای گوگل */}
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 sm:mb-4">
           کوتاه‌کننده لینک حرفه‌ای رایگان
         </h1>
@@ -245,10 +266,37 @@ export default function Home() {
             required
           />
 
+          <div className="w-full flex flex-col gap-2 mt-3 mb-2">
+            <div className="flex items-center justify-between">
+              <button type="button" onClick={() => setShowCustomField(!showCustomField)} className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer">
+                {showCustomField ? "حذف نام دلخواه" : "نام دلخواه"}
+              </button>
+              <button 
+                type="button" 
+                onClick={handleAISuggest} 
+                disabled={aiLoading || !url} 
+                className="text-xs sm:text-sm font-bold text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors cursor-pointer flex items-center gap-1 disabled:opacity-50"
+              >
+                {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+                ساخت نام با هوش مصنوعی
+              </button>
+            </div>
+            
+            {showCustomField && (
+              <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-4">
+                <span className="text-gray-400 text-xs whitespace-nowrap">{selectedDomain}/</span>
+                <input
+                  type="text"
+                  placeholder="نام دلخواه (مثلا: amir-shop)"
+                  value={customCode}
+                  onChange={(e) => setCustomCode(e.target.value)}
+                  className="w-full h-11 sm:h-12 bg-transparent outline-none text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                />
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-4 mt-3 mb-2">
-            <button type="button" onClick={() => setShowCustomField(!showCustomField)} className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer">
-              {showCustomField ? "حذف نام دلخواه" : "نام دلخواه"}
-            </button>
             <button 
               type="button" 
               onClick={() => {
@@ -264,19 +312,6 @@ export default function Home() {
               {showAdvanced ? "حذف تنظیمات پیشرفته" : "تنظیمات پیشرفته (Pro)"}
             </button>
           </div>
-
-          {showCustomField && (
-            <div className="w-full flex items-center gap-2 bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-4 mb-3">
-              <span className="text-gray-400 text-xs whitespace-nowrap">{selectedDomain}/</span>
-              <input
-                type="text"
-                placeholder="نام دلخواه (مثلا: amir-shop)"
-                value={customCode}
-                onChange={(e) => setCustomCode(e.target.value)}
-                className="w-full h-11 sm:h-12 bg-transparent outline-none text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500"
-              />
-            </div>
-          )}
 
           {showAdvanced && (isPremium || isAdmin) && (
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
@@ -352,7 +387,6 @@ export default function Home() {
             <div className="bg-indigo-50 dark:bg-gray-800 p-3 sm:p-4 rounded-2xl mb-3 border border-indigo-100 dark:border-gray-700 group-hover:scale-110 transition-transform">
               <feature.icon className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600 dark:text-indigo-400" />
             </div>
-            {/* تگ H2 برای суб‌عنوان‌ها */}
             <h2 className="text-base sm:text-lg font-bold mb-1 tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{feature.title}</h2>
             <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm leading-relaxed max-w-xs">{feature.desc}</p>
           </div>

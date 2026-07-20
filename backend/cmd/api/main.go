@@ -48,6 +48,7 @@ func main() {
     bioService := services.NewBioService(bioRepo)
     paymentService := services.NewPaymentService(paymentRepo, cfg)
     apiKeyService := services.NewApiKeyService(apiKeyRepo)
+    aiService := services.NewAIService(cfg.GeminiAPIKey) // اضافه شد
     cronService := services.NewCronService(linkRepo, userRepo)
     cronService.Start()
 
@@ -59,6 +60,7 @@ func main() {
     paymentHandler := handlers.NewPaymentHandler(paymentService, authService)
     webhookHandler := handlers.NewWebhookHandler(webhookService)
     apiKeyHandler := handlers.NewApiKeyHandler(apiKeyService)
+    aiHandler := handlers.NewAIHandler(aiService) // اضافه شد
     docsHandler := handlers.NewDocsHandler()
 
     // --- Routes ---
@@ -71,6 +73,9 @@ func main() {
     // API Documentation Routes (Swagger)
     app.Get("/docs", docsHandler.SwaggerUI)
     api.Get("/docs/openapi.json", docsHandler.GetOpenAPISpec)
+
+    // AI Routes (اضافه شد)
+    api.Post("/ai/suggest-slug", aiHandler.SuggestSlug)
 
     // Auth & Password Reset Routes
     api.Post("/register", authHandler.Register)
