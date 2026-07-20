@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Check, Zap, Shield, BarChart2, Server, Lock, TrendingUp, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, Zap, Shield, BarChart2, Server, Lock, TrendingUp, Wand2, Loader2 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function FeatureDetailPage() {
@@ -57,6 +57,22 @@ export default function FeatureDetailPage() {
       cta: "ارتقا به پلن Pro برای آمار نامحدود",
       ctaLink: "/pricing/pro",
       color: "bg-indigo-600 hover:bg-indigo-700"
+    },
+    ai: {
+      icon: Wand2,
+      title: "هوش مصنوعی (AI)",
+      subtitle: "تولید خودکار نام لینک با Llama 3.3",
+      desc: "دیگر نیازی به فکر کردن برای انتخاب نام لینک نیست. لینک رسان با استفاده از پیشرفته‌ترین مدل‌های هوش مصنوعی، لینک شما را تحلیل کرده و بهترین نام کوتاه، سئوپسند و جذاب را در کمتر از ۱ ثانیه پیشنهاد می‌دهد.",
+      points: [
+        "تحلیل هوشمند محتوا: هوش مصنوعی محتوای لینک را می‌خواند و نامی مرتبط با آن موضوع می‌سازد.",
+        "پشتیبانی از لینک‌های بدون متن: برای لینک‌هایی مثل یوتیوب یا اینستاگرام که متن ندارند، نام‌های عمومی و جذاب تولید می‌کند.",
+        "سرعت فوق‌العاده بالا: استفاده از Groq API برای پاسخ‌گویی در کسری از ثانیه.",
+        "مدل Llama 3.3: بهره‌گیری از قدرتمندترین مدل متن‌باز روز دنیا برای کیفیت بی‌نظیر.",
+        "سئوپسند (SEO-friendly): تولید نام‌ها با فرمت kebab-case برای بهترین رتبه در گوگل."
+      ],
+      cta: "امتحان رایگان هوش مصنوعی",
+      ctaLink: "/login",
+      color: "bg-purple-600 hover:bg-purple-700"
     }
   };
 
@@ -79,8 +95,8 @@ export default function FeatureDetailPage() {
 
       {/* Hero Section */}
       <section className="w-full max-w-4xl mx-auto px-4 pt-24 pb-12 text-center">
-        <div className={`inline-block p-4 rounded-2xl mb-6 ${slug === 'security' ? 'bg-red-50 dark:bg-gray-800' : 'bg-indigo-50 dark:bg-gray-800'} border border-gray-100 dark:border-gray-700`}>
-          <feature.icon className={`w-10 h-10 ${slug === 'security' ? 'text-red-500' : 'text-indigo-600 dark:text-indigo-400'}`} />
+        <div className={`inline-block p-4 rounded-2xl mb-6 ${slug === 'security' ? 'bg-red-50 dark:bg-gray-800' : slug === 'ai' ? 'bg-purple-50 dark:bg-gray-800' : 'bg-indigo-50 dark:bg-gray-800'} border border-gray-100 dark:border-gray-700`}>
+          <feature.icon className={`w-10 h-10 ${slug === 'security' ? 'text-red-500' : slug === 'ai' ? 'text-purple-600 dark:text-purple-400' : 'text-indigo-600 dark:text-indigo-400'}`} />
         </div>
         <h1 className="text-3xl sm:text-5xl font-extrabold mb-4">{feature.title}</h1>
         <p className="text-lg sm:text-xl text-gray-500 dark:text-gray-400">{feature.subtitle}</p>

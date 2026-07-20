@@ -2,12 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Link2, Check, X, ArrowLeft, Sparkles, Globe } from "lucide-react";
+import { Link2, Check, X, ArrowLeft, Sparkles } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const features = [
   { name: "کوتاه‌کنندگی پایه", linkresan: true, bitly: true, dub: true, short: true, tiny: true, rebrandly: true, blink: true, shorby: true },
   { name: "اسلاگ دلخواه (Custom Alias)", linkresan: true, bitly: true, dub: true, short: true, tiny: true, rebrandly: true, blink: true, shorby: true },
+  { name: "تولید نام با هوش مصنوعی (AI Slug)", linkresan: true, bitly: false, dub: true, short: false, tiny: false, rebrandly: false, blink: false, shorby: false }, // اضافه شد
   { name: "آمار کلیک (Analytics)", linkresan: true, bitly: true, dub: true, short: true, tiny: "محدود", rebrandly: true, blink: "پیشرفته", shorby: "محدود" },
   { name: "تشخیص سیستم‌عامل/مرورگر", linkresan: true, bitly: true, dub: true, short: true, tiny: false, rebrandly: true, blink: true, shorby: false },
   { name: "نمودار تحلیلی هفتگی", linkresan: true, bitly: true, dub: true, short: true, tiny: false, rebrandly: true, blink: true, shorby: false },

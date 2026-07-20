@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Link2, Check, X, ArrowLeft, ShieldCheck, Globe } from "lucide-react";
+import { Link2, Check, X, ArrowLeft, ShieldCheck } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const iranFeatures = [
@@ -10,6 +10,7 @@ const iranFeatures = [
   { name: "زیرساخت مدرن و سریع (Go + Redis)", linkresan: true, zaya: false, b2n: false, "1ea": false, ttr: false, alnk: false, rizy: false, liink: false },
   { name: "رابط کاربری مدرن و دارک مد", linkresan: true, zaya: false, b2n: false, "1ea": false, ttr: false, alnk: false, rizy: false, liink: false },
   { name: "اپلیکیشن موبایل (iOS/Android)", linkresan: true, zaya: false, b2n: false, "1ea": false, ttr: false, alnk: false, rizy: false, liink: false },
+  { name: "تولید نام با هوش مصنوعی (AI Slug)", linkresan: true, zaya: false, b2n: false, "1ea": false, ttr: false, alnk: false, rizy: false, liink: false }, // اضافه شد
   { name: "تقویم شمسی برای انقضا لینک", linkresan: true, zaya: false, b2n: false, "1ea": false, ttr: false, alnk: false, rizy: false, liink: false },
   { name: "آمار پیشرفته (مرورگر/سیستم‌عامل)", linkresan: true, zaya: true, b2n: false, "1ea": false, ttr: false, alnk: false, rizy: false, liink: false },
   { name: "صفحه بیو (Link-in-bio)", linkresan: true, zaya: true, b2n: false, "1ea": false, ttr: false, alnk: false, rizy: false, liink: false },
@@ -103,7 +104,7 @@ export default function CompareIranPage() {
         <div className="mt-12 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-900/50 dark:to-purple-900/50 p-8 rounded-2xl text-center text-white shadow-xl">
           <h2 className="text-2xl font-bold mb-4">از لینک‌های پر از تبلیغ خسته شده‌اید؟</h2>
           <p className="text-indigo-100 mb-8 max-w-2xl mx-auto">
-            لینک رسان بدون هیچگونه تبلیغات مزاحم، با زیرساخت ابری و اپلیکیشن موبایل، بهترین جایگزین برای کسب‌وکارهای حرفه‌ای است.
+            لینک رسان بدون هیچگونه تبلیغات مزاحم، با زیرساخت ابری، هوش مصنوعی و اپلیکیشن موبایل، بهترین جایگزین برای کسب‌وکارهای حرفه‌ای است.
           </p>
           <button onClick={() => router.push("/pricing")} className="bg-white text-indigo-600 font-bold px-8 py-3 rounded-xl hover:bg-indigo-50 transition-colors inline-flex items-center gap-2 cursor-pointer">
             مشاهده پلن‌ها و قیمت‌ها <ArrowLeft className="w-5 h-5" />

@@ -63,7 +63,6 @@ export default function Home() {
         .catch(() => {});
     }
 
-    // تغییر شد: بازیابی لینک ذخیره شده پس از لاگین
     const pendingUrl = sessionStorage.getItem("pending_url");
     const pendingCustomCode = sessionStorage.getItem("pending_custom_code");
     if (pendingUrl) {
@@ -83,7 +82,6 @@ export default function Home() {
 
     if (!isLoggedIn) {
       if (showLoginMsg) {
-        // تغییر شد: ذخیره لینک در حافظه مرورگر قبل از رفتن به صفحه لاگین
         sessionStorage.setItem("pending_url", url);
         if (customCode) {
           sessionStorage.setItem("pending_custom_code", customCode);
@@ -203,10 +201,12 @@ export default function Home() {
     setSelectedDomain("linkresan.ir");
   };
 
+  // اضافه شدن آیتم هوش مصنوعی
   const features = [
     { slug: "speed", icon: Zap, title: "ریدایرکت فوق سریع لینک", desc: "تبدیل لینک طولانی به کوتاه با استفاده از Redis برای ریدایرکت در کسری از ثانیه" },
     { slug: "security", icon: Shield, title: "امنیت و حفظ حریم خصوصی", desc: "ابزار کوتاه کردن لینک با احراز هویت پیشرفته و رمزگذاری" },
     { slug: "analytics", icon: BarChart2, title: "آمار دقیق کلیک‌ها", desc: "تحلیل دقیق کلیک‌های لینک کوتاه و دستگاه‌های کاربران" },
+    { slug: "ai", icon: Wand2, title: "هوش مصنوعی (AI)", desc: "تولید نام لینک کوتاه با هوش مصنوعی در کمتر از ۱ ثانیه" },
   ];
 
   return (
@@ -395,7 +395,7 @@ export default function Home() {
         )}
       </section>
 
-      <section className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 text-center mt-16 sm:mt-24 mb-10 sm:mb-12 flex-shrink-0">
+      <section className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center mt-16 sm:mt-24 mb-10 sm:mb-12 flex-shrink-0">
         {features.map((feature, index) => (
           <div 
             key={index} 
