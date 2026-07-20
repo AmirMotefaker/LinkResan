@@ -156,45 +156,51 @@ export default function Dashboard() {
           <Link2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400" />
           <span className="text-lg sm:text-xl font-bold tracking-tight">داشبورد</span>
         </div>
-        <div className="flex gap-2 sm:gap-4 items-center">
+        <div className="flex gap-2 sm:gap-3 items-center">
           <ThemeToggle />
-          <button onClick={() => router.push("/dashboard/bio")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">صفحه بیو</button>
           
-          <button onClick={() => router.push("/dashboard/bulk")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
+          <button onClick={() => router.push("/dashboard/bio")} className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
+            بیو
+          </button>
+          
+          <button onClick={() => router.push("/dashboard/bulk")} className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
             <Layers className="w-4 h-4" />
             انبوه
           </button>
 
-          <button onClick={() => router.push("/dashboard/team")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
+          <button onClick={() => router.push("/dashboard/team")} className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
             <Users className="w-4 h-4" />
             تیم
           </button>
 
-          <button onClick={() => router.push("/dashboard/webhooks")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
+          <button onClick={() => router.push("/dashboard/webhooks")} className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
             <Webhook className="w-4 h-4" />
             وب‌هوک
           </button>
 
-          <button onClick={() => router.push("/dashboard/api-keys")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
+          <button onClick={() => router.push("/dashboard/api-keys")} className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
             <KeyRound className="w-4 h-4" />
             API
           </button>
 
-          {/* دکمه پروفایل اضافه شد */}
-          <button onClick={() => router.push("/dashboard/profile")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
-            <User className="w-4 h-4" />
-            پروفایل
+          {/* دکمه ساخت لینک با رنگ آبی */}
+          <button onClick={() => router.push("/")} className="px-3 py-2 text-xs sm:text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors cursor-pointer">
+            ساخت لینک
           </button>
-
-          <button onClick={() => router.push("/")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">ساخت لینک</button>
           
-          <button onClick={() => router.push("/pricing/pro")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/60 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
+          <button onClick={() => router.push("/pricing/pro")} className="px-3 py-1.5 text-xs sm:text-sm font-medium bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/60 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
             <Crown className="w-4 h-4" />
             Pro
           </button>
 
-          <button onClick={handleLogout} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 dark:text-black text-white rounded-lg transition-colors flex items-center gap-2 cursor-pointer">
-            <LogOut className="w-4 h-4" /> خروج
+          {/* آیکون پروفایل (مینیمال) */}
+          <button onClick={() => router.push("/dashboard/profile")} className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer" title="پروفایل">
+            <User className="w-5 h-5" />
+          </button>
+
+          {/* آیکون خروج (مینیمال) */}
+          <button onClick={handleLogout} className="p-2 text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 rounded-lg transition-colors cursor-pointer" title="خروج">
+            <LogOut className="w-5 h-5" />
           </button>
         </div>
       </header>
