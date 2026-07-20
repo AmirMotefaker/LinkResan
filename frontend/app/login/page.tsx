@@ -36,6 +36,7 @@ export default function Login() {
       if (isLogin) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("is_premium", data.is_premium ? "true" : "false");
+        localStorage.setItem("is_admin", data.is_admin ? "true" : "false");
         router.push("/onboarding");
       } else {
         setIsLogin(true);

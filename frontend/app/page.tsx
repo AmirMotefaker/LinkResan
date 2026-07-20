@@ -28,6 +28,7 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginMsg, setShowLoginMsg] = useState(false);
   
   const [customCode, setCustomCode] = useState("");
@@ -52,6 +53,7 @@ export default function Home() {
     if (token) {
       setIsLoggedIn(true);
       setIsPremium(localStorage.getItem("is_premium") === "true");
+      setIsAdmin(localStorage.getItem("is_admin") === "true");
       fetch(`${API_URL}/domains`, { headers: { Authorization: `Bearer ${token}` } })
         .then(res => res.json())
         .then(data => {
@@ -150,8 +152,10 @@ export default function Home() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("is_premium");
+    localStorage.removeItem("is_admin");
     setIsLoggedIn(false);
     setIsPremium(false);
+    setIsAdmin(false);
     setShortUrl("");
     setDomains([]);
     setSelectedDomain("linkresan.ir");
@@ -236,14 +240,14 @@ export default function Home() {
             <button 
               type="button" 
               onClick={() => {
-                if (!isPremium) {
+                if (!isPremium && !isAdmin) {
                   alert("استفاده از تنظیمات پیشرفته فقط برای پلن Pro است. لطفاً اکانت خود را ارتقا دهید.");
                   router.push("/pricing/pro");
                   return;
                 }
                 setShowAdvanced(!showAdvanced);
               }}
-              className={`text-xs sm:text-sm cursor-pointer ${isPremium ? 'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400' : 'text-gray-400 hover:text-gray-500'}`}
+              className={`text-xs sm:text-sm cursor-pointer ${isPremium || isAdmin ? 'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400' : 'text-gray-400 hover:text-gray-500'}`}
             >
               {showAdvanced ? "حذف تنظیمات پیشرفته" : "تنظیمات پیشرفته (Pro)"}
             </button>
@@ -262,7 +266,7 @@ export default function Home() {
             </div>
           )}
 
-          {showAdvanced && isPremium && (
+          {showAdvanced && (isPremium || isAdmin) && (
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <div className="flex flex-col items-start gap-1 bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-2">
                 <label className="text-xs text-gray-500 dark:text-gray-400 mb-1">تاریخ و ساعت انقضا (شمسی)</label>

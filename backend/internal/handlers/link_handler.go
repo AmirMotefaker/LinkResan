@@ -47,7 +47,8 @@ func (h *LinkHandler) CreateShortLink(c *fiber.Ctx) error {
         return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User not found"})
     }
 
-    if !user.IsPremium {
+    // تغییر کرد: ادمین هم دسترسی دارد
+    if !user.IsPremium && !user.IsAdmin {
         if req.ExpiresAt != nil || req.ClickLimit != nil || req.Password != "" || req.DomainID != nil {
             return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "استفاده از تاریخ انقضا، محدودیت کلیک، رمز عبور و دامنه اختصاصی فقط برای پلن Pro فعال است."})
         }

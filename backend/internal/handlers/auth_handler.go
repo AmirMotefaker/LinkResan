@@ -60,6 +60,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
         "message":    "Login successful",
         "token":      token,
         "is_premium": user.IsPremium,
+        "is_admin":   user.IsAdmin,
     })
 }
 
@@ -82,6 +83,7 @@ func (h *AuthHandler) GoogleLogin(c *fiber.Ctx) error {
         "message":    "Login successful",
         "token":      token,
         "is_premium": user.IsPremium,
+        "is_admin":   user.IsAdmin,
     })
 }
 
@@ -131,6 +133,7 @@ func (h *AuthHandler) GetMe(c *fiber.Ctx) error {
         "name":       user.Name,
         "avatar_url": user.AvatarURL,
         "is_premium": user.IsPremium,
+        "is_admin":   user.IsAdmin,
         "team_id":    user.TeamID,
     })
 }

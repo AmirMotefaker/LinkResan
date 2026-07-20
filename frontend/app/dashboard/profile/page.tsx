@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Link2, Loader2, User, Save, Lock, Eye, EyeOff, Camera, Crown } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -23,6 +23,7 @@ export default function ProfilePage() {
   const [passMsg, setPassMsg] = useState("");
   const [passError, setPassError] = useState("");
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -83,6 +84,39 @@ export default function ProfilePage() {
     setSavingPass(false);
   };
 
+  // تابع آپلود و فشرده‌سازی عکس
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) { // 2MB limit
+      alert("حجم فایل نباید بیشتر از ۲ مگابایت باشد.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // تغییر سایز به 150x150 پیکسل
+        canvas.width = 150;
+        canvas.height = 150;
+        
+        // رسم عکس روی کانوس
+        ctx?.drawImage(img, 0, 0, 150, 150);
+        
+        // تبدیل به Base64 با فرمت JPEG و کیفیت 80%
+        const base64 = canvas.toDataURL('image/jpeg', 0.8);
+        setAvatarUrl(base64);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -126,16 +160,18 @@ export default function ProfilePage() {
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><User className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> ویرایش پروفایل</h2>
             
             <div className="flex flex-col items-center mb-6">
-              <div className="relative">
+              <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/png, image/jpeg" className="hidden" />
+              <div className="relative cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                 <img 
                   src={avatarUrl || `https://ui-avatars.com/api/?name=${name || user.email}&background=2563eb&color=fff`} 
                   alt="Profile" 
                   className="w-24 h-24 rounded-full object-cover border-4 border-gray-100 dark:border-gray-700"
                 />
-                <div className="absolute bottom-0 right-0 bg-indigo-600 p-2 rounded-full cursor-pointer">
+                <div className="absolute bottom-0 right-0 bg-indigo-600 p-2 rounded-full">
                   <Camera className="w-4 h-4 text-white" />
                 </div>
               </div>
+              <p className="text-xs text-gray-400 mt-2">فرمت: JPG/PNG | حداکثر حجم: ۲MB</p>
             </div>
 
             <form onSubmit={handleSaveProfile} className="space-y-4">
@@ -146,16 +182,6 @@ export default function ProfilePage() {
                   placeholder="نام خود را وارد کنید"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-indigo-500 text-sm text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">آدرس عکس پروفایل (URL)</label>
-                <input
-                  type="url"
-                  placeholder="https://example.com/photo.jpg"
-                  value={avatarUrl}
-                  onChange={(e) => setAvatarUrl(e.target.value)}
                   className="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-indigo-500 text-sm text-white"
                 />
               </div>
