@@ -208,6 +208,7 @@ export default function Dashboard() {
             <h3 className="text-base sm:text-lg font-bold">دامنه‌های اختصاصی شما</h3>
           </div>
           
+          {/* اصلاح سایز و فاصله دکمه برای جا گرفتن در یک خط */}
           <form onSubmit={handleAddDomain} className="flex flex-col sm:flex-row gap-2 mb-6">
             <input
               type="text"
@@ -217,7 +218,7 @@ export default function Dashboard() {
               className="w-full h-12 px-4 text-sm bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-indigo-500 transition-all cursor-pointer text-white"
               required
             />
-            <button type="submit" disabled={domainLoading} className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50">
+            <button type="submit" disabled={domainLoading} className="h-12 px-4 sm:px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap flex-shrink-0">
               {domainLoading ? <Loader2 className="animate-spin w-4 h-4" /> : <Plus className="w-4 h-4" />}
               افزودن دامنه
             </button>

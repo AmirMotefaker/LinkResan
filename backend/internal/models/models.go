@@ -13,6 +13,7 @@ type User struct {
     PasswordHash string         `gorm:"size:255;not null"`
     IsActive     bool           `gorm:"default:true"`
     IsPremium    bool           `gorm:"default:false"`
+    IsAdmin      bool           `gorm:"default:false"` // اضافه شد: برای پنل مدیریت
     TeamID       *uint          `gorm:"index"`
     CreatedAt    time.Time
     UpdatedAt    time.Time
@@ -118,7 +119,6 @@ type Webhook struct {
     DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-// مدل جدید برای کلیدهای API
 type ApiKey struct {
     ID        uint           `gorm:"primaryKey"`
     UserID    uint           `gorm:"index;not null"`
