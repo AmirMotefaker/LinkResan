@@ -23,7 +23,8 @@ func (h *AIHandler) SuggestSlug(c *fiber.Ctx) error {
 
     slug, err := h.aiService.SuggestSlug(req.URL)
     if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "AI service unavailable"})
+        // تغییر شد: برگرداندن متن دقیق ارور برای دیباگ
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
     }
 
     return c.Status(fiber.StatusOK).JSON(fiber.Map{"slug": slug})

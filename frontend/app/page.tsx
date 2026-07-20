@@ -158,7 +158,8 @@ export default function Home() {
         setCustomCode(data.slug);
         setShowCustomField(true);
       } else {
-        alert("هوش مصنوعی نتوانست نامی تولید کند. لطفاً خودتان وارد کنید.");
+        // تغییر شد: نمایش متن دقیق ارور بک‌اند
+        alert(data.error || "خطای ناشناخته در ارتباط با هوش مصنوعی");
       }
     } catch {
       alert("ارتباط با سرور برقرار نشد");
