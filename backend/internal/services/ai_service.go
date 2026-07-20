@@ -44,8 +44,8 @@ func (s *aiService) SuggestSlug(originalURL string) (string, error) {
     }
     jsonData, _ := json.Marshal(payload)
 
-    // تغییر کرد: استفاده از جدیدترین مدل gemini-2.0-flash
-    url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + s.apiKey
+    // استفاده از نسخه پایدار gemini-1.5-flash-latest
+    url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + s.apiKey
     req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
     req.Header.Set("Content-Type", "application/json")
 
