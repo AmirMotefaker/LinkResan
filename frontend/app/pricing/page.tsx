@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Link2, Check, X, Zap, Shield, BarChart2, Globe, Crown, Building2, ArrowLeft } from "lucide-react";
+import { Link2, Check, X, Zap, Shield, BarChart2, Globe, Crown, Building2, ArrowLeft, Wand2, QrCode, KeyRound, Users, Webhook, Layers } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const toFa = (num: any) => num.toString().replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
@@ -18,10 +18,70 @@ export default function PricingPage() {
   }, []);
 
   const plans = [
-    { slug: "free", name: "رایگان", icon: Zap, price: { monthly: 0, yearly: 0 }, desc: "برای شروع کار و تست سرویس", features: [{ text: "۵۰ لینک کوتاه در ماه", included: true },{ text: "آمار کلیک (۷ روز اخیر)", included: true },{ text: "اسلاگ دلخواه (۵ مورد در ماه)", included: true },{ text: "تولید QR Code", included: true },{ text: "تاریخ انقضا و محدودیت کلیک", included: false },{ text: "دامنه اختصاصی", included: false }], cta: "شروع رایگان", highlight: false, color: "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600" },
-    { slug: "basic", name: "پایه", icon: BarChart2, price: { monthly: 49000, yearly: 490000 }, desc: "برای بلاگرها و تولیدکنندگان محتوا", features: [{ text: "لینک کوتاه نامحدود", included: true },{ text: "آمار پیشرفته (۳۰ روز اخیر)", included: true },{ text: "اسلاگ دلخواه نامحدود", included: true },{ text: "تاریخ انقضا و محدودیت کلیک", included: true },{ text: "رمز عبور برای لینک‌ها", included: true },{ text: "دامنه اختصاصی", included: false }], cta: "انتخاب پلن پایه", highlight: false, color: "bg-indigo-600 text-white hover:bg-indigo-700" },
-    { slug: "pro", name: "حرفه‌ای", icon: Crown, price: { monthly: 149000, yearly: 1490000 }, desc: "برای کسب‌وکارها و فروشگاه‌های آنلاین", features: [{ text: "تمام امکانات پلن پایه", included: true },{ text: "آمار پیشرفته (نامحدود)", included: true },{ text: "۱ دامنه اختصاصی رایگان", included: true },{ text: "دیپ‌لینکینگ شبکه‌های اجتماعی", included: true },{ text: "سازنده UTM و تگ‌گذاری", included: true },{ text: "صفحه بیو بدون تبلیغات لینک رسان", included: true }], cta: "انتخاب پلن حرفه‌ای", highlight: true, color: "bg-indigo-600 text-white hover:bg-indigo-700" },
-    { slug: "enterprise", name: "سازمانی", icon: Building2, price: { monthly: 499000, yearly: 4990000 }, desc: "برای آژانس‌های مارکتینگ و تیم‌ها", features: [{ text: "تمام امکانات پلن حرفه‌ای", included: true },{ text: "۵ دامنه اختصاصی", included: true },{ text: "مدیریت تیم (Multi-user)", included: true },{ text: "API دسترسی پیشرفته", included: true },{ text: "پشتیبانی اختصاصی ۲۴/۷", included: true },{ text: "حذف کامل برند لینک رسان", included: true }], cta: "انتخاب پلن سازمانی", highlight: false, color: "bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" },
+    { 
+      slug: "free", name: "رایگان", icon: Zap, price: { monthly: 0, yearly: 0 }, desc: "برای شروع کار و تست سرویس", 
+      features: [
+        { text: "۵۰ لینک کوتاه در ماه", included: true },
+        { text: "تولید نام با هوش مصنوعی (AI)", included: true },
+        { text: "تولید QR Code", included: true },
+        { text: "آمار کلیک ۷ روز اخیر", included: true },
+        { text: "اسلاگ دلخواه (۵ مورد در ماه)", included: true },
+        { text: "تاریخ انقضا و محدودیت کلیک", included: false },
+        { text: "رمز عبور برای لینک‌ها", included: false },
+        { text: "سازنده UTM", included: false },
+        { text: "دامنه اختصاصی", included: false },
+        { text: "وب‌هوک و API", included: false },
+      ], 
+      cta: "شروع رایگان", highlight: false, color: "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600" 
+    },
+    { 
+      slug: "basic", name: "پایه", icon: BarChart2, price: { monthly: 49000, yearly: 490000 }, desc: "برای بلاگرها و تولیدکنندگان محتوا", 
+      features: [
+        { text: "لینک کوتاه نامحدود", included: true },
+        { text: "تولید نام با هوش مصنوعی (AI)", included: true },
+        { text: "تولید QR Code", included: true },
+        { text: "آمار پیشرفته (۳۰ روز اخیر)", included: true },
+        { text: "اسلاگ دلخواه نامحدود", included: true },
+        { text: "تاریخ انقضا و محدودیت کلیک", included: true },
+        { text: "رمز عبور برای لینک‌ها", included: true },
+        { text: "سازنده UTM", included: true },
+        { text: "ساخت انبوه (Bulk CSV)", included: true },
+        { text: "دامنه اختصاصی", included: false },
+      ], 
+      cta: "انتخاب پلن پایه", highlight: false, color: "bg-indigo-600 text-white hover:bg-indigo-700" 
+    },
+    { 
+      slug: "pro", name: "حرفه‌ای", icon: Crown, price: { monthly: 149000, yearly: 1490000 }, desc: "برای کسب‌وکارها و فروشگاه‌های آنلاین", 
+      features: [
+        { text: "تمام امکانات پلن پایه", included: true },
+        { text: "تولید نام با هوش مصنوعی (AI)", included: true },
+        { text: "تولید QR Code", included: true },
+        { text: "آمار پیشرفته (نامحدود)", included: true },
+        { text: "اسلاگ دلخواه نامحدود", included: true },
+        { text: "۱ دامنه اختصاصی رایگان", included: true },
+        { text: "وب‌هوک (Webhooks)", included: true },
+        { text: "کلید API توسعه‌دهنده", included: true },
+        { text: "اپلیکیشن موبایل", included: true },
+        { text: "صفحه بیو بدون تبلیغات", included: true },
+      ], 
+      cta: "انتخاب پلن حرفه‌ای", highlight: true, color: "bg-indigo-600 text-white hover:bg-indigo-700" 
+    },
+    { 
+      slug: "enterprise", name: "سازمانی", icon: Building2, price: { monthly: 499000, yearly: 4990000 }, desc: "برای آژانس‌های مارکتینگ و تیم‌ها", 
+      features: [
+        { text: "تمام امکانات پلن حرفه‌ای", included: true },
+        { text: "تولید نام با هوش مصنوعی (AI)", included: true },
+        { text: "تولید QR Code", included: true },
+        { text: "آمار پیشرفته (نامحدود)", included: true },
+        { text: "۵ دامنه اختصاصی", included: true },
+        { text: "مدیریت تیم (Multi-user)", included: true },
+        { text: "وب‌هوک (Webhooks)", included: true },
+        { text: "کلید API توسعه‌دهنده", included: true },
+        { text: "ساخت انبوه (Bulk CSV)", included: true },
+        { text: "پشتیبانی اختصاصی ۲۴/۷", included: true },
+      ], 
+      cta: "انتخاب پلن سازمانی", highlight: false, color: "bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" 
+    },
   ];
 
   return (

@@ -27,7 +27,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isPremium, setIsPremium] = useState(false);
+  const [userPlan, setUserPlan] = useState("free");
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginMsg, setShowLoginMsg] = useState(false);
   
@@ -53,7 +53,7 @@ export default function Home() {
     const token = localStorage.getItem("token");
     if (token) {
       setIsLoggedIn(true);
-      setIsPremium(localStorage.getItem("is_premium") === "true");
+      setUserPlan(localStorage.getItem("plan") || "free");
       setIsAdmin(localStorage.getItem("is_admin") === "true");
       fetch(`${API_URL}/domains`, { headers: { Authorization: `Bearer ${token}` } })
         .then(res => res.json())
@@ -191,23 +191,25 @@ export default function Home() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("is_premium");
+    localStorage.removeItem("plan");
     localStorage.removeItem("is_admin");
     setIsLoggedIn(false);
-    setIsPremium(false);
+    setUserPlan("free");
     setIsAdmin(false);
     setShortUrl("");
     setDomains([]);
     setSelectedDomain("linkresan.ir");
   };
 
-  // اضافه شدن آیتم هوش مصنوعی
   const features = [
     { slug: "speed", icon: Zap, title: "ریدایرکت فوق سریع لینک", desc: "تبدیل لینک طولانی به کوتاه با استفاده از Redis برای ریدایرکت در کسری از ثانیه" },
     { slug: "security", icon: Shield, title: "امنیت و حفظ حریم خصوصی", desc: "ابزار کوتاه کردن لینک با احراز هویت پیشرفته و رمزگذاری" },
     { slug: "analytics", icon: BarChart2, title: "آمار دقیق کلیک‌ها", desc: "تحلیل دقیق کلیک‌های لینک کوتاه و دستگاه‌های کاربران" },
     { slug: "ai", icon: Wand2, title: "هوش مصنوعی (AI)", desc: "تولید نام لینک کوتاه با هوش مصنوعی در کمتر از ۱ ثانیه" },
   ];
+
+  // بررسی دسترسی به تنظیمات پیشرفته (پلن پایه و بالاتر)
+  const canUseAdvanced = isAdmin || ["basic", "pro", "enterprise"].includes(userPlan);
 
   return (
     <main className="min-h-screen flex flex-col items-center bg-white dark:bg-gray-900 text-gray-900 dark:text-white px-4 transition-colors duration-300">
@@ -318,20 +320,20 @@ export default function Home() {
             <button 
               type="button" 
               onClick={() => {
-                if (!isPremium && !isAdmin) {
-                  alert("استفاده از تنظیمات پیشرفته فقط برای پلن Pro است. لطفاً اکانت خود را ارتقا دهید.");
-                  router.push("/pricing/pro");
+                if (!canUseAdvanced) {
+                  alert("استفاده از تنظیمات پیشرفته (انقضا، محدودیت کلیک، رمز عبور) نیازمند پلن پایه یا بالاتر است. لطفاً اکانت خود را ارتقا دهید.");
+                  router.push("/pricing");
                   return;
                 }
                 setShowAdvanced(!showAdvanced);
               }}
-              className={`text-xs sm:text-sm cursor-pointer ${isPremium || isAdmin ? 'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400' : 'text-gray-400 hover:text-gray-500'}`}
+              className={`text-xs sm:text-sm cursor-pointer ${canUseAdvanced ? 'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400' : 'text-gray-400 hover:text-gray-500'}`}
             >
-              {showAdvanced ? "حذف تنظیمات پیشرفته" : "تنظیمات پیشرفته (Pro)"}
+              {showAdvanced ? "حذف تنظیمات پیشرفته" : "تنظیمات پیشرفته (پلن پایه)"}
             </button>
           </div>
 
-          {showAdvanced && (isPremium || isAdmin) && (
+          {showAdvanced && canUseAdvanced && (
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <div className="flex flex-col items-start gap-1 bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-2">
                 <label className="text-xs text-gray-500 dark:text-gray-400 mb-1">تاریخ و ساعت انقضا (شمسی)</label>

@@ -37,8 +37,8 @@ export default function Login() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("is_premium", data.is_premium ? "true" : "false");
         localStorage.setItem("is_admin", data.is_admin ? "true" : "false");
+        localStorage.setItem("plan", data.plan || "free"); // اضافه شد
         
-        // تغییر شد: اگر لینکی در انتظار بود، به صفحه اصلی برو، در غیر این صورت به آنبوردینگ
         const pendingUrl = sessionStorage.getItem("pending_url");
         if (pendingUrl) {
           router.push("/");
