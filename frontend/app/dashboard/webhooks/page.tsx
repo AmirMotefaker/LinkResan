@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Link2, Loader2, Webhook, Trash2, Plus, Link as LinkIcon } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
+import { Loader2, Webhook, Trash2, Plus, Link as LinkIcon } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -45,21 +44,17 @@ export default function WebhooksDashboard() {
     } catch {}
   };
 
-  return (
-    <main className="min-h-screen flex flex-col items-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 py-12 transition-colors duration-300">
-      <div className="w-full max-w-3xl">
-        <div className="flex justify-between items-center mb-8">
-          <div onClick={() => router.push("/dashboard")} className="flex items-center gap-2 cursor-pointer">
-            <Link2 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            <span className="text-lg font-bold">بازگشت به داشبورد</span>
-          </div>
-          <ThemeToggle />
-        </div>
+  if (loading) return <div className="p-8 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-indigo-600" /></div>;
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8">
-          <h2 className="text-xl font-bold mb-2 flex items-center gap-2"><Webhook className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> افزودن وب‌هوک جدید</h2>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">با ثبت یک آدرس URL، هر بار که کسی روی لینک‌های شما کلیک کند، اطلاعات کلیک به صورت خودکار (POST) به این آدرس ارسال می‌شود.</p>
-          <form onSubmit={handleAddWebhook} className="flex flex-col sm:flex-row gap-2">
+  return (
+    <div className="p-4 md:p-8 w-full">
+      <h1 className="text-2xl font-bold mb-8">مدیریت وب‌هوک‌ها (Webhooks)</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+          <h2 className="text-lg font-bold mb-2 flex items-center gap-2"><Webhook className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> افزودن وب‌هوک جدید</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">با ثبت یک آدرس URL، هر بار که کسی روی لینک‌های شما کلیک کند، اطلاعات کلیک به این آدرس ارسال می‌شود.</p>
+          <form onSubmit={handleAddWebhook} className="flex flex-col gap-2 mb-4">
             <div className="flex items-center gap-2 w-full bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl px-4">
               <LinkIcon className="w-5 h-5 text-gray-400" />
               <input type="url" placeholder="https://your-server.com/webhook" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} className="w-full h-12 bg-transparent outline-none text-sm text-white" required />
@@ -72,12 +67,10 @@ export default function WebhooksDashboard() {
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-          <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Webhook className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> وب‌هوک‌های فعال ({webhooks.length})</h2>
-          {loading ? (
-            <div className="flex justify-center items-center h-32"><Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" /></div>
-          ) : webhooks.length > 0 ? (
-            <div className="space-y-2">
-              {webhooks.map((wh) => (
+          <h2 className="text-lg font-bold mb-6 flex items-center gap-2"><Webhook className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> وب‌هوک‌های فعال ({webhooks.length})</h2>
+          <div className="space-y-2">
+            {webhooks.length > 0 ? (
+              webhooks.map((wh) => (
                 <div key={wh.ID} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-xl">
                   <div className="flex items-center gap-3 truncate">
                     <div className="bg-indigo-100 dark:bg-gray-700 p-2 rounded-full"><LinkIcon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /></div>
@@ -87,11 +80,11 @@ export default function WebhooksDashboard() {
                     <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
                   </button>
                 </div>
-              ))}
-            </div>
-          ) : ( <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">هنوز وب‌هوکی ثبت نکرده‌اید.</p> )}
+              ))
+            ) : ( <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">هنوز وب‌هوکی ثبت نکرده‌اید.</p> )}
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

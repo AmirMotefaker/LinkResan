@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, LogOut, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor, Crown, Layers, Users, Webhook, KeyRound, User } from "lucide-react";
+import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor, Search, Crown } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import ThemeToggle from "@/components/ThemeToggle";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -27,21 +26,11 @@ export default function Dashboard() {
   const [newDomain, setNewDomain] = useState("");
   const [domainLoading, setDomainLoading] = useState(false);
 
-  const [paymentMsg, setPaymentMsg] = useState("");
-  
+  const [searchQuery, setSearchQuery] = useState("");
+
   const router = useRouter();
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    const paymentStatus = queryParams.get('payment');
-    if (paymentStatus === 'success') {
-      setPaymentMsg("پرداخت با موفقیت انجام شد! اکانت شما به پلن Pro ارتقا یافت.");
-      window.history.replaceState({}, '', '/dashboard');
-    } else if (paymentStatus === 'failed') {
-      setPaymentMsg("پرداخت ناموفق بود یا لغو شد. لطفاً دوباره تلاش کنید.");
-      window.history.replaceState({}, '', '/dashboard');
-    }
-
     const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
@@ -70,11 +59,6 @@ export default function Dashboard() {
     navigator.clipboard.writeText(url);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    router.push("/");
   };
 
   const handleDeleteLink = async (id: number) => {
@@ -148,262 +132,214 @@ export default function Dashboard() {
     }
   };
 
+  // فیلتر لینک‌ها بر اساس جستجو
+  const filteredLinks = links.filter(link => 
+    link.ShortCode.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    link.OriginalURL.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <main className="min-h-screen flex flex-col items-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 transition-colors duration-300">
+    <div className="p-4 md:p-8 w-full">
       
-      <header className="w-full max-w-6xl flex justify-between items-center py-3 sm:py-6">
-        <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
-          <Link2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400" />
-          <span className="text-lg sm:text-xl font-bold tracking-tight">داشبورد</span>
+      {/* هدر صفحه */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">داشبورد</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">مدیریت و تحلیل لینک‌های شما</p>
         </div>
-        <div className="flex gap-2 sm:gap-3 items-center">
-          <ThemeToggle />
-          
-          <button onClick={() => router.push("/dashboard/bio")} className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
-            بیو
-          </button>
-          
-          <button onClick={() => router.push("/dashboard/bulk")} className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
-            <Layers className="w-4 h-4" />
-            انبوه
-          </button>
+        <button onClick={() => router.push("/")} className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 cursor-pointer transition-colors">
+          <Plus className="w-4 h-4" />
+          ساخت لینک جدید
+        </button>
+      </div>
 
-          <button onClick={() => router.push("/dashboard/team")} className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
-            <Users className="w-4 h-4" />
-            تیم
-          </button>
-
-          <button onClick={() => router.push("/dashboard/webhooks")} className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
-            <Webhook className="w-4 h-4" />
-            وب‌هوک
-          </button>
-
-          <button onClick={() => router.push("/dashboard/api-keys")} className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
-            <KeyRound className="w-4 h-4" />
-            API
-          </button>
-
-          {/* دکمه ساخت لینک با رنگ آبی */}
-          <button onClick={() => router.push("/")} className="px-3 py-2 text-xs sm:text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors cursor-pointer">
-            ساخت لینک
-          </button>
-          
-          <button onClick={() => router.push("/pricing/pro")} className="px-3 py-1.5 text-xs sm:text-sm font-medium bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/60 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
-            <Crown className="w-4 h-4" />
-            Pro
-          </button>
-
-          {/* آیکون پروفایل (مینیمال) */}
-          <button onClick={() => router.push("/dashboard/profile")} className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer" title="پروفایل">
-            <User className="w-5 h-5" />
-          </button>
-
-          {/* آیکون خروج (مینیمال) */}
-          <button onClick={handleLogout} className="p-2 text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 rounded-lg transition-colors cursor-pointer" title="خروج">
-            <LogOut className="w-5 h-5" />
-          </button>
+      {/* کارت‌های آماری */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <MousePointerClick className="w-8 h-8 text-green-500" />
+          </div>
+          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">کل کلیک‌ها</h3>
+          <p className="text-3xl font-extrabold">{toFa(links.reduce((acc, l) => acc + l.ClickCount, 0))}</p>
         </div>
-      </header>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <Link2 className="w-8 h-8 text-indigo-500" />
+          </div>
+          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">کل لینک‌ها</h3>
+          <p className="text-3xl font-extrabold">{toFa(links.length)}</p>
+        </div>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <TrendingUp className="w-8 h-8 text-blue-500" />
+          </div>
+          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">کلیک‌های ۷ روز اخیر</h3>
+          <p className="text-3xl font-extrabold">{toFa(analytics.reduce((acc, item) => acc + item.count, 0))}</p>
+        </div>
+      </div>
 
-      <section className="w-full max-w-6xl mt-8 mb-12">
-        
-        {paymentMsg && (
-          <div className={`mb-8 p-4 rounded-xl text-sm ${paymentMsg.includes('موفق') ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'}`}>
-            {paymentMsg}
+      {/* نمودار آماری */}
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm mb-8">
+        <div className="flex items-center gap-2 mb-6">
+          <TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+          <h3 className="text-base font-bold">روند کلیک‌های ۷ روز اخیر</h3>
+        </div>
+        {loading ? (
+          <div className="flex justify-center items-center h-48">
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" />
+          </div>
+        ) : (
+          <div className="w-full h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={formatChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorClick" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.2} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#9ca3af' }} tickMargin={8} />
+                <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} tickFormatter={(value) => toFa(value)} tickMargin={15} width={50} />
+                <Tooltip contentStyle={{ direction: 'rtl', borderRadius: '12px', border: '1px solid #374151', backgroundColor: '#1f2937', color: '#fff', fontSize: '14px' }} formatter={(value: any) => [toFa(value) + ' کلیک', 'تعداد']} />
+                <Area type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorClick)" />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         )}
+      </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm mb-8">
-          <div className="flex items-center gap-2 mb-6">
-            <Globe className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            <h3 className="text-base sm:text-lg font-bold">دامنه‌های اختصاصی شما</h3>
+      {/* بخش دامنه‌ها */}
+      <div id="domains" className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm mb-8 scroll-mt-8">
+        <div className="flex items-center gap-2 mb-6">
+          <Globe className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+          <h3 className="text-base font-bold">دامنه‌های اختصاصی</h3>
+        </div>
+        <form onSubmit={handleAddDomain} className="flex flex-col sm:flex-row gap-2 mb-6">
+          <input
+            type="text"
+            placeholder="دامنه خود را وارد کنید (مثلا: go.myshop.ir)"
+            value={newDomain}
+            onChange={(e) => setNewDomain(e.target.value)}
+            className="w-full h-12 px-4 text-sm bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-indigo-500 transition-all text-white"
+            required
+          />
+          <button type="submit" disabled={domainLoading} className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 whitespace-nowrap">
+            {domainLoading ? <Loader2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+            افزودن
+          </button>
+        </form>
+        {domains.length > 0 ? (
+          <div className="space-y-2">
+            {domains.map((domain) => (
+              <div key={domain.ID} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-xl">
+                <div className="flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-gray-400" />
+                  <span className="font-medium text-sm">{domain.Domain}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`text-xs px-2 py-1 rounded-md ${domain.IsVerified ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'}`}>
+                    {domain.IsVerified ? "تایید شده" : "در انتظار تایید"}
+                  </span>
+                  <button onClick={() => handleDeleteDomain(domain.ID)} className="p-1 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors cursor-pointer">
+                    <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-          
-          <form onSubmit={handleAddDomain} className="flex flex-col sm:flex-row gap-2 mb-6">
+        ) : (
+          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">هنوز دامنه اختصاصی اضافه نکرده‌اید.</p>
+        )}
+      </div>
+
+      {/* لیست لینک‌ها و جستجو */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h2 className="text-xl font-bold">لینک‌های شما ({toFa(links.length)})</h2>
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="دامنه خود را وارد کنید (مثلا: go.myshop.ir)"
-              value={newDomain}
-              onChange={(e) => setNewDomain(e.target.value)}
-              className="w-full h-12 px-4 text-sm bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-indigo-500 transition-all cursor-pointer text-white"
-              required
+              placeholder="جستجو در لینک‌ها..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 pr-9 pl-4 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-indigo-500 text-white"
             />
-            <button type="submit" disabled={domainLoading} className="h-12 px-4 sm:px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap flex-shrink-0">
-              {domainLoading ? <Loader2 className="animate-spin w-4 h-4" /> : <Plus className="w-4 h-4" />}
-              افزودن دامنه
-            </button>
-          </form>
-
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-4 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
-            <strong>راهنمای تنظیم DNS:</strong> برای فعال‌سازی دامنه، وارد پنل سایتی که دامنه را خریدیده‌اید شوید و یک رکورد CNAME برای `www` با مقدار `cname.vercel-dns.com` ایجاد کنید.
-          </div>
-
-          {domains.length > 0 ? (
-            <div className="space-y-2">
-              {domains.map((domain) => (
-                <div key={domain.ID} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-gray-400" />
-                    <span className="font-medium text-sm">{domain.Domain}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-xs px-2 py-1 rounded-md ${domain.IsVerified ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'}`}>
-                      {domain.IsVerified ? "تایید شده" : "در انتظار تایید"}
-                    </span>
-                    <button onClick={() => handleDeleteDomain(domain.ID)} className="p-1 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors cursor-pointer">
-                      <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">هنوز دامنه اختصاصی اضافه نکرده‌اید.</p>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <div className="lg:col-span-2 bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
-            <div className="flex items-center gap-2 mb-6">
-              <TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-              <h3 className="text-base sm:text-lg font-bold">آمار کلیک‌های ۷ روز اخیر</h3>
-            </div>
-            
-            {loading ? (
-              <div className="flex justify-center items-center h-48">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" />
-              </div>
-            ) : (
-              <div className="w-full h-48 sm:h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={formatChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorClick" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.2} />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#9ca3af' }} tickMargin={8} />
-                    <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} tickFormatter={(value) => toFa(value)} tickMargin={15} width={50} />
-                    <Tooltip contentStyle={{ direction: 'rtl', borderRadius: '12px', border: '1px solid #374151', backgroundColor: '#1f2937', color: '#fff', fontSize: '14px' }} formatter={(value: any) => [toFa(value) + ' کلیک', 'تعداد']} />
-                    <Area type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorClick)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
-            <h3 className="text-base sm:text-lg font-bold mb-6">دستگاه‌ها و مرورگرها</h3>
-            {loading ? (
-              <div className="flex justify-center items-center h-32">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" />
-              </div>
-            ) : stats ? (
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">سیستم‌عامل‌ها</h4>
-                  <div className="space-y-2">
-                    {stats.devices && stats.devices.length > 0 ? (
-                      stats.devices.slice(0, 3).map((device: any, i: number) => (
-                        <div key={i} className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-2">
-                            <Monitor className="w-4 h-4 text-gray-400" />
-                            <span>{device.name}</span>
-                          </div>
-                          <span className="font-bold text-gray-700 dark:text-gray-200">{toFa(device.count)}</span>
-                        </div>
-                      ))
-                    ) : <p className="text-xs text-gray-400 dark:text-gray-500">داده‌ای موجود نیست</p>}
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">مرورگرها</h4>
-                  <div className="space-y-2">
-                    {stats.browsers && stats.browsers.length > 0 ? (
-                      stats.browsers.slice(0, 3).map((browser: any, i: number) => (
-                        <div key={i} className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-2">
-                            <Globe className="w-4 h-4 text-gray-400" />
-                            <span>{browser.name}</span>
-                          </div>
-                          <span className="font-bold text-gray-700 dark:text-gray-200">{toFa(browser.count)}</span>
-                        </div>
-                      ))
-                    ) : <p className="text-xs text-gray-400 dark:text-gray-500">داده‌ای موجود نیست</p>}
-                  </div>
-                </div>
-              </div>
-            ) : null}
           </div>
         </div>
-
-        <h2 className="text-xl sm:text-2xl font-bold mb-6">لینک‌های شما ({toFa(links.length)})</h2>
 
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" />
           </div>
-        ) : links.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 p-12 rounded-2xl border border-gray-100 dark:border-gray-700 text-center shadow-sm">
-            <p className="text-gray-500 dark:text-gray-400 mb-4">شما هنوز هیچ لینکی نساخته‌اید.</p>
-            <button onClick={() => router.push("/")} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors cursor-pointer">ساخت اولین لینک</button>
+        ) : filteredLinks.length === 0 ? (
+          <div className="p-12 text-center">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">{searchQuery ? "لینکی با این مشخصات پیدا نشد." : "شما هنوز هیچ لینکی نساخته‌اید."}</p>
+            {!searchQuery && (
+              <button onClick={() => router.push("/")} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors cursor-pointer">ساخت اولین لینک</button>
+            )}
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden overflow-x-auto">
-            <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm font-medium text-gray-500 dark:text-gray-400 min-w-[900px]">
-              <div className="col-span-1 text-center">#</div>
-              <div className="col-span-4">لینک کوتاه</div>
-              <div className="col-span-3">لینک اصلی</div>
-              <div className="col-span-2">تاریخ ساخت</div>
-              <div className="col-span-1 text-center">کلیک‌ها</div>
-              <div className="col-span-1 text-center">عملیات</div>
-            </div>
-
-            {links.map((link, index) => {
-              const domain = domains.find(d => d.ID === link.DomainID);
-              const shortUrl = `https://${domain ? domain.Domain : 'linkresan.ir'}/${link.ShortCode}`;
-              
-              return (
-                <div key={link.ID} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors items-center min-w-[900px]">
-                  <div className="md:col-span-1 md:text-center font-medium text-gray-400 dark:text-gray-500">{toFa(index + 1)}</div>
-                  <div className="md:col-span-4 flex items-center gap-2">
-                    <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline flex items-center gap-1 truncate">
-                      {shortUrl.replace('https://', '')}
-                      <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                    </a>
-                    <button onClick={() => handleCopy(shortUrl, link.ID)} className="p-1 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded transition-colors flex-shrink-0 cursor-pointer">
-                      {copiedId === link.ID ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-gray-400" />}
-                    </button>
-                  </div>
-                  <div className="md:col-span-3 text-gray-500 dark:text-gray-400 truncate text-sm">{link.OriginalURL}</div>
-                  <div className="md:col-span-2 text-gray-500 dark:text-gray-400 text-xs">{formatDate(link.CreatedAt)}</div>
-                  <div className="md:col-span-1 flex md:justify-center items-center">
-                    <span className="inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
-                      <MousePointerClick className="w-3 h-3" />{toFa(link.ClickCount)}
-                    </span>
-                  </div>
-                  <div className="md:col-span-1 flex md:justify-center items-center gap-2">
-                    <button onClick={() => setQrModalUrl(shortUrl)} className="p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors group cursor-pointer" title="دانلود QR Code">
-                      <QrCode className="w-4 h-4 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
-                    </button>
-                    <button onClick={() => handleDeleteLink(link.ID)} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors group cursor-pointer" title="حذف لینک">
-                      <Trash2 className="w-4 h-4 text-gray-400 group-hover:text-red-500 transition-colors" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-right border-collapse">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                  <th className="p-4 font-bold whitespace-nowrap">لینک کوتاه</th>
+                  <th className="p-4 font-bold whitespace-nowrap">لینک اصلی</th>
+                  <th className="p-4 font-bold whitespace-nowrap">تاریخ ساخت</th>
+                  <th className="p-4 font-bold whitespace-nowrap text-center">کلیک‌ها</th>
+                  <th className="p-4 font-bold whitespace-nowrap text-center">عملیات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredLinks.map((link) => {
+                  const domain = domains.find(d => d.ID === link.DomainID);
+                  const shortUrl = `https://${domain ? domain.Domain : 'linkresan.ir'}/${link.ShortCode}`;
+                  return (
+                    <tr key={link.ID} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline flex items-center gap-1 truncate max-w-xs">
+                            {shortUrl.replace('https://', '')}
+                            <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                          </a>
+                          <button onClick={() => handleCopy(shortUrl, link.ID)} className="p-1 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded transition-colors flex-shrink-0 cursor-pointer">
+                            {copiedId === link.ID ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-gray-400" />}
+                          </button>
+                        </div>
+                      </td>
+                      <td className="p-4 text-gray-500 dark:text-gray-400 truncate max-w-xs text-sm">{link.OriginalURL}</td>
+                      <td className="p-4 text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">{formatDate(link.CreatedAt)}</td>
+                      <td className="p-4 text-center">
+                        <span className="inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
+                          <MousePointerClick className="w-3 h-3" />{toFa(link.ClickCount)}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <button onClick={() => setQrModalUrl(shortUrl)} className="p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors group cursor-pointer" title="دانلود QR Code">
+                            <QrCode className="w-4 h-4 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
+                          </button>
+                          <button onClick={() => handleDeleteLink(link.ID)} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors group cursor-pointer" title="حذف لینک">
+                            <Trash2 className="w-4 h-4 text-gray-400 group-hover:text-red-500 transition-colors" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
-      </section>
+      </div>
 
       {qrModalUrl && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setQrModalUrl(null)}>
           <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-xl flex flex-col items-center max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
             <div className="w-full flex justify-between items-center mb-6">
-              <h3 className="text-lg sm:text-xl font-bold">QR Code</h3>
+              <h3 className="text-lg font-bold">QR Code</h3>
               <button onClick={() => setQrModalUrl(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
@@ -418,6 +354,6 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }
