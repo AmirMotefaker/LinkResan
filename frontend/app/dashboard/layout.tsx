@@ -3,19 +3,19 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Link2, Home, Globe, Users, Webhook, KeyRound, User, ShieldAlert, LogOut, Menu, X, ChevronRight, ChevronLeft, Gift } from "lucide-react";
+import { Link2, List, Globe, LayoutGrid, Users, Gift, Webhook, KeyRound, User, ShieldAlert, LogOut, Menu, X, ChevronRight, ChevronLeft } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import Tooltip from "@/components/Tooltip";
 
 const navItems = [
-  { name: "لینک‌های من", href: "/dashboard", icon: Link2 },
-  { name: "دامنه‌ها", href: "/dashboard/domains", icon: Globe }, // لینک مستقل شد
-  { name: "صفحه بیو", href: "/dashboard/bio", icon: Home },
-  { name: "تیم", href: "/dashboard/team", icon: Users },
-  { name: "همکاری در فروش", href: "/dashboard/partners", icon: Gift },
-  { name: "وب‌هوک", href: "/dashboard/webhooks", icon: Webhook },
-  { name: "کلیدهای API", href: "/dashboard/api-keys", icon: KeyRound },
-  { name: "پروفایل", href: "/dashboard/profile", icon: User },
+  { name: "لینک‌های من", href: "/dashboard", icon: List, color: "text-indigo-500" },
+  { name: "دامنه‌ها", href: "/dashboard/domains", icon: Globe, color: "text-green-500" },
+  { name: "صفحه بیو", href: "/dashboard/bio", icon: LayoutGrid, color: "text-purple-500" },
+  { name: "تیم", href: "/dashboard/team", icon: Users, color: "text-blue-500" },
+  { name: "همکاری در فروش", href: "/dashboard/partners", icon: Gift, color: "text-yellow-500" },
+  { name: "وب‌هوک", href: "/dashboard/webhooks", icon: Webhook, color: "text-pink-500" },
+  { name: "کلیدهای API", href: "/dashboard/api-keys", icon: KeyRound, color: "text-cyan-500" },
+  { name: "پروفایل", href: "/dashboard/profile", icon: User, color: "text-orange-500" },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -46,7 +46,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         flex flex-col fixed md:sticky top-0 h-screen z-40 transition-all duration-300 ease-in-out
         ${sidebarOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}
       `}>
-        {/* لوگو و دکمه جمع کردن (خط جداکننده حذف شد) */}
         <div className="p-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg">
             <Link2 className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0" />
@@ -66,10 +65,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
         </div>
         
-        {/* منوها */}
         <nav className="flex-1 p-2 space-y-1 overflow-visible border-t border-gray-100 dark:border-gray-700">
           {navItems.map((item) => {
-            const isActive = pathname === item.href; // حالا که هش نداریم، مقایسه مستقیم است
+            const isActive = pathname === item.href;
             
             const linkContent = (
               <div className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isCollapsed ? "justify-center" : ""} ${
@@ -77,7 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400" 
                   : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               }`}>
-                <item.icon className="w-5 h-5 flex-shrink-0" />
+                <item.icon className={`w-5 h-5 flex-shrink-0 ${item.color}`} />
                 {!isCollapsed && <span>{item.name}</span>}
               </div>
             );
@@ -102,7 +100,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       ? "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400" 
                       : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                   }`}>
-                    <ShieldAlert className="w-5 h-5 flex-shrink-0" />
+                    <ShieldAlert className="w-5 h-5 flex-shrink-0 text-red-500" />
                   </div>
                 </Tooltip>
               ) : (
@@ -111,7 +109,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     ? "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400" 
                     : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 }`}>
-                  <ShieldAlert className="w-5 h-5 flex-shrink-0" />
+                  <ShieldAlert className="w-5 h-5 flex-shrink-0 text-red-500" />
                   <span>پنل مدیریت (CRM)</span>
                 </div>
               )}
@@ -119,7 +117,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
         </nav>
 
-        {/* بخش پایین */}
         <div className="p-2 border-t border-gray-100 dark:border-gray-700">
           <div className={`flex ${isCollapsed ? "flex-col items-center gap-2" : "flex-row items-center justify-between"} px-2 py-1`}>
             <ThemeToggle />

@@ -1,115 +1,59 @@
 "use client";
 
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Check, ArrowLeft, Crown, BarChart2, Building2, Zap, Loader2, HelpCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Link2, Check, X, Zap, BarChart2, Crown, Building2, ArrowLeft, Wand2, QrCode, KeyRound, Users, Webhook, Layers } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const toFa = (num: any) => num.toString().replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
 
-export default function PlanDetailsPage() {
-  const params = useParams();
-  const router = useRouter();
-  const planSlug = params.plan;
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState("monthly");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
 
-  const plansData: any = {
-    basic: { name: "پایه", icon: BarChart2, monthly: 49000, yearly: 490000, desc: "ابزارهای کامل برای بلاگرها و تولیدکنندگان محتوا", features: ["لینک کوتاه نامحدود", "آمار پیشرفته (۳۰ روز اخیر)", "اسلاگ دلخواه نامحدود", "تاریخ انقضا و محدودیت کلیک", "رمز عبور برای لینک‌ها"] },
-    pro: { name: "حرفه‌ای", icon: Crown, monthly: 149000, yearly: 1490000, desc: "راهکار حرفه‌ای برای کسب‌وکارها و فروشگاه‌ها", features: ["تمام امکانات پلن پایه", "آمار پیشرفته (نامحدود)", "۱ دامنه اختصاصی رایگان", "دیپ‌لینکینگ شبکه‌های اجتماعی", "سازنده UTM و تگ‌گذاری", "صفحه بیو بدون تبلیغات"] },
-    enterprise: { name: "سازمانی", icon: Building2, monthly: 499000, yearly: 4990000, desc: "قدرت کامل لینک رسان برای آژانس‌ها و تیم‌ها", features: ["تمام امکانات پلن حرفه‌ای", "۵ دامنه اختصاصی", "مدیریت تیم (Multi-user)", "API دسترسی پیشرفته", "پشتیبانی اختصاصی ۲۴/۷", "حذف کامل برند لینک رسان"] },
-    free: { name: "رایگان", icon: Zap, monthly: 0, yearly: 0, desc: "برای شروع کار و تست سرویس", features: ["۵۰ لینک کوتاه در ماه", "آمار کلیک (۷ روز اخیر)", "اسلاگ دلخواه (۵ مورد در ماه)", "تولید QR Code"] },
-  };
+  useEffect(() => { const token = localStorage.getItem("token"); if (token) setIsLoggedIn(true); }, []);
 
-  const plan = plansData[planSlug as string];
-  const currentPrice = billingCycle === 'monthly' ? plan?.monthly : plan?.yearly;
-
-  const handlePayment = async () => {
-    setLoading(true); setError("");
-    const token = localStorage.getItem("token");
-    if (!token) { router.push("/login"); return; }
-    try {
-      const res = await fetch(`${API_URL}/payment/request`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ amount: currentPrice, plan_name: plan.name }) });
-      const data = await res.json();
-      if (res.ok && data.payment_url) { window.location.href = data.payment_url; } else { setError(data.error || "خطا در ایجاد تراکنش"); }
-    } catch { setError("ارتباط با سرور برقرار نشد"); } finally { setLoading(false); }
-  };
-
-  const handleBack = () => { router.push("/pricing"); };
-
-  if (!plan) {
-    return (<main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white"><p>پلن پیدا نشد. <button onClick={handleBack} className="text-indigo-600 cursor-pointer">بازگشت</button></p></main>);
-  }
-
-  const faqs = [
-    { q: "آیا می‌توانم پلن خود را تغییر دهم؟", a: "بله، شما می‌توانید در هر زمان پلن خود را ارتقا دهید یا تغییر دهید. هزینه به صورت روزشمار محاسبه می‌شود." },
-    { q: "آیا امکان لغو اشتراک وجود دارد؟", a: "بله، شما می‌توانید اشتراک خود را لغو کنید. تا پایان دوره پرداخت شده، به امکانات پلن دسترسی خواهید داشت." },
-    { q: "چه روش‌های پرداخلی پشتیبانی می‌شود؟", a: "پرداخت‌ها از طریق درگاه امن بانکی زرین‌پال انجام می‌شود و تمام کارت‌های بانکی عضو شتاب پشتیبانی می‌شوند." }
+  const plans = [
+    { slug: "free", name: "رایگان", icon: Zap, price: { monthly: 0, yearly: 0 }, desc: "برای شروع کار", features: [ { text: "۵۰ لینک در ماه", included: true }, { text: "تولید نام با هوش مصنوعی", included: true }, { text: "QR Code", included: true }, { text: "آمار ۷ روز اخیر", included: true }, { text: "اسلاگ دلخواه", included: true }, { text: "تاریخ انقضا", included: false } ], cta: "شروع رایگان", highlight: false, color: "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200" },
+    { slug: "basic", name: "پایه", icon: BarChart2, price: { monthly: 49000, yearly: 490000 }, desc: "برای بلاگرها", features: [ { text: "لینک نامحدود", included: true }, { text: "هوش مصنوعی", included: true }, { text: "آمار ۳۰ روز اخیر", included: true }, { text: "اسلاگ نامحدود", included: true }, { text: "تاریخ انقضا و کلیک", included: true }, { text: "رمز عبور", included: true } ], cta: "انتخاب پایه", highlight: false, color: "bg-indigo-600 text-white hover:bg-indigo-700" },
+    { slug: "pro", name: "حرفه‌ای", icon: Crown, price: { monthly: 149000, yearly: 1490000 }, desc: "برای کسب‌وکارها", features: [ { text: "تمام امکانات پایه", included: true }, { text: "هوش مصنوعی", included: true }, { text: "آمار نامحدود", included: true }, { text: "۱ دامنه رایگان", included: true }, { text: "وب‌هوک", included: true }, { text: "API", included: true } ], cta: "انتخاب حرفه‌ای", highlight: true, color: "bg-indigo-600 text-white hover:bg-indigo-700" },
+    { slug: "enterprise", name: "سازمانی", icon: Building2, price: { monthly: 499000, yearly: 4990000 }, desc: "برای تیم‌ها", features: [ { text: "تمام امکانات حرفه‌ای", included: true }, { text: "۵ دامنه اختصاصی", included: true }, { text: "مدیریت تیم", included: true }, { text: "API", included: true }, { text: "پشتیبانی ۲۴/۷", included: true }, { text: "حذف برند", included: true } ], cta: "انتخاب سازمانی", highlight: false, color: "bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" },
   ];
 
   return (
     <main className="min-h-screen flex flex-col items-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 py-12 transition-colors duration-300">
       <div className="absolute top-4 left-4"><ThemeToggle /></div>
-      <div className="w-full max-w-4xl">
-        <button onClick={handleBack} className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 mb-8 cursor-pointer">
-          <ArrowLeft className="w-4 h-4 rotate-180" /> بازگشت به پلن‌ها
-        </button>
-
-        <div className="bg-white dark:bg-gray-800 p-8 sm:p-12 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 flex flex-col items-center text-center mb-12">
-          <div className="inline-block bg-indigo-50 dark:bg-gray-700 p-4 rounded-2xl mb-6 border border-indigo-100 dark:border-gray-600"><plan.icon className="w-10 h-10 text-indigo-600 dark:text-indigo-400" /></div>
-          <h1 className="text-4xl font-extrabold mb-2">پلن {plan.name}</h1>
-          <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md">{plan.desc}</p>
-
-          {plan.monthly > 0 && (
-            <div className="flex items-center gap-4 mb-8 bg-gray-50 dark:bg-gray-900 p-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-              <button onClick={() => setBillingCycle("monthly")} className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${billingCycle === 'monthly' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'}`}>ماهانه</button>
-              <button onClick={() => setBillingCycle("yearly")} className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${billingCycle === 'yearly' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'}`}>سالانه (۲ ماه رایگان)</button>
-            </div>
-          )}
-
-          <div className="mb-10">
-            {currentPrice === 0 ? (<span className="text-5xl font-extrabold text-indigo-600 dark:text-indigo-400">رایگان</span>) : (<><span className="text-5xl font-extrabold text-indigo-600 dark:text-indigo-400">{toFa(currentPrice.toLocaleString())}</span><span className="text-xl text-gray-500 dark:text-gray-400 mr-2">تومان / {billingCycle === 'monthly' ? 'ماه' : 'سال'}</span></>)}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-right mb-10 max-w-xl mx-auto w-full">
-            {plan.features.map((f: string, i: number) => (
-              <div key={i} className="flex items-center gap-3 bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
-                <div className="bg-green-100 dark:bg-green-900/30 p-1 rounded-full"><Check className="w-4 h-4 text-green-600 dark:text-green-400" /></div>
-                <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">{f}</span>
-              </div>
-            ))}
-          </div>
-
-          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-          <div className="w-full flex justify-center">
-            {plan.monthly === 0 ? (
-              <button onClick={() => router.push("/dashboard")} className="w-full max-w-xs h-14 bg-black dark:bg-white text-white dark:text-black font-bold rounded-xl transition-colors cursor-pointer">شروع رایگان</button>
-            ) : (
-              <button onClick={handlePayment} disabled={loading} className="w-full max-w-xs h-14 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer">
-                {loading ? <Loader2 className="animate-spin" /> : (<>پرداخت و فعال‌سازی<ArrowLeft className="w-5 h-5" /></>)}
-              </button>
-            )}
-          </div>
-          <p className="mt-6 text-xs text-gray-400 dark:text-gray-500 max-w-xs mx-auto">پرداخت شما از طریق درگاه امن زرین‌پال انجام می‌شود.</p>
-        </div>
-
-        {/* بخش سوالات متداول */}
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700">
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><HelpCircle className="w-6 h-6 text-indigo-600 dark:text-indigo-400" /> سوالات متداول</h2>
-          <div className="space-y-6">
-            {faqs.map((faq, i) => (
-              <div key={i}>
-                <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200">{faq.q}</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{faq.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
+      <header className="w-full pt-8 pb-4 flex justify-center">
+        <Link href="/" className="inline-flex items-center gap-2 cursor-pointer"><Link2 className="w-7 h-7 text-blue-600 dark:text-blue-400" /><span className="text-xl font-bold tracking-tight">لینک رسان</span></Link>
+      </header>
+      <div className="text-center mb-12 max-w-3xl">
+        <h1 className="text-4xl sm:text-5xl font-extrabold mb-4">پلن‌های متناسب با نیاز شما</h1>
+        <p className="text-gray-500 dark:text-gray-400 text-lg">از ابزارهای رایگان شروع کنید و ارتقا دهید.</p>
       </div>
+      <div className="flex items-center gap-4 mb-12 bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <button onClick={() => setBillingCycle("monthly")} className={`px-6 py-2 rounded-lg text-sm font-medium cursor-pointer ${billingCycle === 'monthly' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400'}`}>ماهانه</button>
+        <button onClick={() => setBillingCycle("yearly")} className={`px-6 py-2 rounded-lg text-sm font-medium cursor-pointer ${billingCycle === 'yearly' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400'}`}>سالانه (۲ ماه رایگان)</button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl w-full">
+        {plans.map((plan, i) => (
+          <div key={i} className={`relative bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border flex flex-col items-center text-center ${plan.highlight ? 'border-indigo-600 border-2 lg:scale-105 z-10' : 'border-gray-100 dark:border-gray-700'}`}>
+            {plan.highlight && (<div className="absolute -top-3 right-1/2 translate-x-1/2 bg-indigo-600 text-white text-xs font-bold px-4 py-1 rounded-full">محبوب‌ترین</div>)}
+            <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-xl w-fit mb-6 border border-gray-100 dark:border-gray-600"><plan.icon className="w-6 h-6 text-indigo-600 dark:text-indigo-400" /></div>
+            <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6 h-10">{plan.desc}</p>
+            <div className="mb-6">
+              {plan.price[billingCycle as keyof typeof plan.price] === 0 ? (<span className="text-4xl font-extrabold">رایگان</span>) : (<><span className="text-4xl font-extrabold">{toFa(plan.price[billingCycle as keyof typeof plan.price].toLocaleString())}</span><span className="text-gray-500 mr-1">تومان</span></>)}
+            </div>
+            <button onClick={() => router.push(isLoggedIn ? `/pricing/${plan.slug}` : "/login")} className={`w-full h-12 font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer mb-8 ${plan.color}`}>{plan.cta}<ArrowLeft className="w-4 h-4" /></button>
+            <ul className="space-y-3 w-full text-right">
+              {plan.features.map((feature, j) => (<li key={j} className="flex items-start gap-2 text-sm">{feature.included ? <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" /> : <X className="w-5 h-5 text-gray-300 dark:text-gray-600 flex-shrink-0 mt-0.5" />}<span className={feature.included ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-600 line-through'}>{feature.text}</span></li>))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <p className="mt-12 text-center text-sm text-gray-500 dark:text-gray-400 max-w-2xl">پرداخت‌ها از طریق درگاه امن بانکی زرین‌پال انجام می‌شود.</p>
     </main>
   );
 }

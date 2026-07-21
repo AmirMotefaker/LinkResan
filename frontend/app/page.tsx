@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Link2, Zap, Shield, BarChart2, Loader2, Copy, Check, Wand2 } from "lucide-react";
+import Link from "next/link";
+import { Link2, Zap, Shield, BarChart2, Loader2, Copy, Check, Wand2, ChevronDown, User, Menu, Scissors, LayoutGrid, QrCode, TrendingUp, Gift, Globe, Users, Code } from "lucide-react";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
@@ -11,15 +12,8 @@ import ThemeToggle from "@/components/ThemeToggle";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const toFa = (num: any) => {
-  if (num === null || num === undefined) return "";
-  return num.toString().replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
-};
-
-const toEn = (num: any) => {
-  if (num === null || num === undefined) return "";
-  return num.toString().replace(/[۰-۹]/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString());
-};
+const toFa = (num: any) => { if (num === null || num === undefined) return ""; return num.toString().replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]); };
+const toEn = (num: any) => { if (num === null || num === undefined) return ""; return num.toString().replace(/[۰-۹]/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString()); };
 
 export default function Home() {
   const [url, setUrl] = useState("");
@@ -39,167 +33,61 @@ export default function Home() {
   const [expirationDate, setExpirationDate] = useState<any>(null);
   const [clickLimit, setClickLimit] = useState("");
   const [password, setPassword] = useState("");
-
   const [utmSource, setUtmSource] = useState("");
   const [utmMedium, setUtmMedium] = useState("");
   const [utmCampaign, setUtmCampaign] = useState("");
-
   const [domains, setDomains] = useState<any[]>([]);
   const [selectedDomain, setSelectedDomain] = useState<string>("linkresan.ir");
 
   const router = useRouter();
 
   useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const ref = queryParams.get("ref");
+    if (ref) { localStorage.setItem("referrer_id", ref); window.history.replaceState({}, document.title, window.location.pathname); }
     const token = localStorage.getItem("token");
     if (token) {
-      setIsLoggedIn(true);
-      setUserPlan(localStorage.getItem("plan") || "free");
-      setIsAdmin(localStorage.getItem("is_admin") === "true");
-      fetch(`${API_URL}/domains`, { headers: { Authorization: `Bearer ${token}` } })
-        .then(res => res.json())
-        .then(data => {
-          if (data.domains) setDomains(data.domains);
-        })
-        .catch(() => {});
+      setIsLoggedIn(true); setUserPlan(localStorage.getItem("plan") || "free"); setIsAdmin(localStorage.getItem("is_admin") === "true");
+      fetch(`${API_URL}/domains`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()).then(data => { if (data.domains) setDomains(data.domains); }).catch(() => {});
     }
-
     const pendingUrl = sessionStorage.getItem("pending_url");
     const pendingCustomCode = sessionStorage.getItem("pending_custom_code");
-    if (pendingUrl) {
-      setUrl(pendingUrl);
-      sessionStorage.removeItem("pending_url");
-    }
-    if (pendingCustomCode) {
-      setCustomCode(pendingCustomCode);
-      setShowCustomField(true);
-      sessionStorage.removeItem("pending_custom_code");
-    }
+    if (pendingUrl) { setUrl(pendingUrl); sessionStorage.removeItem("pending_url"); }
+    if (pendingCustomCode) { setCustomCode(pendingCustomCode); setShowCustomField(true); sessionStorage.removeItem("pending_custom_code"); }
   }, []);
 
   const handleShorten = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url) return;
-
-    if (!isLoggedIn) {
-      if (showLoginMsg) {
-        sessionStorage.setItem("pending_url", url);
-        if (customCode) {
-          sessionStorage.setItem("pending_custom_code", customCode);
-        }
-        router.push("/login");
-      } else {
-        setShowLoginMsg(true);
-      }
-      return;
-    }
-
-    setLoading(true);
-    const token = localStorage.getItem("token");
-
+    if (!isLoggedIn) { if (showLoginMsg) { sessionStorage.setItem("pending_url", url); if (customCode) sessionStorage.setItem("pending_custom_code", customCode); router.push("/login"); } else { setShowLoginMsg(true); } return; }
+    setLoading(true); const token = localStorage.getItem("token");
     try {
       let finalUrl = url;
-      if (utmSource || utmMedium || utmCampaign) {
-        try {
-          const u = new URL(url);
-          if (utmSource) u.searchParams.set("utm_source", utmSource);
-          if (utmMedium) u.searchParams.set("utm_medium", utmMedium);
-          if (utmCampaign) u.searchParams.set("utm_campaign", utmCampaign);
-          finalUrl = u.toString();
-        } catch {}
-      }
-
-      const bodyData: any = { 
-        original_url: finalUrl,
-        custom_code: customCode,
-        password: password
-      };
-
+      if (utmSource || utmMedium || utmCampaign) { try { const u = new URL(url); if (utmSource) u.searchParams.set("utm_source", utmSource); if (utmMedium) u.searchParams.set("utm_medium", utmMedium); if (utmCampaign) u.searchParams.set("utm_campaign", utmCampaign); finalUrl = u.toString(); } catch {} }
+      const bodyData: any = { original_url: finalUrl, custom_code: customCode, password: password };
       const selectedDomainObj = domains.find(d => d.Domain === selectedDomain);
-      if (selectedDomainObj) {
-        bodyData.domain_id = selectedDomainObj.ID;
-      }
-
-      if (expirationDate) {
-        bodyData.expires_at = new Date(expirationDate.toDate()).toISOString();
-      }
-      if (clickLimit) {
-        bodyData.click_limit = parseInt(toEn(clickLimit));
-      }
-
-      const res = await fetch(`${API_URL}/links`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(bodyData),
-      });
-
+      if (selectedDomainObj) bodyData.domain_id = selectedDomainObj.ID;
+      if (expirationDate) bodyData.expires_at = new Date(expirationDate.toDate()).toISOString();
+      if (clickLimit) bodyData.click_limit = parseInt(toEn(clickLimit));
+      const res = await fetch(`${API_URL}/links`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }, body: JSON.stringify(bodyData) });
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "خطا در ساخت لینک");
-      }
-
-      const finalShortUrl = `https://${selectedDomain}/${data.short_code}`;
-      setShortUrl(finalShortUrl);
-      
-      setCustomCode("");
-      setShowCustomField(false);
-      setExpirationDate(null);
-      setClickLimit("");
-      setPassword("");
-      setUtmSource("");
-      setUtmMedium("");
-      setUtmCampaign("");
-      setShowAdvanced(false);
-    } catch (error: any) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
+      if (!res.ok) throw new Error(data.error || "خطا در ساخت لینک");
+      setShortUrl(`https://${selectedDomain}/${data.short_code}`);
+      setCustomCode(""); setShowCustomField(false); setExpirationDate(null); setClickLimit(""); setPassword(""); setUtmSource(""); setUtmMedium(""); setUtmCampaign(""); setShowAdvanced(false);
+    } catch (error: any) { alert(error.message); } finally { setLoading(false); }
   };
 
   const handleAISuggest = async () => {
-    if (!url) return;
-    setAiLoading(true);
+    if (!url) return; setAiLoading(true);
     try {
-      const res = await fetch(`${API_URL}/ai/suggest-slug`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
-      });
+      const res = await fetch(`${API_URL}/ai/suggest-slug`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url }) });
       const data = await res.json();
-      if (res.ok && data.slug) {
-        setCustomCode(data.slug);
-        setShowCustomField(true);
-      } else {
-        alert(data.error || "خطای ناشناخته در ارتباط با هوش مصنوعی");
-      }
-    } catch {
-      alert("ارتباط با سرور برقرار نشد");
-    } finally {
-      setAiLoading(false);
-    }
+      if (res.ok && data.slug) { setCustomCode(data.slug); setShowCustomField(true); } else { alert(data.error || "خطا"); }
+    } catch { alert("ارتباط با سرور برقرار نشد"); } finally { setAiLoading(false); }
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(shortUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("plan");
-    localStorage.removeItem("is_admin");
-    setIsLoggedIn(false);
-    setUserPlan("free");
-    setIsAdmin(false);
-    setShortUrl("");
-    setDomains([]);
-    setSelectedDomain("linkresan.ir");
-  };
+  const handleCopy = () => { navigator.clipboard.writeText(shortUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+  const handleLogout = () => { localStorage.removeItem("token"); localStorage.removeItem("plan"); localStorage.removeItem("is_admin"); setIsLoggedIn(false); setUserPlan("free"); setIsAdmin(false); setShortUrl(""); setDomains([]); setSelectedDomain("linkresan.ir"); };
 
   const features = [
     { slug: "speed", icon: Zap, title: "ریدایرکت فوق سریع لینک", desc: "تبدیل لینک طولانی به کوتاه با استفاده از Redis برای ریدایرکت در کسری از ثانیه" },
@@ -207,169 +95,185 @@ export default function Home() {
     { slug: "analytics", icon: BarChart2, title: "آمار دقیق کلیک‌ها", desc: "تحلیل دقیق کلیک‌های لینک کوتاه و دستگاه‌های کاربران" },
     { slug: "ai", icon: Wand2, title: "هوش مصنوعی (AI)", desc: "تولید نام لینک کوتاه با هوش مصنوعی در کمتر از ۱ ثانیه" },
   ];
-
-  // بررسی دسترسی به تنظیمات پیشرفته (پلن پایه و بالاتر)
   const canUseAdvanced = isAdmin || ["basic", "pro", "enterprise"].includes(userPlan);
 
   return (
     <main className="min-h-screen flex flex-col items-center bg-white dark:bg-gray-900 text-gray-900 dark:text-white px-4 transition-colors duration-300">
       
-      <header className="w-full max-w-6xl flex justify-between items-center py-3 sm:py-4 flex-shrink-0">
-        <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
-          <Link2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400" />
-          <span className="text-lg sm:text-xl font-bold tracking-tight">لینک رسان</span>
+      <header className="w-full max-w-7xl mx-auto flex justify-between items-center py-4">
+        <div className="flex items-center gap-8">
+          <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
+            <Link2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400" />
+            <span className="text-lg sm:text-xl font-bold tracking-tight">لینک رسان</span>
+          </div>
+          
+          <nav className="hidden lg:flex items-center gap-6">
+            {/* محصولات */}
+            <div className="relative group">
+              <button className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer relative">
+                <span className="relative">محصولات
+                  <span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
+                </span>
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              <div className="absolute right-0 mt-4 w-[600px] bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 p-6 translate-y-2 group-hover:translate-y-0">
+                <div className="grid grid-cols-2 gap-8">
+                  <div>
+                    <h3 className="text-xs font-bold text-gray-400 mb-4 px-2">محصولات اصلی</h3>
+                    <div className="space-y-1">
+                      <Link href="/products/shortener" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
+                        <Scissors className="w-4 h-4 text-indigo-500" /> کوتاه‌کننده لینک
+                      </Link>
+                      <Link href="/products/bio" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
+                        <LayoutGrid className="w-4 h-4 text-purple-500" /> صفحه بیو (Link-in-bio)
+                      </Link>
+                      <Link href="/products/qr" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
+                        <QrCode className="w-4 h-4 text-green-500" /> تولید کد QR
+                      </Link>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-gray-400 mb-4 px-2">ابزارهای پیشرفته</h3>
+                    <div className="space-y-1">
+                      <Link href="/products/analytics" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
+                        <TrendingUp className="w-4 h-4 text-blue-500" /> آمار و تحلیل
+                      </Link>
+                      <Link href="/products/partners" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
+                        <Gift className="w-4 h-4 text-yellow-500" /> همکاری در فروش
+                      </Link>
+                      <Link href="/products/domains" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
+                        <Globe className="w-4 h-4 text-indigo-500" /> دامنه اختصاصی
+                      </Link>
+                      <Link href="/products/teams" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
+                        <Users className="w-4 h-4 text-gray-500" /> مدیریت تیمی
+                      </Link>
+                      <Link href="/products/api" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
+                        <Code className="w-4 h-4 text-gray-400" /> API و وب‌هوک
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* هوش مصنوعی */}
+            <Link href="/products/ai" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer relative group">
+              <span className="relative">هوش مصنوعی
+                <span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
+              </span>
+            </Link>
+
+            {/* مقایسه */}
+            <div className="relative group">
+              <button className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer relative">
+                <span className="relative">مقایسه
+                  <span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
+                </span>
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              <div className="absolute right-0 mt-4 w-56 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 p-2 translate-y-2 group-hover:translate-y-0">
+                <button onClick={() => router.push("/compare")} className="block w-full text-right px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-t-xl cursor-pointer">مقایسه با رقبای جهانی</button>
+                <button onClick={() => router.push("/compare/iran")} className="block w-full text-right px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-b-xl cursor-pointer">مقایسه با رقبای ایرانی</button>
+              </div>
+            </div>
+
+            {/* پلن‌ها */}
+            <div className="relative group">
+              <button className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer relative">
+                <span className="relative">پلن‌ها
+                  <span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
+                </span>
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              <div className="absolute right-0 mt-4 w-48 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 p-2 translate-y-2 group-hover:translate-y-0">
+                <Link href="/pricing/free" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer">رایگان</Link>
+                <Link href="/pricing/basic" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer">پایه</Link>
+                <Link href="/pricing/pro" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer">حرفه‌ای</Link>
+                <Link href="/pricing/enterprise" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer">سازمانی</Link>
+              </div>
+            </div>
+
+            {/* پایگاه دانش */}
+            <Link href="/knowledge" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer relative group">
+              <span className="relative">پایگاه دانش
+                <span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
+              </span>
+            </Link>
+
+            {/* تماس با ما */}
+            <Link href="/contact" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer relative group">
+              <span className="relative">تماس با ما
+                <span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
+              </span>
+            </Link>
+          </nav>
         </div>
-        <div className="flex gap-2 sm:gap-4 items-center">
+
+        <div className="flex items-center gap-4">
           <ThemeToggle />
           {isLoggedIn ? (
             <>
-              <button onClick={() => router.push("/dashboard")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">داشبورد</button>
-              <button onClick={handleLogout} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 dark:text-black text-white rounded-lg transition-colors cursor-pointer">خروج</button>
+              <button onClick={() => router.push("/dashboard")} className="hidden sm:block text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">داشبورد</button>
+              <button onClick={handleLogout} className="px-4 py-2 text-sm font-medium bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 dark:text-black text-white rounded-lg transition-colors cursor-pointer">خروج</button>
             </>
           ) : (
             <>
-              <div className="relative group">
-                <button className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors cursor-pointer font-bold">
-                  مقایسه
-                </button>
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                  <button onClick={() => router.push("/compare")} className="block w-full text-right px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-t-xl cursor-pointer">
-                    مقایسه با رقبای جهانی
-                  </button>
-                  <button onClick={() => router.push("/compare/iran")} className="block w-full text-right px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-b-xl cursor-pointer">
-                    مقایسه با رقبای ایرانی
-                  </button>
-                </div>
-              </div>
-
-              <button onClick={() => router.push("/pricing")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
-                پلن‌ها
+              <button onClick={() => router.push("/login")} className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
+                <User className="w-5 h-5" /> ورود
               </button>
-              <button onClick={() => router.push("/login")} className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">ورود</button>
-              <button onClick={() => router.push("/login")} className="px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 dark:text-black text-white rounded-lg transition-colors cursor-pointer">ثبت‌نام</button>
+              <button onClick={() => router.push("/login")} className="px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors cursor-pointer">ثبت‌نام رایگان</button>
             </>
           )}
+          <button className="lg:hidden p-2 text-gray-600 dark:text-gray-300"><Menu className="w-6 h-6" /></button>
         </div>
       </header>
 
       <section className="flex-grow w-full max-w-2xl flex flex-col items-center justify-center text-center mt-10 sm:mt-0">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 sm:mb-4">
-          کوتاه‌کننده لینک حرفه‌ای رایگان
-        </h1>
-        <p className="text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-400 mb-6 sm:mb-8 max-w-xl">
-          با لینک رسان، بهترین ابزار کوتاه کردن لینک ایرانی، لینک‌های طولانی خود را به لینک‌های کوتاه، امن و قابل اندازه‌گیری تبدیل کنید.
-        </p>
-
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 sm:mb-4">کوتاه‌کننده لینک حرفه‌ای رایگان</h1>
+        <p className="text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-400 mb-6 sm:mb-8 max-w-xl">با لینک رسان، بهترین ابزار کوتاه کردن لینک ایرانی، لینک‌های طولانی خود را به لینک‌های کوتاه، امن و قابل اندازه‌گیری تبدیل کنید.</p>
         <form onSubmit={handleShorten} className="w-full flex flex-col items-center">
-          
           {isLoggedIn && domains.length > 0 && (
             <div className="w-full mb-2 flex justify-center">
-              <select 
-                value={selectedDomain}
-                onChange={(e) => setSelectedDomain(e.target.value)}
-                className="bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2 text-sm text-gray-600 dark:text-gray-300 outline-none cursor-pointer"
-              >
+              <select value={selectedDomain} onChange={(e) => setSelectedDomain(e.target.value)} className="bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2 text-sm text-gray-600 dark:text-gray-300 outline-none cursor-pointer">
                 <option value="linkresan.ir">linkresan.ir (پیش‌فرض)</option>
-                {domains.map((domain) => (
-                  <option key={domain.ID} value={domain.Domain}>{domain.Domain}</option>
-                ))}
+                {domains.map((domain) => (<option key={domain.ID} value={domain.Domain}>{domain.Domain}</option>))}
               </select>
             </div>
           )}
-
-          <input
-            type="url"
-            placeholder="لینک خود را برای کوتاه کردن اینجا وارد کنید..."
-            value={url}
-            onChange={(e) => { setUrl(e.target.value); setShowLoginMsg(false); }}
-            className="w-full h-12 sm:h-14 px-4 sm:px-6 text-sm sm:text-base bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-gray-900 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 shadow-sm cursor-pointer"
-            required
-          />
-
+          <input type="url" placeholder="لینک خود را برای کوتاه کردن اینجا وارد کنید..." value={url} onChange={(e) => { setUrl(e.target.value); setShowLoginMsg(false); }} className="w-full h-12 sm:h-14 px-4 sm:px-6 text-sm sm:text-base bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-gray-900 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 shadow-sm cursor-pointer" required />
           <div className="w-full flex flex-col gap-2 mt-3 mb-2">
             <div className="flex items-center justify-between">
-              <button type="button" onClick={() => setShowCustomField(!showCustomField)} className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer">
-                {showCustomField ? "حذف نام دلخواه" : "نام دلخواه"}
-              </button>
-              <button 
-                type="button" 
-                onClick={handleAISuggest} 
-                disabled={aiLoading || !url} 
-                className="text-xs sm:text-sm font-bold text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors cursor-pointer flex items-center gap-1 disabled:opacity-50"
-              >
-                {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
-                ساخت نام با هوش مصنوعی
+              <button type="button" onClick={() => setShowCustomField(!showCustomField)} className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer">{showCustomField ? "حذف نام دلخواه" : "نام دلخواه"}</button>
+              <button type="button" onClick={handleAISuggest} disabled={aiLoading || !url} className="text-xs sm:text-sm font-bold text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors cursor-pointer flex items-center gap-1 disabled:opacity-50">
+                {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />} ساخت نام با هوش مصنوعی
               </button>
             </div>
-            
             {showCustomField && (
               <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-4">
                 <span className="text-gray-400 text-xs whitespace-nowrap">{selectedDomain}/</span>
-                <input
-                  type="text"
-                  placeholder="نام دلخواه (مثلا: amir-shop)"
-                  value={customCode}
-                  onChange={(e) => setCustomCode(e.target.value)}
-                  className="w-full h-11 sm:h-12 bg-transparent outline-none text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                />
+                <input type="text" placeholder="نام دلخواه (مثلا: amir-shop)" value={customCode} onChange={(e) => setCustomCode(e.target.value)} className="w-full h-11 sm:h-12 bg-transparent outline-none text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500" />
               </div>
             )}
           </div>
-
           <div className="flex gap-4 mt-3 mb-2">
-            <button 
-              type="button" 
-              onClick={() => {
-                if (!canUseAdvanced) {
-                  alert("استفاده از تنظیمات پیشرفته (انقضا، محدودیت کلیک، رمز عبور) نیازمند پلن پایه یا بالاتر است. لطفاً اکانت خود را ارتقا دهید.");
-                  router.push("/pricing");
-                  return;
-                }
-                setShowAdvanced(!showAdvanced);
-              }}
-              className={`text-xs sm:text-sm cursor-pointer ${canUseAdvanced ? 'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400' : 'text-gray-400 hover:text-gray-500'}`}
-            >
+            <button type="button" onClick={() => { if (!canUseAdvanced) { alert("استفاده از تنظیمات پیشرفته نیازمند پلن پایه یا بالاتر است."); router.push("/pricing"); return; } setShowAdvanced(!showAdvanced); }} className={`text-xs sm:text-sm cursor-pointer ${canUseAdvanced ? 'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400' : 'text-gray-400 hover:text-gray-500'}`}>
               {showAdvanced ? "حذف تنظیمات پیشرفته" : "تنظیمات پیشرفته (پلن پایه)"}
             </button>
           </div>
-
           {showAdvanced && canUseAdvanced && (
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <div className="flex flex-col items-start gap-1 bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-2">
                 <label className="text-xs text-gray-500 dark:text-gray-400 mb-1">تاریخ و ساعت انقضا (شمسی)</label>
-                <DatePicker
-                  value={expirationDate}
-                  onChange={setExpirationDate}
-                  calendar={persian}
-                  locale={persian_fa}
-                  format="YYYY/MM/DD HH:mm"
-                  plugins={[<TimePicker position="bottom" hideSeconds />]}
-                  className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-200"
-                  inputClass="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-200"
-                />
+                <DatePicker value={expirationDate} onChange={setExpirationDate} calendar={persian} locale={persian_fa} format="YYYY/MM/DD HH:mm" plugins={[<TimePicker position="bottom" hideSeconds />]} className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-200" inputClass="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-200" />
               </div>
               <div className="flex flex-col items-start gap-1 bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-2">
                 <label className="text-xs text-gray-500 dark:text-gray-400">محدودیت کلیک (اختیاری)</label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="مثلا: ۱۰۰"
-                  value={clickLimit}
-                  onChange={(e) => setClickLimit(toFa(e.target.value))}
-                  className="w-full h-8 bg-transparent outline-none text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                />
+                <input type="text" inputMode="numeric" placeholder="مثلا: ۱۰۰" value={clickLimit} onChange={(e) => setClickLimit(toFa(e.target.value))} className="w-full h-8 bg-transparent outline-none text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500" />
               </div>
               <div className="flex flex-col items-start gap-1 bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-2 sm:col-span-2">
                 <label className="text-xs text-gray-500 dark:text-gray-400">رمز عبور لینک (اختیاری)</label>
-                <input
-                  type="text"
-                  placeholder="برای حفاظت از لینک رمز بگذارید"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-8 bg-transparent outline-none text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                />
+                <input type="text" placeholder="برای حفاظت از لینک رمز بگذارید" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full h-8 bg-transparent outline-none text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500" />
               </div>
-
               <div className="bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-2 sm:col-span-2 mt-2">
                 <label className="text-xs text-gray-500 dark:text-gray-400 mb-2 block">سازنده تگ UTM (برای ردیابی کمپین‌ها)</label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -380,18 +284,15 @@ export default function Home() {
               </div>
             </div>
           )}
-          
           <button type="submit" disabled={loading} className="mt-2 h-12 px-8 sm:px-10 text-sm sm:text-base font-bold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 cursor-pointer">
             {loading ? <Loader2 className="animate-spin w-5 h-5" /> : (showLoginMsg && !isLoggedIn ? "برای کوتاه کردن وارد شوید" : "کوتاه کردن لینک")}
           </button>
         </form>
-
         {shortUrl && (
           <div className="mt-6 w-full p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center justify-between">
             <span className="text-sm sm:text-base font-medium text-green-700 dark:text-green-400 truncate ml-2">{shortUrl}</span>
             <button onClick={handleCopy} className="flex items-center gap-1 text-xs sm:text-sm font-medium text-green-600 dark:text-green-500 hover:text-green-800 dark:hover:text-green-300 px-3 py-1 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors flex-shrink-0 cursor-pointer">
-              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              {copied ? "کپی شد" : "کپی لینک"}
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />} {copied ? "کپی شد" : "کپی لینک"}
             </button>
           </div>
         )}
@@ -399,11 +300,7 @@ export default function Home() {
 
       <section className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center mt-16 sm:mt-24 mb-10 sm:mb-12 flex-shrink-0">
         {features.map((feature, index) => (
-          <div 
-            key={index} 
-            onClick={() => router.push(`/features/${feature.slug}`)} 
-            className="flex flex-col items-center p-2 cursor-pointer group"
-          >
+          <div key={index} onClick={() => router.push(`/features/${feature.slug}`)} className="flex flex-col items-center p-2 cursor-pointer group">
             <div className="bg-indigo-50 dark:bg-gray-800 p-3 sm:p-4 rounded-2xl mb-3 border border-indigo-100 dark:border-gray-700 group-hover:scale-110 transition-transform">
               <feature.icon className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600 dark:text-indigo-400" />
             </div>
@@ -414,10 +311,7 @@ export default function Home() {
       </section>
 
       <footer className="pb-6 text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 text-center flex-shrink-0 whitespace-nowrap">
-        ساخته شده با ❤️ برای توسعه‌دهندگان ایرانی توسط{" "}
-        <a href="https://amirmotefaker.ir/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-500 hover:text-red-600 transition-colors">امیر متفکر</a>
-        {" "}-{" "}
-        <a href="https://github.com/AmirMotefaker/LinkResan" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">لینک رسان</a>
+        ساخته شده با ❤️ برای توسعه‌دهندگان ایرانی توسط <a href="https://amirmotefaker.ir/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-500 hover:text-red-600 transition-colors">امیر متفکر</a> - <a href="https://github.com/AmirMotefaker/LinkResan" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">لینک رسان</a>
       </footer>
     </main>
   );

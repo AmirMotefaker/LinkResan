@@ -97,7 +97,6 @@ export default function Dashboard() {
   return (
     <div className="p-4 md:p-8 w-full">
       
-      {/* هدر صفحه */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h1 className="text-2xl font-bold">لینک‌های من</h1>
@@ -109,7 +108,6 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* کارت‌های آماری */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
           <div className="flex items-center justify-between mb-4">
@@ -134,7 +132,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* نمودار آماری */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm mb-8">
         <div className="flex items-center gap-2 mb-6">
           <TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
@@ -165,7 +162,6 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* لیست لینک‌ها و جستجو */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h2 className="text-xl font-bold">لینک‌های شما ({toFa(links.length)})</h2>
