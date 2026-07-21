@@ -90,30 +90,32 @@ export default function Home() {
   const handleLogout = () => { localStorage.removeItem("token"); localStorage.removeItem("plan"); localStorage.removeItem("is_admin"); setIsLoggedIn(false); setUserPlan("free"); setIsAdmin(false); setShortUrl(""); setDomains([]); setSelectedDomain("linkresan.ir"); };
 
   const features = [
-    { slug: "speed", icon: Zap, title: "ریدایرکت فوق سریع لینک", desc: "تبدیل لینک طولانی به کوتاه با استفاده از Redis برای ریدایرکت در کسری از ثانیه" },
-    { slug: "security", icon: Shield, title: "امنیت و حفظ حریم خصوصی", desc: "ابزار کوتاه کردن لینک با احراز هویت پیشرفته و رمزگذاری" },
-    { slug: "analytics", icon: BarChart2, title: "آمار دقیق کلیک‌ها", desc: "تحلیل دقیق کلیک‌های لینک کوتاه و دستگاه‌های کاربران" },
-    { slug: "ai", icon: Wand2, title: "هوش مصنوعی (AI)", desc: "تولید نام لینک کوتاه با هوش مصنوعی در کمتر از ۱ ثانیه" },
+    { slug: "speed", icon: Zap, title: "ریدایرکت سریع", desc: "استفاده از Redis برای کسری از ثانیه" },
+    { slug: "security", icon: Shield, title: "امنیت بالا", desc: "احراز هویت پیشرفته با JWT" },
+    { slug: "analytics", icon: BarChart2, title: "آمار دقیق", desc: "تحلیل کلیک‌ها و دستگاه‌ها" },
+    { slug: "ai", icon: Wand2, title: "هوش مصنوعی", desc: "تولید نام لینک در کمتر از ۱ ثانیه" },
   ];
   const canUseAdvanced = isAdmin || ["basic", "pro", "enterprise"].includes(userPlan);
 
   return (
-    <main className="min-h-screen flex flex-col items-center bg-white dark:bg-gray-900 text-gray-900 dark:text-white px-4 transition-colors duration-300">
+    <main className="h-screen flex flex-col items-center bg-white dark:bg-gray-900 text-gray-900 dark:text-white px-4 overflow-hidden">
       
-      <header className="w-full max-w-7xl mx-auto flex justify-between items-center py-4">
+      <header className="w-full max-w-7xl mx-auto flex justify-between items-center py-3 flex-shrink-0">
         <div className="flex items-center gap-8">
-          <div onClick={() => router.push("/")} className="flex items-center gap-2 cursor-pointer">
-            <Link2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400" />
-            <span className="text-lg sm:text-xl font-bold tracking-tight">لینک رسان</span>
+          {/* لوگو و شعار اصلی - وسط چین شده */}
+          <div onClick={() => router.push("/")} className="flex flex-col items-center cursor-pointer">
+            <div className="flex items-center gap-2">
+              <Link2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400" />
+              <span className="text-lg sm:text-xl font-bold tracking-tight">لینک رسان</span>
+            </div>
+            <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 hidden md:block">لینک کوتاه، اثر طولانی</span>
           </div>
           
           <nav className="hidden lg:flex items-center gap-6">
             {/* محصولات */}
             <div className="relative group">
               <button className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer relative">
-                <span className="relative">محصولات
-                  <span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
-                </span>
+                <span className="relative">محصولات<span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span></span>
                 <ChevronDown className="w-4 h-4" />
               </button>
               <div className="absolute right-0 mt-4 w-[600px] bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 p-6 translate-y-2 group-hover:translate-y-0">
@@ -121,54 +123,32 @@ export default function Home() {
                   <div>
                     <h3 className="text-xs font-bold text-gray-400 mb-4 px-2">محصولات اصلی</h3>
                     <div className="space-y-1">
-                      <Link href="/products/shortener" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
-                        <Scissors className="w-4 h-4 text-indigo-500" /> کوتاه‌کننده لینک
-                      </Link>
-                      <Link href="/products/bio" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
-                        <LayoutGrid className="w-4 h-4 text-purple-500" /> صفحه بیو (Link-in-bio)
-                      </Link>
-                      <Link href="/products/qr" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
-                        <QrCode className="w-4 h-4 text-green-500" /> تولید کد QR
-                      </Link>
+                      <Link href="/products/shortener" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors"><Scissors className="w-4 h-4 text-indigo-500" /> کوتاه‌کننده لینک</Link>
+                      <Link href="/products/bio" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors"><LayoutGrid className="w-4 h-4 text-purple-500" /> صفحه بیو (Link-in-bio)</Link>
+                      <Link href="/products/qr" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors"><QrCode className="w-4 h-4 text-green-500" /> تولید کد QR</Link>
                     </div>
                   </div>
                   <div>
                     <h3 className="text-xs font-bold text-gray-400 mb-4 px-2">ابزارهای پیشرفته</h3>
                     <div className="space-y-1">
-                      <Link href="/products/analytics" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
-                        <TrendingUp className="w-4 h-4 text-blue-500" /> آمار و تحلیل
-                      </Link>
-                      <Link href="/products/partners" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
-                        <Gift className="w-4 h-4 text-yellow-500" /> همکاری در فروش
-                      </Link>
-                      <Link href="/products/domains" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
-                        <Globe className="w-4 h-4 text-indigo-500" /> دامنه اختصاصی
-                      </Link>
-                      <Link href="/products/teams" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
-                        <Users className="w-4 h-4 text-gray-500" /> مدیریت تیمی
-                      </Link>
-                      <Link href="/products/api" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
-                        <Code className="w-4 h-4 text-gray-400" /> API و وب‌هوک
-                      </Link>
+                      <Link href="/products/analytics" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors"><TrendingUp className="w-4 h-4 text-blue-500" /> آمار و تحلیل</Link>
+                      <Link href="/products/partners" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors"><Gift className="w-4 h-4 text-yellow-500" /> همکاری در فروش</Link>
+                      <Link href="/products/domains" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors"><Globe className="w-4 h-4 text-indigo-500" /> دامنه اختصاصی</Link>
+                      <Link href="/products/teams" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors"><Users className="w-4 h-4 text-gray-500" /> مدیریت تیمی</Link>
+                      <Link href="/products/api" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors"><Code className="w-4 h-4 text-gray-400" /> API و وب‌هوک</Link>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* هوش مصنوعی */}
             <Link href="/products/ai" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer relative group">
-              <span className="relative">هوش مصنوعی
-                <span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
-              </span>
+              <span className="relative">هوش مصنوعی<span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span></span>
             </Link>
 
-            {/* مقایسه */}
             <div className="relative group">
               <button className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer relative">
-                <span className="relative">مقایسه
-                  <span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
-                </span>
+                <span className="relative">مقایسه<span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span></span>
                 <ChevronDown className="w-4 h-4" />
               </button>
               <div className="absolute right-0 mt-4 w-56 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 p-2 translate-y-2 group-hover:translate-y-0">
@@ -177,12 +157,9 @@ export default function Home() {
               </div>
             </div>
 
-            {/* پلن‌ها */}
             <div className="relative group">
               <button className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer relative">
-                <span className="relative">پلن‌ها
-                  <span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
-                </span>
+                <span className="relative">پلن‌ها<span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span></span>
                 <ChevronDown className="w-4 h-4" />
               </button>
               <div className="absolute right-0 mt-4 w-48 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 p-2 translate-y-2 group-hover:translate-y-0">
@@ -193,18 +170,11 @@ export default function Home() {
               </div>
             </div>
 
-            {/* پایگاه دانش */}
             <Link href="/knowledge" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer relative group">
-              <span className="relative">پایگاه دانش
-                <span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
-              </span>
+              <span className="relative">پایگاه دانش<span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span></span>
             </Link>
-
-            {/* تماس با ما */}
             <Link href="/contact" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer relative group">
-              <span className="relative">تماس با ما
-                <span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
-              </span>
+              <span className="relative">تماس با ما<span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span></span>
             </Link>
           </nav>
         </div>
@@ -218,9 +188,7 @@ export default function Home() {
             </>
           ) : (
             <>
-              <button onClick={() => router.push("/login")} className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
-                <User className="w-5 h-5" /> ورود
-              </button>
+              <button onClick={() => router.push("/login")} className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer"><User className="w-5 h-5" /> ورود</button>
               <button onClick={() => router.push("/login")} className="px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors cursor-pointer">ثبت‌نام رایگان</button>
             </>
           )}
@@ -228,9 +196,12 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="flex-grow w-full max-w-2xl flex flex-col items-center justify-center text-center mt-10 sm:mt-0">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 sm:mb-4">کوتاه‌کننده لینک حرفه‌ای رایگان</h1>
-        <p className="text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-400 mb-6 sm:mb-8 max-w-xl">با لینک رسان، بهترین ابزار کوتاه کردن لینک ایرانی، لینک‌های طولانی خود را به لینک‌های کوتاه، امن و قابل اندازه‌گیری تبدیل کنید.</p>
+      <section className="flex-grow w-full max-w-2xl flex flex-col items-center justify-center text-center">
+        {/* تیتر اصلی با فاصله مناسب */}
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-2 sm:mb-3">کوتاه‌کننده لینک حرفه‌ای رایگان</h1>
+        {/* شعار جدید زیر تیتر */}
+        <p className="text-sm sm:text-base md:text-lg text-indigo-600 dark:text-indigo-400 font-bold mb-4 sm:mb-6 max-w-xl">لینک‌هایت رو هوشمندانه کوتاه کن!</p>
+
         <form onSubmit={handleShorten} className="w-full flex flex-col items-center">
           {isLoggedIn && domains.length > 0 && (
             <div className="w-full mb-2 flex justify-center">
@@ -298,27 +269,24 @@ export default function Home() {
         )}
       </section>
 
-      <section className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center mt-16 sm:mt-24 mb-10 sm:mb-12 flex-shrink-0">
+      <section className="w-full max-w-5xl grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-6 text-center mb-2 flex-shrink-0">
         {features.map((feature, index) => (
-          <div key={index} onClick={() => router.push(`/features/${feature.slug}`)} className="flex flex-col items-center p-2 cursor-pointer group">
-            <div className="bg-indigo-50 dark:bg-gray-800 p-3 sm:p-4 rounded-2xl mb-3 border border-indigo-100 dark:border-gray-700 group-hover:scale-110 transition-transform">
-              <feature.icon className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600 dark:text-indigo-400" />
+          <div key={index} onClick={() => router.push(`/features/${feature.slug}`)} className="flex flex-col items-center p-1 cursor-pointer group">
+            <div className="bg-indigo-50 dark:bg-gray-800 p-2 sm:p-3 rounded-2xl mb-1 sm:mb-2 border border-indigo-100 dark:border-gray-700 group-hover:scale-110 transition-transform">
+              <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600 dark:text-indigo-400" />
             </div>
-            <h2 className="text-base sm:text-lg font-bold mb-1 tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{feature.title}</h2>
-            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm leading-relaxed max-w-xs">{feature.desc}</p>
+            <h2 className="text-xs sm:text-sm font-bold mb-0.5 tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{feature.title}</h2>
+            <p className="hidden sm:block text-gray-500 dark:text-gray-400 text-xs leading-relaxed max-w-xs">{feature.desc}</p>
           </div>
         ))}
       </section>
 
-      <footer className="pb-6 text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 text-center flex flex-col items-center gap-2 flex-shrink-0">
-        {/* نماد اعتماد الکترونیک (اینماد) */}
+      <footer className="pb-3 text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 text-center flex flex-col items-center gap-2 flex-shrink-0">
         <div className="flex justify-center mb-1">
           <a referrerPolicy="origin" target="_blank" href="https://trustseal.enamad.ir/?id=760944&Code=qYSe4t5KZAFku">
-            <img referrerPolicy="origin" src="https://TrustSeal.enamad.ir/logo.aspx?id=760944&Code=qYSe4t5KZAFku" alt="نماد اعتماد الکترونیک" style={{ cursor: "pointer" }} className="w-20 h-auto" />
+            <img referrerPolicy="origin" src="https://TrustSeal.enamad.ir/logo.aspx?id=760944&Code=qYSe4t5KZAFku" alt="نماد اعتماد الکترونیک" style={{ cursor: "pointer" }} className="w-16 h-auto" />
           </a>
         </div>
-        
-        {/* متن فوتر */}
         <div className="whitespace-nowrap">
           ساخته شده با ❤️ برای توسعه‌دهندگان ایرانی توسط <a href="https://amirmotefaker.ir/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-500 hover:text-red-600 transition-colors">امیر متفکر</a> - <a href="https://github.com/AmirMotefaker/LinkResan" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">لینک رسان</a>
         </div>
