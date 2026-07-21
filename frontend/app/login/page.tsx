@@ -24,10 +24,21 @@ export default function Login() {
     const endpoint = isLogin ? "/login" : "/register";
     
     try {
+      // ساخت بدنه درخواست
+      const payload: any = { email, password };
+
+      // اگر در حال ثبت‌نام بود و کد معرف در لوکال استوریج بود، آن را اضافه کن
+      if (!isLogin) {
+        const referrerId = localStorage.getItem("referrer_id");
+        if (referrerId) {
+          payload.referrer_id = parseInt(referrerId);
+        }
+      }
+
       const res = await fetch(`${API_URL}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -37,7 +48,7 @@ export default function Login() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("is_premium", data.is_premium ? "true" : "false");
         localStorage.setItem("is_admin", data.is_admin ? "true" : "false");
-        localStorage.setItem("plan", data.plan || "free"); // اضافه شد
+        localStorage.setItem("plan", data.plan || "free");
         
         const pendingUrl = sessionStorage.getItem("pending_url");
         if (pendingUrl) {

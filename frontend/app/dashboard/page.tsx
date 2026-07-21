@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, Trash2, QrCode, X, Download, TrendingUp, Globe, Plus, Monitor, Search, Crown } from "lucide-react";
+import { Link2, Loader2, Copy, Check, ExternalLink, MousePointerClick, Trash2, QrCode, X, Download, TrendingUp, Plus, Search } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
@@ -16,16 +16,11 @@ const toFa = (num: any) => {
 export default function Dashboard() {
   const [links, setLinks] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
   const [domains, setDomains] = useState<any[]>([]);
   
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [qrModalUrl, setQrModalUrl] = useState<string | null>(null);
-  
-  const [newDomain, setNewDomain] = useState("");
-  const [domainLoading, setDomainLoading] = useState(false);
-
   const [searchQuery, setSearchQuery] = useState("");
 
   const router = useRouter();
@@ -40,13 +35,11 @@ export default function Dashboard() {
     Promise.all([
       fetch(`${API_URL}/links`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()),
       fetch(`${API_URL}/links/analytics`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()),
-      fetch(`${API_URL}/links/stats`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()),
       fetch(`${API_URL}/domains`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json())
     ])
-      .then(([linksData, analyticsData, statsData, domainsData]) => {
+      .then(([linksData, analyticsData, domainsData]) => {
         if (linksData.links) setLinks(linksData.links);
         if (analyticsData.analytics) setAnalytics(analyticsData.analytics);
-        if (statsData.stats) setStats(statsData.stats);
         if (domainsData.domains) setDomains(domainsData.domains);
         setLoading(false);
       })
@@ -67,42 +60,6 @@ export default function Dashboard() {
     try {
       const res = await fetch(`${API_URL}/links/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) setLinks(links.filter(link => link.ID !== id));
-    } catch (error) {
-      alert("ارتباط با سرور برقرار نشد");
-    }
-  };
-
-  const handleAddDomain = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newDomain) return;
-    setDomainLoading(true);
-    const token = localStorage.getItem("token");
-    try {
-      const res = await fetch(`${API_URL}/domains`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ domain: newDomain }),
-      });
-      const data = await res.json();
-      if (res.ok && data.domain) {
-        setDomains([...domains, data.domain]);
-        setNewDomain("");
-      } else {
-        alert(data.error || "خطا در افزودن دامنه");
-      }
-    } catch (error) {
-      alert("ارتباط با سرور برقرار نشد");
-    } finally {
-      setDomainLoading(false);
-    }
-  };
-
-  const handleDeleteDomain = async (id: number) => {
-    if (!confirm("آیا از حذف این دامنه مطمئن هستید؟")) return;
-    const token = localStorage.getItem("token");
-    try {
-      const res = await fetch(`${API_URL}/domains/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
-      if (res.ok) setDomains(domains.filter(d => d.ID !== id));
     } catch (error) {
       alert("ارتباط با سرور برقرار نشد");
     }
@@ -132,7 +89,6 @@ export default function Dashboard() {
     }
   };
 
-  // فیلتر لینک‌ها بر اساس جستجو
   const filteredLinks = links.filter(link => 
     link.ShortCode.toLowerCase().includes(searchQuery.toLowerCase()) || 
     link.OriginalURL.toLowerCase().includes(searchQuery.toLowerCase())
@@ -144,7 +100,7 @@ export default function Dashboard() {
       {/* هدر صفحه */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-2xl font-bold">داشبورد</h1>
+          <h1 className="text-2xl font-bold">لینک‌های من</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">مدیریت و تحلیل لینک‌های شما</p>
         </div>
         <button onClick={() => router.push("/")} className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 cursor-pointer transition-colors">
@@ -206,50 +162,6 @@ export default function Dashboard() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        )}
-      </div>
-
-      {/* بخش دامنه‌ها */}
-      <div id="domains" className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm mb-8 scroll-mt-8">
-        <div className="flex items-center gap-2 mb-6">
-          <Globe className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-          <h3 className="text-base font-bold">دامنه‌های اختصاصی</h3>
-        </div>
-        <form onSubmit={handleAddDomain} className="flex flex-col sm:flex-row gap-2 mb-6">
-          <input
-            type="text"
-            placeholder="دامنه خود را وارد کنید (مثلا: go.myshop.ir)"
-            value={newDomain}
-            onChange={(e) => setNewDomain(e.target.value)}
-            className="w-full h-12 px-4 text-sm bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-indigo-500 transition-all text-white"
-            required
-          />
-          <button type="submit" disabled={domainLoading} className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 whitespace-nowrap">
-            {domainLoading ? <Loader2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-            افزودن
-          </button>
-        </form>
-        {domains.length > 0 ? (
-          <div className="space-y-2">
-            {domains.map((domain) => (
-              <div key={domain.ID} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-gray-400" />
-                  <span className="font-medium text-sm">{domain.Domain}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-xs px-2 py-1 rounded-md ${domain.IsVerified ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'}`}>
-                    {domain.IsVerified ? "تایید شده" : "در انتظار تایید"}
-                  </span>
-                  <button onClick={() => handleDeleteDomain(domain.ID)} className="p-1 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors cursor-pointer">
-                    <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">هنوز دامنه اختصاصی اضافه نکرده‌اید.</p>
         )}
       </div>
 
