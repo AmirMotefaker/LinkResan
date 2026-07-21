@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Check, Zap, Shield, BarChart2, Server, Lock, TrendingUp, Wand2, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { Link2, ArrowLeft, Check, Zap, Shield, BarChart2, Server, Lock, TrendingUp, Wand2 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function FeatureDetailPage() {
@@ -12,7 +13,7 @@ export default function FeatureDetailPage() {
   const featuresData: any = {
     speed: {
       icon: Zap,
-      title: "ریدایرکت فوق سریع",
+      title: "ریدایرکت سریع",
       subtitle: "سرعت میلی‌ثانیه‌ای با معماری Redis و Go",
       desc: "هیچ‌کس دوست ندارد منتظر بماند. لینک رسان با استفاده از پیشرفته‌ترین تکنولوژی‌های روز دنیا، لینک‌های شما را در کسری از ثانیه ریدایرکت می‌کند تا کاربران شما بدون هیچ تاخیری به مقصد برسند.",
       points: [
@@ -27,7 +28,7 @@ export default function FeatureDetailPage() {
     },
     security: {
       icon: Shield,
-      title: "امنیت و حریم خصوصی",
+      title: "امنیت بالا",
       subtitle: "محافظت از لینک‌ها و داده‌ها با استانداردهای سازمانی",
       desc: "امنیت لینک‌ها و داده‌های کاربران برای ما در اولویت قرار دارد. لینک رسان با استفاده از پروتکل‌های امنیتی مدرن، اطمینان حاصل می‌کند که لینک‌های شما فقط در دسترس افرادی هستند که اجازه دسترسی دارند.",
       points: [
@@ -43,7 +44,7 @@ export default function FeatureDetailPage() {
     },
     analytics: {
       icon: BarChart2,
-      title: "آمار و تحلیل دقیق کلیک‌ها",
+      title: "آمار دقیق",
       subtitle: "می‌دانید چه کسانی روی لینک‌های شما کلیک می‌کنند",
       desc: "دیگر حدس زدن کافی نیست. با داشبورد تحلیلی لینک رسان، اطلاعات دقیقی از کلیک‌های خود به دست آورید تا بتوانید کمپین‌های مارکتینگ خود را بهینه‌سازی کنید.",
       points: [
@@ -60,7 +61,7 @@ export default function FeatureDetailPage() {
     },
     ai: {
       icon: Wand2,
-      title: "هوش مصنوعی (AI)",
+      title: "هوش مصنوعی",
       subtitle: "تولید خودکار نام لینک با Llama 3.3",
       desc: "دیگر نیازی به فکر کردن برای انتخاب نام لینک نیست. لینک رسان با استفاده از پیشرفته‌ترین مدل‌های هوش مصنوعی، لینک شما را تحلیل کرده و بهترین نام کوتاه، سئوپسند و جذاب را در کمتر از ۱ ثانیه پیشنهاد می‌دهد.",
       points: [
@@ -93,8 +94,16 @@ export default function FeatureDetailPage() {
     <main className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
       <div className="absolute top-4 left-4"><ThemeToggle /></div>
 
+      {/* لوگوی لینک رسان در بالاترین نقطه */}
+      <header className="w-full pt-8 pb-4 flex justify-center">
+        <Link href="/" className="inline-flex items-center gap-2 cursor-pointer">
+          <Link2 className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+          <span className="text-xl font-bold tracking-tight">لینک رسان</span>
+        </Link>
+      </header>
+
       {/* Hero Section */}
-      <section className="w-full max-w-4xl mx-auto px-4 pt-24 pb-12 text-center">
+      <section className="w-full max-w-4xl mx-auto px-4 pt-8 pb-12 text-center">
         <div className={`inline-block p-4 rounded-2xl mb-6 ${slug === 'security' ? 'bg-red-50 dark:bg-gray-800' : slug === 'ai' ? 'bg-purple-50 dark:bg-gray-800' : 'bg-indigo-50 dark:bg-gray-800'} border border-gray-100 dark:border-gray-700`}>
           <feature.icon className={`w-10 h-10 ${slug === 'security' ? 'text-red-500' : slug === 'ai' ? 'text-purple-600 dark:text-purple-400' : 'text-indigo-600 dark:text-indigo-400'}`} />
         </div>
@@ -144,7 +153,7 @@ export default function FeatureDetailPage() {
         <div className="text-center">
           <button 
             onClick={() => router.push(feature.ctaLink)}
-            className={`inline-flex items-center gap-2 h-14 px-10 font-bold rounded-xl transition-colors cursor-pointer ${feature.color}`}
+            className={`inline-flex items-center gap-2 h-14 px-10 font-bold rounded-xl transition-colors cursor-pointer text-white ${feature.color}`}
           >
             {feature.cta}
             <ArrowLeft className="w-5 h-5" />

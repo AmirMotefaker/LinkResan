@@ -24,11 +24,9 @@ export default function Home() {
   const [userPlan, setUserPlan] = useState("free");
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginMsg, setShowLoginMsg] = useState(false);
-  
   const [customCode, setCustomCode] = useState("");
   const [showCustomField, setShowCustomField] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
-  
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [expirationDate, setExpirationDate] = useState<any>(null);
   const [clickLimit, setClickLimit] = useState("");
@@ -38,7 +36,6 @@ export default function Home() {
   const [utmCampaign, setUtmCampaign] = useState("");
   const [domains, setDomains] = useState<any[]>([]);
   const [selectedDomain, setSelectedDomain] = useState<string>("linkresan.ir");
-
   const router = useRouter();
 
   useEffect(() => {
@@ -90,10 +87,10 @@ export default function Home() {
   const handleLogout = () => { localStorage.removeItem("token"); localStorage.removeItem("plan"); localStorage.removeItem("is_admin"); setIsLoggedIn(false); setUserPlan("free"); setIsAdmin(false); setShortUrl(""); setDomains([]); setSelectedDomain("linkresan.ir"); };
 
   const features = [
-    { slug: "speed", icon: Zap, title: "ریدایرکت سریع", desc: "استفاده از Redis برای کسری از ثانیه" },
-    { slug: "security", icon: Shield, title: "امنیت بالا", desc: "احراز هویت پیشرفته با JWT" },
-    { slug: "analytics", icon: BarChart2, title: "آمار دقیق", desc: "تحلیل کلیک‌ها و دستگاه‌ها" },
-    { slug: "ai", icon: Wand2, title: "هوش مصنوعی", desc: "تولید نام لینک در کمتر از ۱ ثانیه" },
+    { slug: "speed", icon: Zap, title: "ریدایرکت سریع", desc: "استفاده از Redis برای ریدایرکت در کسری از ثانیه" },
+    { slug: "security", icon: Shield, title: "امنیت بالا", desc: "ابزار کوتاه کردن لینک با احراز هویت پیشرفته و رمزگذاری" },
+    { slug: "analytics", icon: BarChart2, title: "آمار دقیق", desc: "تحلیل دقیق کلیک‌های لینک کوتاه و دستگاه‌های کاربران" },
+    { slug: "ai", icon: Wand2, title: "هوش مصنوعی", desc: "تولید نام لینک کوتاه با هوش مصنوعی در کمتر از ۱ ثانیه" },
   ];
   const canUseAdvanced = isAdmin || ["basic", "pro", "enterprise"].includes(userPlan);
 
@@ -102,7 +99,6 @@ export default function Home() {
       
       <header className="w-full max-w-7xl mx-auto flex justify-between items-center py-3 flex-shrink-0">
         <div className="flex items-center gap-8">
-          {/* لوگو و شعار اصلی - وسط چین شده */}
           <div onClick={() => router.push("/")} className="flex flex-col items-center cursor-pointer">
             <div className="flex items-center gap-2">
               <Link2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400" />
@@ -112,7 +108,6 @@ export default function Home() {
           </div>
           
           <nav className="hidden lg:flex items-center gap-6">
-            {/* محصولات */}
             <div className="relative group">
               <button className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer relative">
                 <span className="relative">محصولات<span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span></span>
@@ -197,10 +192,9 @@ export default function Home() {
       </header>
 
       <section className="flex-grow w-full max-w-2xl flex flex-col items-center justify-center text-center">
-        {/* تیتر اصلی با فاصله مناسب */}
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-2 sm:mb-3">کوتاه‌کننده لینک حرفه‌ای رایگان</h1>
-        {/* شعار جدید زیر تیتر */}
         <p className="text-sm sm:text-base md:text-lg text-indigo-600 dark:text-indigo-400 font-bold mb-4 sm:mb-6 max-w-xl">لینک‌هایت رو هوشمندانه کوتاه کن!</p>
+        <p className="hidden sm:block text-xs sm:text-sm md:text-base text-gray-500 dark:text-gray-400 mb-4 sm:mb-6 max-w-xl">با لینک رسان، بهترین ابزار کوتاه کردن لینک ایرانی، لینک‌های طولانی خود را به لینک‌های کوتاه، امن و قابل اندازه‌گیری تبدیل کنید.</p>
 
         <form onSubmit={handleShorten} className="w-full flex flex-col items-center">
           {isLoggedIn && domains.length > 0 && (
@@ -269,15 +263,16 @@ export default function Home() {
         )}
       </section>
 
+      {/* بخش امکانات تبدیل شده به لینک */}
       <section className="w-full max-w-5xl grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-6 text-center mb-2 flex-shrink-0">
         {features.map((feature, index) => (
-          <div key={index} onClick={() => router.push(`/features/${feature.slug}`)} className="flex flex-col items-center p-1 cursor-pointer group">
+          <Link key={index} href={`/features/${feature.slug}`} className="flex flex-col items-center p-1 cursor-pointer group">
             <div className="bg-indigo-50 dark:bg-gray-800 p-2 sm:p-3 rounded-2xl mb-1 sm:mb-2 border border-indigo-100 dark:border-gray-700 group-hover:scale-110 transition-transform">
               <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600 dark:text-indigo-400" />
             </div>
             <h2 className="text-xs sm:text-sm font-bold mb-0.5 tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{feature.title}</h2>
             <p className="hidden sm:block text-gray-500 dark:text-gray-400 text-xs leading-relaxed max-w-xs">{feature.desc}</p>
-          </div>
+          </Link>
         ))}
       </section>
 
