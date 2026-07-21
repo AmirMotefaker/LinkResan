@@ -310,8 +310,18 @@ export default function Home() {
         ))}
       </section>
 
-      <footer className="pb-6 text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 text-center flex-shrink-0 whitespace-nowrap">
-        ساخته شده با ❤️ برای توسعه‌دهندگان ایرانی توسط <a href="https://amirmotefaker.ir/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-500 hover:text-red-600 transition-colors">امیر متفکر</a> - <a href="https://github.com/AmirMotefaker/LinkResan" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">لینک رسان</a>
+      <footer className="pb-6 text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 text-center flex flex-col items-center gap-2 flex-shrink-0">
+        {/* نماد اعتماد الکترونیک (اینماد) */}
+        <div className="flex justify-center mb-1">
+          <a referrerPolicy="origin" target="_blank" href="https://trustseal.enamad.ir/?id=760944&Code=qYSe4t5KZAFku">
+            <img referrerPolicy="origin" src="https://TrustSeal.enamad.ir/logo.aspx?id=760944&Code=qYSe4t5KZAFku" alt="نماد اعتماد الکترونیک" style={{ cursor: "pointer" }} className="w-20 h-auto" />
+          </a>
+        </div>
+        
+        {/* متن فوتر */}
+        <div className="whitespace-nowrap">
+          ساخته شده با ❤️ برای توسعه‌دهندگان ایرانی توسط <a href="https://amirmotefaker.ir/" target="_blank" rel="noopener noreferrer" className="font-bold text-red-500 hover:text-red-600 transition-colors">امیر متفکر</a> - <a href="https://github.com/AmirMotefaker/LinkResan" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">لینک رسان</a>
+        </div>
       </footer>
     </main>
   );
