@@ -24,7 +24,7 @@ type LinkService interface {
     CreateShortLink(userID uint, originalURL, customCode, password string, expiresAt *time.Time, clickLimit *int, domainID *uint) (*models.Link, error)
     BulkCreateShortLinks(userID uint, urls []string) ([]models.Link, error)
     GetLinkByCode(shortCode, host string) (*models.Link, error)
-    TrackClick(linkID uint, userID uint, ipAddress, userAgent, referrer string) // تغییر کرد
+    TrackClick(linkID uint, userID uint, ipAddress, userAgent, referrer string)
     GetUserLinks(userID uint) ([]models.Link, error)
     DeleteLink(userID uint, linkID uint) error
     GetAnalytics(userID uint) ([]repositories.DailyClickData, error)
@@ -35,10 +35,14 @@ type linkService struct {
     linkRepo       repositories.LinkRepository
     domainRepo     repositories.DomainRepository
     redisClient    *redis.Client
-    webhookService WebhookService // اضافه شد
+    webhookService WebhookService // می‌تواند nil باشد
 }
 
-// آپدیت شد: webhookService تزریق شد
+// تغییر کرد: webhookService به عنوان اینترفیس قبول می‌شود
+type WebhookService interface {
+    TriggerWebhooks(userID uint, clickData map[string]interface{})
+}
+
 func NewLinkService(linkRepo repositories.LinkRepository, domainRepo repositories.DomainRepository, rdb *redis.Client, webhookService WebhookService) LinkService {
     return &linkService{linkRepo: linkRepo, domainRepo: domainRepo, redisClient: rdb, webhookService: webhookService}
 }
@@ -169,7 +173,7 @@ func (s *linkService) GetLinkByCode(shortCode, host string) (*models.Link, error
     return link, nil
 }
 
-// آپدیت شد: userID اضافه شد و وب‌هوک ارسال می‌شود
+// تغییر کرد: بررسی nil بودن webhookService
 func (s *linkService) TrackClick(linkID uint, userID uint, ipAddress, userAgent, referrer string) {
     browser, device := parseUserAgent(userAgent)
     
@@ -185,7 +189,6 @@ func (s *linkService) TrackClick(linkID uint, userID uint, ipAddress, userAgent,
     _ = s.linkRepo.CreateClick(click)
     _ = s.linkRepo.IncrementClickCount(linkID)
 
-    // ارسال رویداد به وب‌هوک‌ها
     if userID > 0 && s.webhookService != nil {
         clickData := map[string]interface{}{
             "event":      "click",

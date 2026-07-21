@@ -21,7 +21,7 @@ func main() {
     rdb := cache.ConnectRedis(cfg)
 
     app := fiber.New(fiber.Config{
-        AppName:      "LinkResan API v1.0",
+        AppName:      "LinkResan API v1.0 (Community)",
         ServerHeader: "Fiber",
     })
 
@@ -36,19 +36,14 @@ func main() {
     userRepo := repositories.NewUserRepository(database.DB)
     domainRepo := repositories.NewDomainRepository(database.DB)
     bioRepo := repositories.NewBioRepository(database.DB)
-    paymentRepo := repositories.NewPaymentRepository(database.DB)
-    webhookRepo := repositories.NewWebhookRepository(database.DB)
-    apiKeyRepo := repositories.NewApiKeyRepository(database.DB)
 
     // --- Services ---
-    webhookService := services.NewWebhookService(webhookRepo)
-    linkService := services.NewLinkService(linkRepo, domainRepo, rdb, webhookService)
+    // تغییر کرد: webhookService و apiKeyService برابر nil قرار داده شدند
+    linkService := services.NewLinkService(linkRepo, domainRepo, rdb, nil)
     authService := services.NewAuthService(userRepo, cfg)
     domainService := services.NewDomainService(domainRepo)
     bioService := services.NewBioService(bioRepo)
-    paymentService := services.NewPaymentService(paymentRepo, cfg)
-    apiKeyService := services.NewApiKeyService(apiKeyRepo)
-    aiService := services.NewAIService(cfg.GroqAPIKey) // تغییر کرد به GroqAPIKey
+    aiService := services.NewAIService(cfg.GroqAPIKey)
     cronService := services.NewCronService(linkRepo, userRepo)
     cronService.Start()
 
@@ -57,81 +52,51 @@ func main() {
     authHandler := handlers.NewAuthHandler(authService)
     domainHandler := handlers.NewDomainHandler(domainService, authService)
     bioHandler := handlers.NewBioHandler(bioService)
-    paymentHandler := handlers.NewPaymentHandler(paymentService, authService)
-    webhookHandler := handlers.NewWebhookHandler(webhookService)
-    apiKeyHandler := handlers.NewApiKeyHandler(apiKeyService)
     aiHandler := handlers.NewAIHandler(aiService)
-    docsHandler := handlers.NewDocsHandler()
 
     // --- Routes ---
     api := app.Group("/api")
 
     api.Get("/health", func(c *fiber.Ctx) error {
-        return c.JSON(fiber.Map{"status": "success", "message": "LinkResan API is running perfectly!"})
+        return c.JSON(fiber.Map{"status": "success", "message": "LinkResan Community API is running!"})
     })
-
-    // API Documentation Routes (Swagger)
-    app.Get("/docs", docsHandler.SwaggerUI)
-    api.Get("/docs/openapi.json", docsHandler.GetOpenAPISpec)
 
     // AI Routes
     api.Post("/ai/suggest-slug", aiHandler.SuggestSlug)
 
-    // Auth & Password Reset Routes
+    // Auth Routes
     api.Post("/register", authHandler.Register)
     api.Post("/login", authHandler.Login)
     api.Post("/google-login", authHandler.GoogleLogin)
     api.Post("/forgot-password", authHandler.ForgotPassword)
     api.Post("/reset-password", authHandler.ResetPassword)
 
-    // Payment Routes
-    api.Post("/payment/request", middleware.Protected(authService, apiKeyService), paymentHandler.RequestPayment)
-    api.Get("/payment/verify", paymentHandler.VerifyPayment)
+    // User Routes
+    api.Get("/me", middleware.Protected(authService, nil), authHandler.GetMe)
+    api.Put("/me", middleware.Protected(authService, nil), authHandler.UpdateProfile)
+    api.Post("/change-password", middleware.Protected(authService, nil), authHandler.ChangePassword)
 
-    // User & Team Routes (Protected)
-    api.Get("/me", middleware.Protected(authService, apiKeyService), authHandler.GetMe)
-    api.Put("/me", middleware.Protected(authService, apiKeyService), authHandler.UpdateProfile)
-    api.Post("/change-password", middleware.Protected(authService, apiKeyService), authHandler.ChangePassword)
-    api.Post("/team/create", middleware.Protected(authService, apiKeyService), authHandler.CreateTeam)
-    api.Post("/team/invite", middleware.Protected(authService, apiKeyService), authHandler.InviteUser)
-    api.Get("/team/members", middleware.Protected(authService, apiKeyService), authHandler.GetTeamMembers)
+    // Link Routes
+    api.Post("/links", middleware.Protected(authService, nil), linkHandler.CreateShortLink)
+    api.Post("/links/bulk", middleware.Protected(authService, nil), linkHandler.BulkCreateLinks)
+    api.Get("/links", middleware.Protected(authService, nil), linkHandler.GetUserLinks)
+    api.Get("/links/analytics", middleware.Protected(authService, nil), linkHandler.GetAnalytics)
+    api.Get("/links/stats", middleware.Protected(authService, nil), linkHandler.GetClickStats)
+    api.Delete("/links/:id", middleware.Protected(authService, nil), linkHandler.DeleteLink)
 
-    // Admin Routes (Protected)
-    api.Get("/admin/stats", middleware.Protected(authService, apiKeyService), authHandler.GetAdminStats)
-    api.Get("/admin/users", middleware.Protected(authService, apiKeyService), authHandler.GetAllUsers)
+    // Domain Routes
+    api.Post("/domains", middleware.Protected(authService, nil), domainHandler.CreateDomain)
+    api.Get("/domains", middleware.Protected(authService, nil), domainHandler.GetUserDomains)
+    api.Delete("/domains/:id", middleware.Protected(authService, nil), domainHandler.DeleteDomain)
 
-    // Protected Link Routes
-    api.Post("/links", middleware.Protected(authService, apiKeyService), linkHandler.CreateShortLink)
-    api.Post("/links/bulk", middleware.Protected(authService, apiKeyService), linkHandler.BulkCreateLinks)
-    api.Get("/links", middleware.Protected(authService, apiKeyService), linkHandler.GetUserLinks)
-    api.Get("/links/analytics", middleware.Protected(authService, apiKeyService), linkHandler.GetAnalytics)
-    api.Get("/links/stats", middleware.Protected(authService, apiKeyService), linkHandler.GetClickStats)
-    api.Delete("/links/:id", middleware.Protected(authService, apiKeyService), linkHandler.DeleteLink)
+    // Bio Routes
+    api.Get("/bio", middleware.Protected(authService, nil), bioHandler.GetMyBio)
+    api.Put("/bio", middleware.Protected(authService, nil), bioHandler.UpdateBio)
+    api.Post("/bio/links", middleware.Protected(authService, nil), bioHandler.AddBioLink)
+    api.Delete("/bio/links/:id", middleware.Protected(authService, nil), bioHandler.DeleteBioLink)
 
-    // Protected Domain Routes
-    api.Post("/domains", middleware.Protected(authService, apiKeyService), domainHandler.CreateDomain)
-    api.Get("/domains", middleware.Protected(authService, apiKeyService), domainHandler.GetUserDomains)
-    api.Delete("/domains/:id", middleware.Protected(authService, apiKeyService), domainHandler.DeleteDomain)
-
-    // Protected Bio Routes
-    api.Get("/bio", middleware.Protected(authService, apiKeyService), bioHandler.GetMyBio)
-    api.Put("/bio", middleware.Protected(authService, apiKeyService), bioHandler.UpdateBio)
-    api.Post("/bio/links", middleware.Protected(authService, apiKeyService), bioHandler.AddBioLink)
-    api.Delete("/bio/links/:id", middleware.Protected(authService, apiKeyService), bioHandler.DeleteBioLink)
-
-    // Public Bio Routes
     api.Get("/bio/:slug", bioHandler.GetPublicBio)
     api.Post("/bio/links/track/:id", bioHandler.TrackBioLink)
-
-    // Webhooks Routes (Protected)
-    api.Post("/webhooks", middleware.Protected(authService, apiKeyService), webhookHandler.CreateWebhook)
-    api.Get("/webhooks", middleware.Protected(authService, apiKeyService), webhookHandler.GetUserWebhooks)
-    api.Delete("/webhooks/:id", middleware.Protected(authService, apiKeyService), webhookHandler.DeleteWebhook)
-
-    // API Keys Routes (Protected)
-    api.Post("/api-keys", middleware.Protected(authService, apiKeyService), apiKeyHandler.CreateApiKey)
-    api.Get("/api-keys", middleware.Protected(authService, apiKeyService), apiKeyHandler.GetApiKeys)
-    api.Delete("/api-keys/:id", middleware.Protected(authService, apiKeyService), apiKeyHandler.DeleteApiKey)
 
     // Public Link Resolution Routes
     api.Get("/links/info/:code", linkHandler.GetLinkInfo)

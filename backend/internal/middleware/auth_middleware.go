@@ -10,10 +10,10 @@ import (
 
 var jwtKey = []byte("linkresan_super_secret_key_2024")
 
-// آپدیت شد: apiKeyService برای بررسی کلیدهای API اضافه شد
+// تغییر کرد: apiKeyService می‌تواند nil باشد
 func Protected(authService services.AuthService, apiKeyService services.ApiKeyService) fiber.Handler {
     return func(c *fiber.Ctx) error {
-        // ۱. ابتدا بررسی توکن JWT (برای کاربران مرورگر)
+        // ۱. بررسی توکن JWT
         authHeader := c.Get("Authorization")
         if authHeader != "" {
             tokenString := strings.Split(authHeader, " ")
@@ -36,9 +36,9 @@ func Protected(authService services.AuthService, apiKeyService services.ApiKeySe
             }
         }
 
-        // ۲. اگر توکن نبود، بررسی کلید API (برای توسعه‌دهندگان)
+        // ۲. بررسی کلید API (اگر سرویس وجود داشت)
         apiKey := c.Get("X-API-Key")
-        if apiKey != "" {
+        if apiKey != "" && apiKeyService != nil {
             userID, err := apiKeyService.ValidateApiKey(apiKey)
             if err == nil {
                 c.Locals("user_id", float64(userID))
