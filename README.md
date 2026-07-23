@@ -4,7 +4,7 @@
   <img src="https://capsule-render.vercel.app/api?type=waving&color=0:4F46E5,50:7C3AED,100:DB2777&height=230&section=header&text=LinkResan&fontSize=72&fontColor=FFFFFF&animation=fadeIn&fontAlignY=35&desc=Fast%20%C2%B7%20Open-Source%20%C2%B7%20Persian-First%20URL%20Shortener&descAlignY=57&descSize=18" width="100%" alt="LinkResan — Persian-first open-source URL shortener" />
 </a>
 
-# 🔗 لینک‌رسا | LinkResan
+# 🔗 لینک‌رسان | LinkResan
 
 ### پلتفرم متن‌باز کوتاه‌سازی، مدیریت و تحلیل لینک برای کاربران فارسی‌زبان
 
